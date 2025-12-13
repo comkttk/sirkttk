@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lesson Video — Chapter / Question / Part Player</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    :root{
+      --bg:#f4f7fb; --card:#fff; --muted:#6b7280; --accent:#1a73e8; --radius:12px;
+    }
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,var(--bg),#eef4ff 120%);color:#082032}
+
+    /* Blue Navigation Belt */
+    .nav-belt {
+      background: #1a73e8;
+      padding: 12px 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .nav-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 18px;
+    }
+    .nav-brand {
+      color: white;
+      font-size: 20px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+
+    .wrap{max-width:1100px;margin:28px auto;padding:18px;}
+    .card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:0 8px 28px rgba(14,30,60,0.06)}
+    h1{margin:0 0 8px;font-size:20px}
+    p.lead{margin:0 0 14px;color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:1fr 420px;gap:18px}
+    @media(max-width:1000px){.grid{grid-template-columns:1fr}}
+    /* left form */
+    .form{display:grid;gap:10px}
+    label.field{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+    input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #e6edf8;background:#fbfdff;font-size:14px;outline:none}
+    .row{display:flex;gap:10px}
+    .row > *{flex:1}
+    .actions{display:flex;gap:10px;align-items:center;margin-top:8px}
+    .btn{background:linear-gradient(180deg,var(--accent),#155db8);color:white;border:0;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer}
+    .btn.secondary{background:transparent;border:1px solid #e6edf8;color:var(--muted);padding:9px 12px}
+    .ctrls-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+    /* right preview */
+    .preview{display:flex;flex-direction:column;gap:10px}
+    .video-area{position:relative;background:#000;border-radius:8px;overflow:hidden;min-height:240px;display:flex;align-items:center;justify-content:center}
+    .video-area iframe{width:100%;height:360px;border:0;display:block}
+    @media(max-width:1000px){.video-area iframe{height:240px}}
+    .match-info{font-size:13px;color:var(--muted)}
+    .footer{margin-top:10px;font-size:12px;color:var(--muted)}
+    /* focus overlay */
+    .focus-overlay{position:fixed;inset:0;background:#000;z-index:99999;display:flex;align-items:center;justify-content:center;padding:12px;opacity:0;transition:opacity .18s}
+    .focus-overlay.show{opacity:1}
+    .focus-video{width:100%;height:100%;max-height:100%;display:flex;align-items:center;justify-content:center}
+    .focus-video iframe{width:100%;height:100%;border:0}
+    .fs-exit-btn{position:fixed;top:12px;right:12px;z-index:100000;background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.18);padding:10px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+    .hidden{display:none!important}
+  </style>
+</head>
+<body>
+  <!-- Blue Navigation Belt -->
+  <div class="nav-belt">
+    <div class="nav-container">
+      <a href="10th.html" class="nav-brand">Ejaz Academy</a>
+      <div class="nav-links">
+        <a href="10th.html">Home</a>
+        <a href="classes.html">Classes</a>
+        <a href="signup.html">Sign Up</a>
+        <a href="login.html">Log In</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="card" id="appCard">
+      <div class="grid">
+        <!-- LEFT: controls -->
+        <div>
+          <h1>Lesson Video Finder</h1>
+          <p class="lead">Enter Chapter, Question and Part to find a matching clip. Click <strong>Play</strong>. Use <strong>Focus</strong> to view video only (fullscreen-like).</p>
+          <div class="form" id="leftForm">
+            <div>
+              <label class="field" for="txtChapter">Chapter</label>
+              <input id="txtChapter" placeholder="e.g. 1.1 or 3" inputmode="decimal" />
+            </div>
+            <div class="row">
+              <div>
+                <label class="field" for="txtQuestion">Question</label>
+                <input id="txtQuestion" placeholder="e.g. 1" inputmode="numeric" />
+              </div>
+              <div>
+                <label class="field" for="txtPart">Part</label>
+                <input id="txtPart" placeholder="e.g. A or 1" inputmode="numeric" />
+              </div>
+            </div>
+            <div class="row">
+              <div>
+                <label class="field" for="speedSel">Playback speed</label>
+                <select id="speedSel">
+                  <option value="1">1x</option>
+                  <option value="1.25">1.25x</option>
+                  <option value="1.5">1.5x</option>
+                  <option value="2">2x</option>
+                </select>
+              </div>
+              <div>
+                <label class="field" for="startOffset">Start (sec)</label>
+                <input id="startOffset" placeholder="optional" />
+              </div>
+            </div>
+            <div class="actions">
+              <button id="cmdPlay" class="btn">▶ Play</button>
+              <button id="clearBtn" class="btn secondary">Clear</button>
+              <div class="ctrls-right">
+                <button id="focusBtn" class="btn secondary" title="Focus (video only)">⤢ Focus</button>
+              </div>
+            </div>
+            <div class="footer">Sample dataset loaded. You can replace <code>sampleVideoLinks</code> in the code with your own list.</div>
+          </div>
+        </div>
+        <!-- RIGHT: preview -->
+        <div class="preview">
+          <div class="video-area" id="videoArea">
+            <iframe id="videoFrame" allowfullscreen title="Lesson video" style="display:none;"></iframe>
+            <div id="emptyState" style="padding:18px;color:#e6eefc;text-align:center">
+              <div style="font-size:18px;margin-bottom:8px;color:var(--muted)">No video loaded</div>
+              <div style="color:var(--muted)">Enter Chapter / Question / Part and click <strong>Play</strong>.</div>
+            </div>
+          </div>
+          <div class="match-info" id="matchInfo">Ready.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Focus overlay -->
+  <div id="focusOverlay" class="focus-overlay hidden" aria-hidden="true">
+    <div class="focus-video" id="focusVideoWrap"></div>
+    <button id="fsExitBtn" class="fs-exit-btn">✕ Exit Focus</button>
+  </div>
+<script>
+/* =======================
+   Sample dataset
+   format: [chapter, question, part, youtubeURL, startSec, endSecOrEmpty]
+   (You can add or replace these rows)
+   ======================= */
+const sampleVideoLinks = [
+["1.1","0","0","https://www.youtube.com/watch?v=Jukw_gYrp0E","62",""],
+["1.1","1","0","https://www.youtube.com/watch?v=Jukw_gYrp0E","62","1636"],
+["1.1","1","1","https://www.youtube.com/watch?v=Jukw_gYrp0E","62","553"],
+["1.1","1","2","https://www.youtube.com/watch?v=WDPAjnz22mU","856","1617"],
+["1.1","1","3","https://www.youtube.com/watch?v=Jukw_gYrp0E","555","853"],
+["1.1","1","4","https://www.youtube.com/watch?v=Jukw_gYrp0E","855","1217"],
+["1.1","1","5","https://www.youtube.com/watch?v=Jukw_gYrp0E","1219","1636"],
+["1.1","2","1","https://www.youtube.com/watch?v=FnK9m9ES0hU","13","630"],
+["1.1","2","2","https://www.youtube.com/watch?v=ZR8hJBxZGk4","29","552"],
+["1.1","2","3","https://www.youtube.com/watch?v=FnK9m9ES0hU","640","1027"],
+["1.1","2","4","https://www.youtube.com/watch?v=ZR8hJBxZGk4","571","958"],
+["1.1","2","5","https://www.youtube.com/watch?v=FnK9m9ES0hU","1029","1490"],
+["1.1","2","6","https://www.youtube.com/watch?v=ZR8hJBxZGk4","977","1584"],
+["1.1","0","0","https://www.youtube.com/watch?v=VPr4LbU_wls","30","645"],
+["1.1","3","1","https://www.youtube.com/watch?v=uJldNfXqQk8","19","313"],
+["1.1","3","2","https://www.youtube.com/watch?v=VPr4LbU_wls","679","1035"],
+["1.1","3","3","https://www.youtube.com/watch?v=uJldNfXqQk8","314","525"],
+["1.1","3","4","https://www.youtube.com/watch?v=uJldNfXqQk8","534","965"],
+["1.1","3","5","https://www.youtube.com/watch?v=uJldNfXqQk8","972","1275"],
+["1.1","3","6","https://www.youtube.com/watch?v=uJldNfXqQk8","1280","1665"],
+["1.1","4","1","https://www.youtube.com/watch?v=16tsnKSH1Gw","108","418"],
+["1.1","4","2","https://www.youtube.com/watch?v=pW4Ykw9Va4w","490","658"],
+["1.1","4","3","https://www.youtube.com/watch?v=16tsnKSH1Gw","419","822"],
+["1.1","4","4","https://www.youtube.com/watch?v=ewWoQw8O0bA","66","453"],
+["1.1","5","0","https://www.youtube.com/watch?v=ewWoQw8O0bA","511","902"],
+["1.1","6","0","https://www.youtube.com/watch?v=ewWoQw8O0bA","925","1504"],
+["1.2","1","1","https://www.youtube.com/watch?v=K-Izfkd_XiM","32","599"],
+["1.2","1","2","https://www.youtube.com/watch?v=2aYEAwTH0_4","16","541"],
+["1.2","1","3","https://www.youtube.com/watch?v=K-Izfkd_XiM","941","1401"],
+["1.2","1","4","https://www.youtube.com/watch?v=K-Izfkd_XiM","14","602"],
+["1.2","1","5","https://www.youtube.com/watch?v=K-Izfkd_XiM","603","995"],
+["1.2","1","6","https://www.youtube.com/watch?v=2aYEAwTH0_4","597","1575"],
+["1.2","1","7","https://www.youtube.com/watch?v=7mSkZ9n9yN8","21","1341"],
+["1.2","1","8","https://www.youtube.com/watch?v=DBmHZCGzULw","417","725"],
+["1.2","1","9","https://www.youtube.com/watch?v=z_e7dxHYVJ8","946","1782"],
+["1.2","1","10","https://www.youtube.com/watch?v=whyX3VZmP8g","4","535"],
+["1.2","1","11","https://www.youtube.com/watch?v=0-pqxkyIwdc","1432","2077"],
+["1.2","1","12","https://www.youtube.com/watch?v=whyX3VZmP8g","536","1083"],
+["1.2","1","13","https://www.youtube.com/watch?v=qipVNXo8ON4","8","959"],
+["1.2","1","14","https://www.youtube.com/watch?v=tfOg7UHCLIY","1","247"],
+["1.2","1","15","https://www.youtube.com/watch?v=m_mX863unuM","21","766"],
+["1.2","2","0","https://www.youtube.com/watch?v=APfvOPxzNQ","11","726"],
+["1","3","1","https://www.youtube.com/watch?v=dEa4MmHnBYM","5","311"],
+["1.3","1","1","https://www.youtube.com/watch?v=dEa4MmHnBYM","312","865"],
+["1.3","1","2","https://www.youtube.com/watch?v=-QByDTw567E","728","1123"],
+["1.3","1","3","https://www.youtube.com/watch?v=-QByDTw567E","1124","1530"],
+["1.3","1","4","https://www.youtube.com/watch?v=dEa4MmHnBYM","868","1423"],
+["1.3","1","5","https://www.youtube.com/watch?v=FRCZiZ90MNo","18","790"],
+["1.3","1","6","https://www.youtube.com/watch?v=FRCZiZ90MNo","790","1263"],
+["1.3","1","7","https://www.youtube.com/watch?v=GYFTdBv2wfM","580","1036"],
+["1.3","1","8","https://www.youtube.com/watch?v=FRCZiZ90MNo","2130","2896"],
+["1.3","1","9","https://www.youtube.com/watch?v=GYFTdBv2wfM","1107","1331"],
+["1.3","1","10","https://www.youtube.com/watch?v=8HaH6iN65kU","1","393"],
+["1.3","2","0","https://www.youtube.com/watch?v=GYFTdBv2wfM","1374","1737"],
+["1.03","2","0","https://www.youtube.com/watch?v=_IeI_1QSDqU","1","1072"],
+["1","23","0","https://www.youtube.com/watch?v=_IeI_1QSDqU&list=PL8nFkAarFvdTXyDlh5c9eMiU34EoDEhXd&index=15","1","1072"],
+["1","1","1","https://www.youtube.com/watch?v=1yaPzTU8XzE&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=1","49","1045"],
+["1","1","2","https://www.youtube.com/watch?v=1yaPzTU8XzE&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=1","1046","1573"],
+["1","22","0","https://www.youtube.com/watch?v=9uabzRIdw0g&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=16","81","1055"],
+["2","1","1","https://www.youtube.com/watch?v=kwVdTVeNTp8&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=18","14","2261"],
+["2.1","1","1","https://www.youtube.com/watch?v=9slpAfVmT7k&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=19","25","535"],
+["2.1","1","2","https://www.youtube.com/watch?v=BH6LF33Q7ak&list=PL8nFkAarFvdTXyDlh5c9eMiU34EoDEhXd&index=17","397","441"],
+["2.1","1","3","https://www.youtube.com/watch?v=m1YlahLIPes","161","245"],
+["2.1","2","1","https://www.youtube.com/watch?v=m1YlahLIPes","246","532"],
+["2.1","2","2","https://www.youtube.com/watch?v=9slpAfVmT7k&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=19","569","806"],
+["2.1","2","3","https://www.youtube.com/watch?v=m1YlahLIPes","625","701"],
+["2.1","3","1","https://www.youtube.com/watch?v=m1YlahLIPes","703","802"],
+["2.1","3","2","https://www.youtube.com/watch?v=BH6LF33Q7ak&list=PL8nFkAarFvdTXyDlh5c9eMiU34EoDEhXd&index=17","740","795"],
+["2.1","3","3","https://www.youtube.com/watch?v=9slpAfVmT7k&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=19","828","1029"],
+["2.1","4","1","https://www.youtube.com/watch?v=9slpAfVmT7k&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=19","1039","1395"],
+["2.1","4","2","https://www.youtube.com/watch?v=BH6LF33Q7ak&list=PL8nFkAarFvdTXyDlh5c9eMiU34EoDEhXd&index=17","995","1130"],
+["2.1","4","3","https://www.youtube.com/watch?v=BH6LF33Q7ak&list=PL8nFkAarFvdTXyDlh5c9eMiU34EoDEhXd&index=17","1131","1300"],
+["2.1","5","1","https://www.youtube.com/watch?v=BH6LF33Q7ak&list=PL8nFkAarFvdTXyDlh5c9eMiU34EoDEhXd&index=17","1301","1636"],
+["2.1","5","2","https://www.youtube.com/watch?v=9slpAfVmT7k&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=19","1457","1968"],
+["2.1","5","3","https://www.youtube.com/watch?v=9slpAfVmT7k&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=19","2023","2146"],
+["2.1","6","1","https://www.youtube.com/watch?v=9slpAfVmT7k&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=19","2276","2577"],
+["2.1","6","2","https://www.youtube.com/watch?v=9slpAfVmT7k&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=19","2013","2502"],
+["2.1","6","3","https://www.youtube.com/watch?v=9slpAfVmT7k&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=19","2830","2977"],
+["2","2","1","https://www.youtube.com/watch?v=ZecEgoENjro&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=20","28","1436"],
+["2","2","2","https://www.youtube.com/watch?v=g37vmx0E8NU","22","337"],
+["2.2","1","1","https://www.youtube.com/watch?v=g37vmx0E8NU","344","627"],
+["2.2","1","2","https://www.youtube.com/watch?v=g37vmx0E8NU","628","865"],
+["2.2","1","3","https://www.youtube.com/watch?v=lIW_VuFu5bI&list=PL8nFkAarFvdTXyDlh5c9eMiU34EoDEhXd&index=9","1070","1515"],
+["2.2","2","1","https://www.youtube.com/watch?v=g37vmx0E8NU","1423","1536"],
+["2.2","2","2","https://www.youtube.com/watch?v=g37vmx0E8NU","1537","1641"],
+["2.2","2","3","https://www.youtube.com/watch?v=g37vmx0E8NU","1642","1760"],
+["2.2","3","1","https://www.youtube.com/watch?v=fil4yb_fc5Q&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=22","77","528"],
+["2.2","3","2","https://www.youtube.com/watch?v=g37vmx0E8NU","1927","2630"],
+["2.2","4","1","https://www.youtube.com/watch?v=fil4yb_fc5Q&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=22","927","1316"],
+["2.2","4","2","https://www.youtube.com/watch?v=g37vmx0E8NU&list=PLYH8IA4I9_hy3iU0jWUBczvizPmj42DNP&index=17","2478","2643"],
+["2","3","1","https://www.youtube.com/watch?v=zDQU3GkJQ-8&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=23","13","488"],
+["2.3","1","1","https://www.youtube.com/watch?v=6lgQ-7yl3qQ&list=PLYH8IA4I9_hy3iU0jWUBczvizPmj42DNP","331","451"],
+["2.3","1","2","https://www.youtube.com/watch?v=zDQU3GkJQ-8&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=23","534","640"],
+["2.3","1","3","https://www.youtube.com/watch?v=6lgQ-7yl3qQ&list=PLYH8IA4I9_hy3iU0jWUBczvizPmj42DNP","619","664"],
+["2.3","2","0","https://www.youtube.com/watch?v=zDQU3GkJQ-8&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=23","693","941"],
+["2.3","3","0","https://www.youtube.com/watch?v=zDQU3GkJQ-8&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=23","1020","1369"],
+["2.3","4","0","https://www.youtube.com/watch?v=zDQU3GkJQ-8&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=23","1437","1768"],
+["2.3","5","0","https://www.youtube.com/watch?v=Gh5I3fmw33s&list=PL8nFkAarFvdTXyDlh5c9eMiU34EoDEhXd&index=18","1197","1384"],
+["2.3","6","0","https://www.youtube.com/watch?v=zDQU3GkJQ-8&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=23","2061","2477"],
+["2.3","7","0","https://www.youtube.com/watch?v=zDQU3GkJQ-8&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=23","2540","2790"],
+["2","4","1","https://www.youtube.com/watch?v=tgDQbsXy9Fg&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=24","51","163"],
+["2","4","2","https://www.youtube.com/watch?v=MhhcTZfzYSo","447","934"],
+["2","4","3","https://www.youtube.com/watch?v=MhhcTZfzYSo","949","1010"],
+["2.4","1","1","https://www.youtube.com/watch?v=MhhcTZfzYSo","1","315"],
+["2.4","1","2","https://www.youtube.com/watch?v=MhhcTZfzYSo","316","446"],
+["2.4","2","1","https://www.youtube.com/watch?v=tgDQbsXy9Fg&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=24","913","1153"],
+["2.4","2","2","https://www.youtube.com/watch?v=MhhcTZfzYSo","1130","1191"],
+["2.4","2","3","https://www.youtube.com/watch?v=tgDQbsXy9Fg&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=24","1186","1376"],
+["2.4","2","4","https://www.youtube.com/watch?v=MhhcTZfzYSo","1255","1318"],
+["2.4","3","0","https://www.youtube.com/watch?v=tgDQbsXy9Fg&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=24","1412","1943"],
+["2.4","4","1","https://www.youtube.com/watch?v=MhhcTZfzYSo","2216","2383"],
+["2.4","4","2","https://www.youtube.com/watch?v=b0_fEZ78gh8&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=25","109","392"],
+["2.4","4","3","https://www.youtube.com/watch?v=MhhcTZfzYSo","2507","2680"],
+["2.4","5","0","https://www.youtube.com/watch?v=oIvkFO9H348&list=PLjsK1wEUu5rQw1_sg8giir9EelE_lyrC9&index=21","11","1026"],
+["2.4","6","0","https://www.youtube.com/watch?v=MhhcTZfzYSo","2932","3259"],
+["2","5","1","https://www.youtube.com/watch?v=ezWd4kRzwos","37","537"],
+["2.5","1","1","https://www.youtube.com/watch?v=-l4bYDXEssM","66","527"],
+["2.5","1","2","https://www.youtube.com/watch?v=-l4bYDXEssM","527","387"],
+["2.5","1","3","https://www.youtube.com/watch?v=tdgPdiorkkw&list=PL8nFkAarFvdTXyDlh5c9eMiU34EoDEhXd&index=20","378","525"],
+["2.5","2","0","https://www.youtube.com/watch?v=tdgPdiorkkw&list=PL8nFkAarFvdTXyDlh5c9eMiU34EoDEhXd&index=20","528","759"],
+["2.5","3","0","https://www.youtube.com/watch?v=tdgPdiorkkw&list=PL8nFkAarFvdTXyDlh5c9eMiU34EoDEhXd&index=20","766","1097"],
+["2.5","4","0","https://www.youtube.com/watch?v=nN0mTuK3sKI&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=26","1910","2356"],
+["2.5","5","0","https://www.youtube.com/watch?v=kePSJhHWuoc&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=27","80","525"],
+["2.5","6","0","https://www.youtube.com/watch?v=kePSJhHWuoc&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=27","586","1072"],
+["2","6","1","https://www.youtube.com/watch?v=7hyHnaJO2ZM","1","207"],
+["2.6","1","1","https://www.youtube.com/watch?v=59Wk4Sjq4gw&list=PL8nFkAarFvdTXyDlh5c9eMiU34EoDEhXd&index=21","31","795"],
+["2.6","1","2","https://www.youtube.com/watch?v=2ETruxSdZPA","292","537"],
+["2.6","1","3","https://www.youtube.com/watch?v=59Wk4Sjq4gw&list=PL8nFkAarFvdTXyDlh5c9eMiU34EoDEhXd&index=21","985","1193"],
+["2.6","1","4","https://www.youtube.com/watch?v=3Xc2FfOsMCk&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=28","757","1353"],
+["2.6","1","5","https://www.youtube.com/watch?v=59Wk4Sjq4gw&list=PL8nFkAarFvdTXyDlh5c9eMiU34EoDEhXd&index=21","1558","1891"],
+["2.6","1","6","https://www.youtube.com/watch?v=59Wk4Sjq4gw&list=PL8nFkAarFvdTXyDlh5c9eMiU34EoDEhXd&index=21","1892","2169"],
+["2.6","1","7","https://www.youtube.com/watch?v=3Xc2FfOsMCk&list=PLv545kl7hXZzwTmr1OhprpPKsRVOkd4Gq&index=28","1415","2020"],
+["2.6","2","1","https://www.youtube.com/watch?v=59Wk4Sjq4gw&list=PL8nFkAarFvdTXyDlh5c9eMiU34EoDEhXd&index=21","2486","2742"],
+["2.6","2","2","https://www.youtube.com/watch?v=59Wk4Sjq4gw&list=PL8nFkAarFvdTXyDlh5c9eMiU34EoDEhXd&index=21","2743","3031"],
+["2","7","1","https://www.youtube.com/watch?v=Ji2YNBygbfE","19","55"],
+["2.7","1","0","https://www.youtube.com/watch?v=Ji2YNBygbfE","94","397"],
+["2.7","2","0","https://www.youtube.com/watch?v=Ji2YNBygbfE","400","884"],
+["2.7","3","0","https://www.youtube.com/watch?v=Ji2YNBygbfE","886","1234"],
+["2.7","4","0","https://www.youtube.com/watch?v=Ji2YNBygbfE","1236","1658"],
+["2.7","5","0","https://www.youtube.com/watch?v=Ji2YNBygbfE","1660","2045"],
+["2.7","6","0","https://www.youtube.com/watch?v=AnvwBoFNU0Q","1227","1408"],
+["2.7","7","0","https://www.youtube.com/watch?v=aKIeU7cwT6Q","24","295"],
+["2.7","8","0","https://www.youtube.com/watch?v=SZypbFdNVwI","1128","1605"],
+["2.7","9","0","https://www.youtube.com/watch?v=SZypbFdNVwI","1619","1938"],
+["2.7","10","0","https://www.youtube.com/watch?v=QkaZO_24fQw","6","533"],
+["6","1","1","https://www.youtube.com/watch?v=mJ3ZEdDIbYg","96","940"],
+["6","1","2","https://www.youtube.com/watch?v=GVc_kQzWK04","31","3962"],
+["6.1","1","0","https://www.youtube.com/watch?v=mJ3ZEdDIbYg","1000","2078"],
+["6.1","2","0","https://www.youtube.com/watch?v=gGjwDyaWJmk","671","1095"],
+["6.1","3","0","https://www.youtube.com/watch?v=J1Wf-aojNCI","27","850"],
+["6.1","4","0","https://www.youtube.com/watch?v=J1Wf-aojNCI","859","2304"],
+["6.1","5","0","https://www.youtube.com/watch?v=RtsxqKnpCWc","11","356"],
+["6","2","1","https://www.youtube.com/watch?v=yKVVBbfNDLo","49","1531"],
+["6.2","1","0","https://www.youtube.com/watch?v=pGnunJuu9uk","47","1423"],
+["6.2","2","0","https://www.youtube.com/watch?v=mPxpnxAwg88","1219","1406"],
+["6.2","3","0","https://www.youtube.com/watch?v=mPxpnxAwg88","1407","1798"],
+["6.2","4","0","https://www.youtube.com/watch?v=QWS9hrddOHs","277","1441"],
+["6.2","5","5","https://www.youtube.com/watch?v=QWS9hrddOHs","1295","1441"],
+["6.2","6","0","https://www.youtube.com/watch?v=I8eBQbB2nFk","12","537"],
+["6","3","1","https://www.youtube.com/watch?v=EEIzvprq8g4","30","442"],
+["6","3","2","https://www.youtube.com/watch?v=-a5Xx4ckzwI","28","231"],
+["6.3","1","0","https://www.youtube.com/watch?v=-a5Xx4ckzwI","233","701"],
+["6.3","2","0","https://www.youtube.com/watch?v=qLZROdfj9Cc","554","877"],
+["6.3","3","0","https://www.youtube.com/watch?v=qLZROdfj9Cc","878","1082"],
+["6.3","4","0","https://www.youtube.com/watch?v=qLZROdfj9Cc","1083","1496"],
+["6.3","5","1","https://www.youtube.com/watch?v=ySueup6QFVg","21","761"],
+["6.3","5","2","https://www.youtube.com/watch?v=ySueup6QFVg","578","761"],
+["6.3","6","0","https://www.youtube.com/watch?v=qLZROdfj9Cc","2102","2611"],
+["6.3","7","0","https://www.youtube.com/watch?v=qLZROdfj9Cc","2612","3011"],
+["6.3","8","0","https://www.youtube.com/watch?v=qLZROdfj9Cc","3014","4498"],
+["6.3","9","0","https://www.youtube.com/watch?v=qLZROdfj9Cc","4499","5930"],
+["6","4","1","https://www.youtube.com/watch?v=BUBwNDF0qoY","21","133"],
+["6.4","1","0","https://www.youtube.com/watch?v=BUBwNDF0qoY","134","211"],
+["6.4","2","0","https://www.youtube.com/watch?v=AwT86C0hImA","1","903"],
+["6.4","3","0","https://www.youtube.com/watch?v=5ZrWNhRq5Qc","1143","1650"],
+["6.4","4","0","https://www.youtube.com/watch?v=5ZrWNhRq5Qc","1651","2188"],
+["6.4","5","0","https://www.youtube.com/watch?v=5ZrWNhRq5Qc","2189","2883"],
+["6.4","6","0","https://www.youtube.com/watch?v=5ZrWNhRq5Qc","2884","3183"],
+["6","22","0","https://www.youtube.com/watch?v=wCV4CpJNuwY&list=PLv545kl7hXZxQRg-8tL__Adx9zboEhF68&index=18","49","1838"],
+["7","1","1","https://www.youtube.com/watch?v=5vXIG3voCE4","20","790"],
+["7","1","2","https://www.youtube.com/watch?v=rcYEZiggfcQ","49","2730"],
+["7.1","1","1","https://www.youtube.com/watch?v=5vXIG3voCE4","827","1085"],
+["7.1","1","2","https://www.youtube.com/watch?v=nDDl1Xmt-hg","293","382"],
+["7.1","1","3","https://www.youtube.com/watch?v=_aOA4oEuYVE&list=PLFyrFM3wXg6w5RHGeJj0bXcLRbX9WGOE0&index=1","492","583"],
+["7.1","2","1","https://www.youtube.com/watch?v=nDDl1Xmt-hg&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=2","564","658"],
+["7.1","2","2","https://www.youtube.com/watch?v=nDDl1Xmt-hg&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=2","659","754"],
+["7.1","2","3","https://www.youtube.com/watch?v=nDDl1Xmt-hg&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=2","755","888"],
+["7.1","2","4","https://www.youtube.com/watch?v=nDDl1Xmt-hg&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=2","889","977"],
+["7","1","3","https://www.youtube.com/watch?v=5vXIG3voCE4&t=1088s","1694","2402"],
+["7.1","3","1","https://www.youtube.com/watch?v=5vXIG3voCE4&t=1088s","2471","2609"],
+["7.1","3","2","https://www.youtube.com/watch?v=nDDl1Xmt-hg&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=2","1138","1185"],
+["7.1","3","3","https://www.youtube.com/watch?v=nDDl1Xmt-hg&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=2","1186","1226"],
+["7.1","3","4","https://www.youtube.com/watch?v=5vXIG3voCE4&t=1088s","2622","2704"],
+["7.1","4","1","https://www.youtube.com/watch?v=5vXIG3voCE4&t=1088s","2722","2816"],
+["7.1","4","2","https://www.youtube.com/watch?v=nDDl1Xmt-hg&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=2","1371","1405"],
+["7.1","4","3","https://www.youtube.com/watch?v=nDDl1Xmt-hg&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=2","1405","1450"],
+["7.1","4","4","https://www.youtube.com/watch?v=5vXIG3voCE4&t=1088s","2835","3157"],
+["6","22","0","https://www.youtube.com/watch?v=wCV4CpJNuwY&list=PLv545kl7hXZxQRg-8tL__Adx9zboEhF68&index=18","49","1838"],
+["7","1","1","https://www.youtube.com/watch?v=5vXIG3voCE4","20","790"],
+["7","1","2","https://www.youtube.com/watch?v=rcYEZiggfcQ","49","2730"],
+["7.1","1","1","https://www.youtube.com/watch?v=5vXIG3voCE4","827","1085"],
+["7.1","1","2","https://www.youtube.com/watch?v=nDDl1Xmt-hg","293","382"],
+["7.1","1","3","https://www.youtube.com/watch?v=nDDl1Xmt-hg","383","489"],
+["7.1","1","4","https://www.youtube.com/watch?v=_aOA4oEuYVE&list=PLFyrFM3wXg6w5RHGeJj0bXcLRbX9WGOE0&index=1","492","583"],
+["7.1","2","1","https://www.youtube.com/watch?v=nDDl1Xmt-hg&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=2","564","658"],
+["7.1","2","2","https://www.youtube.com/watch?v=nDDl1Xmt-hg&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=2","659","754"],
+["7.1","2","3","https://www.youtube.com/watch?v=nDDl1Xmt-hg&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=2","755","888"],
+["7.1","2","4","https://www.youtube.com/watch?v=nDDl1Xmt-hg&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=2","889","977"],
+["7","1","3","https://www.youtube.com/watch?v=5vXIG3voCE4&t=1088s","1694","2402"],
+["7.1","3","1","https://www.youtube.com/watch?v=5vXIG3voCE4&t=1088s","2471","2609"],
+["7.1","3","2","https://www.youtube.com/watch?v=nDDl1Xmt-hg&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=2","1138","1185"],
+["7.1","3","3","https://www.youtube.com/watch?v=nDDl1Xmt-hg&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=2","1186","1226"],
+["7.1","3","4","https://www.youtube.com/watch?v=5vXIG3voCE4&t=1088s","2622","2704"],
+["7.1","4","1","https://www.youtube.com/watch?v=5vXIG3voCE4&t=1088s","2722","2816"],
+["7.1","4","2","https://www.youtube.com/watch?v=nDDl1Xmt-hg&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=2","1371","1405"],
+["7.1","4","3","https://www.youtube.com/watch?v=nDDl1Xmt-hg&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=2","1405","1450"],
+["7.1","4","4","https://www.youtube.com/watch?v=5vXIG3voCE4&t=1088s","2835","3157"],
+["7","2","1","https://www.youtube.com/watch?v=AQDllJoZkA0","20","420"],
+["7.2","1","1","https://www.youtube.com/watch?v=AQDllJoZkA0","440","689"],
+["7.2","1","2","https://www.youtube.com/watch?v=i3rRTQTL3LQ","126","230"],
+["7.2","1","3","https://www.youtube.com/watch?v=AQDllJoZkA0","690","778"],
+["7.2","2","1","https://www.youtube.com/watch?v=AQDllJoZkA0","792","943"],
+["7.2","2","2","https://www.youtube.com/watch?v=wbpi4VRmmso&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=3","2253","2281"],
+["7.2","2","3","https://www.youtube.com/watch?v=wbpi4VRmmso&list=PL8nFkAarFvdTufgvVsnD899P-JfFYnhAR&index=3","2282","2337"],
+["7.2","3","1","https://www.youtube.com/watch?v=AQDllJoZkA0&t=957s","938","1114"],
+["7.2","3","2","https://www.youtube.com/watch?v=AQDllJoZkA0&t=957s","1140","1258"],
+["7.2","3","3","https://www.youtube.com/watch?v=AQDllJoZkA0&t=957s","1268","1374"],
+["7.2","4","0","https://www.youtube.com/watch?v=AQDllJoZkA0&t=957s","1403","3973"],
+  // add your own rows here...
+];
+/* =======================
+   DOM refs
+   ======================= */
+const txtChapter = document.getElementById('txtChapter');
+const txtQuestion = document.getElementById('txtQuestion');
+const txtPart = document.getElementById('txtPart');
+const cmdPlay = document.getElementById('cmdPlay');
+const clearBtn = document.getElementById('clearBtn');
+const focusBtn = document.getElementById('focusBtn');
+const speedSel = document.getElementById('speedSel');
+const startOffset = document.getElementById('startOffset');
+const videoFrame = document.getElementById('videoFrame');
+const emptyState = document.getElementById('emptyState');
+const matchInfo = document.getElementById('matchInfo');
+const focusOverlay = document.getElementById('focusOverlay');
+const focusVideoWrap = document.getElementById('focusVideoWrap');
+const fsExitBtn = document.getElementById('fsExitBtn');
+function norm(s){ return String(s||'').trim().toLowerCase(); }
+function extractYouTubeID(url){
+  if (!url) return '';
+  url = url.trim();
+  const vMatch = url.match(/[?&]v=([^&]+)/);
+  if (vMatch) return vMatch[1];
+  const short = url.match(/youtu\.be\/([^?&]+)/);
+  if (short) return short[1];
+  const emb = url.match(/\/embed\/([^?&]+)/);
+  if (emb) return emb[1];
+  const seg = url.split('/').filter(Boolean).pop();
+  if (seg && seg.length>=6) return seg.split('?')[0].split('&')[0];
+  return '';
+}
+/* Build embed URL with enablejsapi=1 so we can control playbackRate via postMessage */
+function buildEmbedURL(youtubeURL, start, end){
+  const vid = extractYouTubeID(youtubeURL);
+  if (!vid) return '';
+  let src = `https://www.youtube.com/embed/${vid}?autoplay=1&rel=0&playsinline=1&enablejsapi=1`;
+  if (start) src += `&start=${parseInt(start||0,10)}`;
+  if (end) src += `&end=${parseInt(end||0,10)}`;
+  // hint for better quality
+  src += `&vq=hd1080`;
+  return src;
+}
+/* Apply playback speed by posting to iframe (YouTube iframe API accepts setPlaybackRate via postMessage when enablejsapi=1) */
+function applyPlaybackRateToIframe(iframeEl, rate){
+  try {
+    // postMessage expects a JS object; some players accept stringified JSON
+    const msg = JSON.stringify({ event: 'command', func: 'setPlaybackRate', args: [parseFloat(rate)] });
+    iframeEl.contentWindow.postMessage(msg, '*');
+  } catch (e){
+    // ignore silently
+  }
+}
+/* Find matching video by chapter/question/part (strict match) */
+function findMatch(chapter,question,part){
+  chapter = norm(chapter);
+  question = norm(question);
+  part = norm(part);
+  for (const r of sampleVideoLinks){
+    const A = norm(r[0]||''); // chapter
+    const B = norm(r[1]||''); // question
+    const C = norm(r[2]||''); // part
+    if (A === chapter && B === question && C === part) return r;
+  }
+  return null;
+}
+/* Play button logic */
+cmdPlay.addEventListener('click', ()=>{
+  const chapter = txtChapter.value;
+  const question = txtQuestion.value;
+  const part = txtPart.value;
+  const startManual = startOffset.value.trim();
+  // try to find sample match
+  const found = findMatch(chapter, question, part);
+  if (!found){
+    alert('No matching video found in sample dataset. Either add a matching row to sampleVideoLinks or paste a direct YouTube link into the code.');
+    matchInfo.textContent = 'No match found.';
+    return;
+  }
+  const url = found[3] || '';
+  // decide start: manual override field wins if present, else dataset value
+  const startSec = startManual ? startManual : (found[4] || '');
+  const endSec = found[5] || '';
+  const embedSrc = buildEmbedURL(url, startSec, endSec);
+  if (!embedSrc){
+    alert('Invalid YouTube link in dataset.');
+    matchInfo.textContent = 'Invalid YouTube URL.';
+    return;
+  }
+  // load into iframe
+  videoFrame.src = embedSrc;
+  videoFrame.style.display = 'block';
+  emptyState.style.display = 'none';
+  matchInfo.textContent = `Match found — start: ${startSec || 0}s; end: ${endSec || 'end'}.`;
+  // when iframe loads, set playback rate
+  videoFrame.onload = ()=> {
+    // small delay to ensure the player is ready to accept commands
+    setTimeout(()=> applyPlaybackRateToIframe(videoFrame, speedSel.value), 700);
+  };
+});
+/* Clear */
+clearBtn.addEventListener('click', ()=>{
+  txtChapter.value = '';
+  txtQuestion.value = '';
+  txtPart.value = '';
+  startOffset.value = '';
+  videoFrame.src = '';
+  videoFrame.style.display = 'none';
+  emptyState.style.display = 'block';
+  matchInfo.textContent = 'Cleared.';
+});
+/* Speed change while video loaded */
+speedSel.addEventListener('change', ()=>{
+  applyPlaybackRateToIframe(videoFrame, speedSel.value);
+});
+/* ======================
+   Focus / Fullscreen logic
+   - clones iframe src into overlay to avoid moving the existing iframe (prevents playback interruption in some browsers)
+   - tries Fullscreen API for the overlay element; if denied, the overlay still covers the viewport
+   ====================== */
+function createFocusIframeClone(){
+  const src = videoFrame.src || '';
+  const ifr = document.createElement('iframe');
+  ifr.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen";
+  ifr.allowFullscreen = true;
+  ifr.src = src;
+  ifr.style.border = '0';
+  ifr.style.width = '100%';
+  ifr.style.height = '100%';
+  return ifr;
+}
+async function enterFocusMode(){
+  if (!videoFrame.src){
+    alert('No video loaded. Play a video first.');
+    return;
+  }
+  // clear previous
+  focusVideoWrap.innerHTML = '';
+  const clone = createFocusIframeClone();
+  focusVideoWrap.appendChild(clone);
+  focusOverlay.classList.remove('hidden');
+  focusOverlay.classList.add('show');
+  focusOverlay.setAttribute('aria-hidden', 'false');
+  // apply current speed to clone after load
+  clone.onload = ()=> setTimeout(()=> applyPlaybackRateToIframe(clone, speedSel.value), 700);
+  // try Fullscreen API on overlay
+  const el = focusOverlay;
+  const request = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+  if (request){
+    try {
+      await request.call(el);
+      // success - done
+    } catch (e){
+      // failed - but overlay is visible so still useful
+    }
+  }
+}
+async function exitFocusMode(){
+  // exit fullscreen if active
+  const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+  if (exit && (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement)){
+    try { await exit.call(document); } catch (e) { /* ignore */ }
+  }
+  focusOverlay.classList.remove('show');
+  focusOverlay.classList.add('hidden');
+  focusOverlay.setAttribute('aria-hidden', 'true');
+  focusVideoWrap.innerHTML = '';
+}
+/* click handlers */
+focusBtn.addEventListener('click', enterFocusMode);
+fsExitBtn.addEventListener('click', exitFocusMode);
+/* close on ESC or fullscreen change */
+document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape' || e.key === 'Esc') exitFocusMode(); });
+document.addEventListener('fullscreenchange', ()=> {
+  if (!document.fullscreenElement) exitFocusMode();
+});
+/* Prevent wheel scroll behind overlay */
+document.addEventListener('wheel', (e)=>{
+  if (!focusOverlay.classList.contains('hidden')) e.preventDefault();
+}, { passive:false });
+/* initialize UI */
+matchInfo.textContent = 'Sample data loaded. Example: Chapter=1.1, Question=1, Part=0';
+</script>
+</body>
+</html>

@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lesson Video Finder — Focus Mode</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Blue Navigation Belt */
+    .nav-belt {
+      background: #1a73e8;
+      color: white;
+      padding: 12px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand {
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 18px;
+    }
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --accent: #1a73e8;
+      --accent-600: #155db8;
+      --radius: 12px;
+      --shadow: 0 6px 18px rgba(23,43,77,0.08);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      -webkit-font-smoothing: antialiased;
+    }
+    body {
+      background: linear-gradient(180deg, var(--bg), #eef4ff 120%);
+      color: #0f172a;
+    }
+    /* Layout Styles */
+    .wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 18px;
+      gap: 18px;
+    }
+    .card {
+      width: 100%;
+      max-width: 1200px;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 1fr 480px;
+      gap: 18px;
+      align-items: start;
+    }
+    @media (max-width:1100px) {
+      .card { grid-template-columns: 1fr; }
+    }
+    /* Left Panel Styles */
+    .left h1 {
+      margin: 0 0 6px 0;
+      font-weight: 700;
+      font-size: 20px;
+    }
+    .left p.lead {
+      margin: 0 0 12px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    label.field {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    select, input[type="text"] {
+      width: 100%;
+      padding: 11px;
+      border-radius: 10px;
+      border: 1px solid #e6edf8;
+      background: #fbfdff;
+      font-size: 14px;
+      outline: none;
+    }
+    select:focus, input:focus {
+      box-shadow: 0 6px 18px rgba(26,115,232,0.12);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .full {
+      grid-column: 1 / -1;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+      align-items: center;
+    }
+    .btn {
+      background: linear-gradient(180deg, var(--accent), var(--accent-600));
+      color: white;
+      border: 0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 8px 28px rgba(26,115,232,0.16);
+    }
+    .btn.secondary {
+      background: transparent;
+      border: 1px solid #e6edf8;
+      color: var(--muted);
+      padding: 9px 12px;
+    }
+    .ctrls-right {
+      margin-left: auto;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    /* Right Panel Styles */
+    .right {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .preview {
+      background: linear-gradient(180deg, #fbfdff, #f8fbff);
+      border-radius: 10px;
+      padding: 12px;
+      border: 1px solid #ebf2ff;
+      min-height: 240px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: stretch;
+    }
+    .meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .pill {
+      background: #eef6ff;
+      color: var(--accent-600);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid #e0efff;
+    }
+    .video-area {
+      position: relative;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .video-area iframe {
+      width: 100%;
+      height: 360px;
+      border: 0;
+    }
+    @media (max-width:1100px) {
+      .video-area iframe { height: 240px; }
+    }
+    .emptyState {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .match-info {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 6px 0;
+    }
+    /* Fullscreen overlay styles */
+    .focus-overlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      transition: opacity 0.18s;
+    }
+    .focus-video {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .focus-video iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    @media (max-width:1100px) {
+      .focus-video iframe { height: 100%; }
+    }
+    /* Exit button styles */
+    .fs-exit-btn {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 100000;
+      background: rgba(255,255,255,0.08);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.18);
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      font-weight: 600;
+    }
+    .fs-exit-btn:hover {
+      background: rgba(255,255,255,0.12);
+    }
+    /* Utility classes */
+    .footer {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    a.link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- Blue Navigation Belt -->
+  <div class="nav-belt">
+    <div class="nav-container">
+      <a href="10th.html" class="nav-brand">Ejaz Academy</a>
+      <div class="nav-links">
+        <a href="10th.html">Home</a>
+        <a href="classes.html">Classes</a>
+        <a href="signup.html">Sign Up</a>
+        <a href="login.html">Log In</a>
+      </div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="card" role="application" id="appCard">
+      <!-- Left Panel: Controls -->
+      <div class="left" id="leftPanel">
+        <h1>KPK Physics Class 10th</h1>
+        <p class="lead">Select Medium, Units, Contents. Click <strong>Play</strong> to load the clip. Use <strong>Focus</strong> to view video only.</p>
+        <div class="form-grid" id="form">
+          <div>
+            <label class="field" for="cboMedium">Medium</label>
+            <select id="cboMedium" aria-label="Medium"></select>
+          </div>
+          <div>
+            <label class="field" for="cboUnits">Units</label>
+            <select id="cboUnits" aria-label="Units"></select>
+          </div>
+          <div>
+            <label class="field" for="cboContents">Contents</label>
+            <select id="cboContents" aria-label="Contents"></select>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="cmdPlay" class="btn">▶ Play</button>
+          <button id="clearBtn" class="btn secondary">Clear</button>
+          <div class="ctrls-right">
+            <button id="focusBtn" class="btn secondary" title="Focus (video only)">⤢ Focus</button>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="small-muted">Sample demo data loaded. To use CSVs from Drive, tell me and I’ll add that option.</div>
+        </div>
+      </div>
+      <!-- Right Panel: Video & Info -->
+      <div class="right">
+        <div class="preview">
+          <div class="meta">
+            <div class="pill" id="metaMedium">Medium —</div>
+            <div class="pill" id="metaUnits">Units —</div>
+            <div class="pill" id="metaContents">Contents —</div>
+          </div>
+          <div class="video-area" id="videoArea">
+            <div id="videoContainer" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+              <iframe id="videoFrame" allowfullscreen title="Lesson video" style="display:none;"></iframe>
+              <div id="emptyState" class="emptyState">
+                <div style="font-size:18px; margin-bottom:8px;">No video loaded</div>
+                <div style="color:var(--muted)">Choose values and click <strong>Play</strong>.</div>
+              </div>
+            </div>
+          </div>
+          <div class="match-info" id="matchInfo">Ready.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Fullscreen focus overlay -->
+  <div id="focusOverlay" class="hidden" aria-hidden="true">
+    <div class="focus-overlay" id="focusOverlayInner" style="opacity:0;">
+      <div class="focus-video" id="focusVideoWrap"></div>
+      <button id="fsExitBtn" class="fs-exit-btn" aria-label="Exit fullscreen">✕ Exit Focus</button>
+    </div>
+  </div>
+  <script>
+    /* Data array: Each object contains Unit, Contents, Medium, Link, Start, End */
+    const dataTable = [
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "10.1 Oscillation or Vibration",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=7dSsBWvGqFE&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX",
+        "Start": 10,
+        "End": 915
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "EXAMPLE 10.1 Frequency of Oscillation",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=EPZQC3hxXDI&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=2",
+        "Start": 25,
+        "End": 163
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "ASSIGNMENT 10.1 Period of Oscillation",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=EPZQC3hxXDI&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=2",
+        "Start": 196,
+        "End": 275
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "10.2 Simple Harmonic Motion (SHM)",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=qbYsNjBhKS0&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=3",
+        "Start": 35,
+        "End": 740
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "10.3 Motion of Mass Attached to a Spring",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=i9LIIZPDmJQ&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=4",
+        "Start": 10,
+        "End": 714
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "Example 10.2 SPRING RESTORING FORCE",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=U8DFitq6PpU&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=5",
+        "Start": 10,
+        "End": 266
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "ASSIGNMENT 10.2 SPRING RESTORING FORCE",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=U8DFitq6PpU&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=5",
+        "Start": 267,
+        "End": 419
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "EXAMPLE 10.3 MASS OF OSCILLATING SPRING MASS SYSTEM",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=E3r1tBcegXY&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=6",
+        "Start": 10,
+        "End": 402
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "ASSIGNMENT 10.3 TIME PERIOD OF MASS SPRING SYSTEM",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=E3r1tBcegXY&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=6",
+        "Start": 403,
+        "End": 636
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "10.4 Simple Pendulum",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=lAbXKscZ2BM&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=7",
+        "Start": 10,
+        "End": 1066
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "Example 10.4 Restoring Force of Simple Pendulum",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=-J07uoXLQCM&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=8",
+        "Start": 25,
+        "End": 349
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "Assignment 10.4 Calculating Angle",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=-J07uoXLQCM&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=8",
+        "Start": 354,
+        "End": 573
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "Example 10.5 Determining Gravitational Field Strength",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=dlAIgefxp7o&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=9",
+        "Start": 24,
+        "End": 390
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "Assignment 10.5 Gravitational Field Strength at Everest",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=dlAIgefxp7o&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=9",
+        "Start": 395,
+        "End": 619
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "10.5 Damping",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=oj2p4kgj7JI&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=10",
+        "Start": 10,
+        "End": 901
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "10.6 Nature of Waves and Their Types",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=fisHAQsTfy4&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=11",
+        "Start": 10,
+        "End": 1281
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "10.6 Nature of Waves and Their Types (Characteristics of Waves)",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=mmXRM_fK4W4&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=12",
+        "Start": 10,
+        "End": 885
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "Example 10.6 Wave Speed",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=v1xKTqL4igg&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=13",
+        "Start": 25,
+        "End": 180
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "Assignment 10.6 Wavelength of Sound",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=v1xKTqL4igg&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=13",
+        "Start": 186,
+        "End": 352
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "10.7 Properties of Waves",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=xMHr782rI-E&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=14",
+        "Start": 10,
+        "End": 1595
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "EXAMPLE 10.3 MASS OF OSCILLATING SPRING MASS SYSTEM",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=E3r1tBcegXY&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=6",
+        "Start": 10,
+        "End": 402
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "ASSIGNMENT 10.3 TIME PERIOD OF MASS SPRING SYSTEM",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=E3r1tBcegXY&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=6",
+        "Start": 403,
+        "End": 636
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "10.4 Simple Pendulum",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=lAbXKscZ2BM&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=7",
+        "Start": 10,
+        "End": 1066
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "Example 10.4 Restoring Force of Simple Pendulum",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=-J07uoXLQCM&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=8",
+        "Start": 25,
+        "End": 349
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "Assignment 10.4 Calculating Angle",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=-J07uoXLQCM&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=8",
+        "Start": 354,
+        "End": 573
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "Example 10.5 Determing Gravitational Field Strength",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=dlAIgefxp7o&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=9",
+        "Start": 24,
+        "End": 390
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "Assignment 10.5 Gravitational Field Strength at Everst",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=dlAIgefxp7o&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=9",
+        "Start": 395,
+        "End": 619
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "10.5 Damping",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=oj2p4kgj7JI&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=10",
+        "Start": 10,
+        "End": 901
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "10.6 Nature of Waves and Their Types",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=fisHAQsTfy4&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=11",
+        "Start": 10,
+        "End": 1281
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "10.6 Nature of Waves and Their Types (Characteriitc of Waves)",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=mmXRM_fK4W4&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=12",
+        "Start": 10,
+        "End": 885
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "Example 10.6 Wave Speed",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=v1xKTqL4igg&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=13",
+        "Start": 25,
+        "End": 180
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "Assignment 10.6 Wavelength of Sound",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=v1xKTqL4igg&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=13",
+        "Start": 186,
+        "End": 352
+      },
+      {
+        "Unit": "Unit 10: Simple Harmonic Motion and Waves",
+        "Contents": "10.7 Properties of Waves",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=xMHr782rI-E&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=14",
+        "Start": 10,
+        "End": 1595
+      },
+      {
+        "Unit": "Unit 11: Sound",
+        "Contents": "11.1 Sound Waves",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=Ug9qp9-jPtM&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=20",
+        "Start": 10,
+        "End": 1089
+      },
+      {
+        "Unit": "Unit 11: Sound",
+        "Contents": "11.2 Characteristics of Sound",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=ltokVihAMdM&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=21",
+        "Start": 10,
+        "End": 637
+      },
+      {
+        "Unit": "Unit 11: Sound",
+        "Contents": "11.3 Sound Intensity",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=JiCcNwy8PVs&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=22",
+        "Start": 10,
+        "End": 1630
+      },
+      {
+        "Unit": "Unit 11: Sound",
+        "Contents": "Example 11.1 Show that if one sound…..(36)",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=DFMsiiAk65s&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=23",
+        "Start": 10,
+        "End": 421
+      },
+      {
+        "Unit": "Unit 11: Sound",
+        "Contents": "Assignment 11.1 suppose that when …… (37)",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=DFMsiiAk65s&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=23",
+        "Start": 426,
+        "End": 541
+      },
+      {
+        "Unit": "Unit 11: Sound",
+        "Contents": "Music and Sound ……(37)",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=q1gtV66SbGg&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=24",
+        "Start": 10,
+        "End": 581
+      },
+      {
+        "Unit": "Unit 11: Sound",
+        "Contents": "11.4 Speed of Sound",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=KmQXbANttl8&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=25",
+        "Start": 10,
+        "End": 578
+      },
+      {
+        "Unit": "Unit 11: Sound",
+        "Contents": "Exapmle 11.2 You are ……… (38)",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=6prbuTZqcxQ&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=26",
+        "Start": 25,
+        "End": 333
+      },
+      {
+        "Unit": "Unit 11: Sound",
+        "Contents": "Assignment 11.2 Lighting ------- (39)",
+        "Medium": "Course",
+        "Link": "https://www.youtube.com/watch?v=6prbuTZqcxQ&list=PLIt_q9LcM-9VTotDIeMenTnWLnRCIIlLX&index=26",
+        "Start": 338,
+        "End": 481
+      }
+    ];
+    /* DOM references */
+    const cboMedium = document.getElementById('cboMedium');
+    const cboUnits = document.getElementById('cboUnits');
+    const cboContents = document.getElementById('cboContents');
+    const cmdPlay = document.getElementById('cmdPlay');
+    const clearBtn = document.getElementById('clearBtn');
+    const focusBtn = document.getElementById('focusBtn');
+    const videoFrame = document.getElementById('videoFrame');
+    const emptyState = document.getElementById('emptyState');
+    const matchInfo = document.getElementById('matchInfo');
+    const metaMedium = document.getElementById('metaMedium');
+    const metaUnits = document.getElementById('metaUnits');
+    const metaContents = document.getElementById('metaContents');
+    const focusOverlay = document.getElementById('focusOverlay');
+    const focusOverlayInner = document.getElementById('focusOverlayInner');
+    const focusVideoWrap = document.getElementById('focusVideoWrap');
+    const fsExitBtn = document.getElementById('fsExitBtn');
+    /* Utility functions */
+    function populateSelect(sel, items, defaultItem){
+      sel.innerHTML = '';
+      // Add default option
+      const defOpt = document.createElement('option');
+      defOpt.value = '';
+      defOpt.textContent = '-- Select --';
+      sel.appendChild(defOpt);
+      // Add items
+      items.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v;
+        opt.textContent = v;
+        sel.appendChild(opt);
+      });
+      // Set default selection
+      sel.value = defaultItem || '';
+    }
+    /* Extract unique Mediums and Units for initial dropdowns */
+    const mediums = Array.from(new Set(dataTable.map(d => d.Medium)));
+    populateSelect(cboMedium, mediums, mediums[0]);
+    const units = Array.from(new Set(dataTable.map(d => d.Unit)));
+    populateSelect(cboUnits, units, units[0]);
+    /* Populate Contents based on selected Unit */
+    function populateContents() {
+      const selectedUnit = cboUnits.value;
+      const contents = dataTable
+        .filter(d => d.Unit === selectedUnit)
+        .map(d => d.Contents);
+      const uniqueContents = Array.from(new Set(contents));
+      cboContents.innerHTML = '';
+      uniqueContents.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        cboContents.appendChild(opt);
+      });
+    }
+    /* Initialize contents on load */
+    populateContents();
+    /* Update Contents when Unit changes */
+    cboUnits.addEventListener('change', ()=> {
+      populateContents();
+    });
+    /* Play button event: find matching data and load video */
+    cmdPlay.addEventListener('click', ()=>{
+      const selectedMedium = cboMedium.value;
+      const selectedUnit = cboUnits.value;
+      const selectedContent = cboContents.value;
+      // Update meta pills
+      metaMedium.textContent = 'Medium — ' + selectedMedium;
+      metaUnits.textContent = 'Units — ' + selectedUnit;
+      metaContents.textContent = 'Contents — ' + selectedContent;
+      // Find the row where all three match
+      const match = dataTable.find(d =>
+        d.Medium === selectedMedium &&
+        d.Unit === selectedUnit &&
+        d.Contents === selectedContent
+      );
+      if (!match){
+        alert('No matching video found.');
+        matchInfo.textContent = 'No match found.';
+        return;
+      }
+      const link = match.Link;
+      const startTime = match.Start || 0;
+      const endTime = match.End || 0;
+      const vidID = extractYouTubeID(link);
+      if (!vidID){
+        alert('Invalid YouTube link.');
+        matchInfo.textContent = 'Invalid video link.';
+        return;
+      }
+      let embedUrl = `https://www.youtube.com/embed/${vidID}?autoplay=1&rel=0`;
+      if (startTime > 0) embedUrl += `&start=${startTime}`;
+      if (endTime > 0) embedUrl += `&end=${endTime}`;
+      // Load video
+      videoFrame.src = embedUrl;
+      videoFrame.style.display = 'block';
+      emptyState.style.display = 'none';
+      matchInfo.innerHTML = `Playing — ${match.Contents} | Start: ${startTime}s End: ${endTime}s`;
+    });
+    /* Clear button resets selections and video */
+    clearBtn.addEventListener('click', ()=>{
+      populateSelect(cboMedium, mediums, mediums[0]);
+      populateSelect(cboUnits, units, units[0]);
+      populateContents();
+      // Reset video display
+      videoFrame.src = '';
+      videoFrame.style.display = 'none';
+      emptyState.style.display = 'block';
+      matchInfo.textContent = 'Cleared.';
+      metaMedium.textContent = 'Medium —';
+      metaUnits.textContent = 'Units —';
+      metaContents.textContent = 'Contents —';
+    });
+    // Focus mode functionality (optional, similar to previous implementation)
+    function createFocusIframe() {
+      const src = videoFrame.src || '';
+      const iframe = document.createElement('iframe');
+      iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen";
+      iframe.allowFullscreen = true;
+      iframe.src = src;
+      iframe.style.border = '0';
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      return iframe;
+    }
+    async function enterFocusMode() {
+      if (!videoFrame.src) {
+        alert('No video loaded. Play a video first.');
+        return;
+      }
+      // Hide left panel
+      document.getElementById('leftPanel').classList.add('hidden');
+      // Clone iframe
+      focusVideoWrap.innerHTML = '';
+      const iframe = createFocusIframe();
+      focusVideoWrap.appendChild(iframe);
+      // Show overlay
+      document.getElementById('focusOverlay').classList.remove('hidden');
+      document.getElementById('focusOverlayInner').style.opacity = '1';
+      document.getElementById('focusOverlay').setAttribute('aria-hidden', 'false');
+      // Request fullscreen if supported
+      const el = document.getElementById('focusOverlayInner');
+      const requestFS = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+      if (requestFS) {
+        try {
+          await requestFS.call(el);
+        } catch (e) {
+          // fallback: overlay is already covering viewport
+        }
+      }
+    }
+    async function exitFocusMode() {
+      // Exit fullscreen if active
+      const exitFS = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+      if (exitFS && (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement)){
+        try { await exitFS.call(document); } catch(e) {}
+      }
+      // Hide overlay
+      document.getElementById('focusOverlayInner').style.opacity = '0';
+      document.getElementById('focusOverlay').classList.add('hidden');
+      document.getElementById('focusOverlay').setAttribute('aria-hidden', 'true');
+      focusVideoWrap.innerHTML = '';
+      // Show left panel
+      document.getElementById('leftPanel').classList.remove('hidden');
+    }
+    /* Event listeners for focus mode */
+    document.getElementById('focusBtn').addEventListener('click', enterFocusMode);
+    document.getElementById('fsExitBtn').addEventListener('click', exitFocusMode);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        exitFocusMode();
+      }
+    });
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement){
+        setTimeout(() => { exitFocusMode(); }, 50);
+      }
+    });
+    document.addEventListener('wheel', (e) => {
+      if (!document.getElementById('focusOverlay').classList.contains('hidden')) e.preventDefault();
+    }, { passive: false });
+    /* Helper function to extract YouTube Video ID from URL */
+    function extractYouTubeID(url) {
+      const regExp = /(?:youtube\.com\/(?:[^\/\s]+\/\S+\/|(?:v|embed)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+      const match = url.match(regExp);
+      return match ? match[1] : null;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1724 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Quiz App — VBA → HTML/JS Conversion</title>
+    <style>
+        /* EJAZ ACADEMY Navigation Bar */
+        .nav-links {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #2c3e50;
+        }
+        .nav-links li {
+            float: left;
+        }
+        .nav-links li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .nav-links li a:hover {
+            background-color: #1a252f;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            background-color: #2c3e50;
+            margin: 0;
+            padding: 10px 0;
+        }
+        :root {
+            --accent: #2b6cb0;
+            --danger: #e53e3e;
+            --ok: #38a169;
+        }
+        body {
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            padding: 20px;
+            background: #f7fafc;
+            color: #1a202c
+        }
+        .wrap {
+            max-width: 920px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 18px;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(2,6,23,0.08)
+        }
+        h1 {
+            margin: 0 0 8px;
+            font-size: 20px
+        }
+        p.lead {
+            margin: 0 0 18px;
+            color: #4a5568
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 18px
+        }
+        .panel {
+            padding: 12px;
+            border-radius: 8px;
+            background: #f1f5f9
+        }
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px
+        }
+        button {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            cursor: pointer
+        }
+            button.primary {
+                background: var(--accent);
+                color: white;
+                border-color: transparent
+            }
+            button.warn {
+                background: var(--danger);
+                color: white
+            }
+            button.ok {
+                background: var(--ok);
+                color: white
+            }
+            button:disabled {
+                opacity: 0.6;
+                cursor: not-allowed
+            }
+        .question-area {
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px
+        }
+        .q-text {
+            font-size: 18px;
+            padding: 12px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 1px 0 rgba(2,6,23,0.04)
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px
+        }
+        .opt {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+            .opt.disabled {
+                opacity: 0.6;
+                cursor: not-allowed
+            }
+            .opt.correct {
+                background: #c6f6d5;
+                border-color: #9ae6b4
+            }
+            .opt.wrong {
+                background: #fed7d7;
+                border-color: #f6adad
+            }
+        .meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px
+        }
+        .timer {
+            font-weight: 700
+        }
+        .progress {
+            color: #4a5568
+        }
+        .side {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+        label {
+            font-size: 13px;
+            color: #4a5568
+        }
+        input[type="text"], textarea,
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1
+        }
+        textarea {
+            min-height: 80px
+        }
+        .small {
+            font-size: 12px;
+            color: #718096
+        }
+        .results {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            background: #fff
+        }
+        /* Urdu font fallback - use if installed on user's system */
+        .urdu {
+            font-family: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif
+        }
+        footer {
+            margin-top: 12px;
+            color: #718096;
+            font-size: 13px
+        }
+        /* GoTo Input Dialog Style */
+        .goto-dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .goto-dialog {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        @media (max-width:900px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+            .side {
+                order: 2
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>EJAZ ACADEMY</h1>
+    <ul class="nav-links">
+        <li><a href="9th.html">Home</a></li>
+        <li><a href="#courses">Courses</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="easypaisa.html">EesyPaisa</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="register.html">Register</a></li>
+    </ul>
+    <div class="wrap">
+        <h1>KPK-Class-9th-Biology-MCQs</h1>
+        <p class="lead">Chapter 1- (Introduction to Biology).</p>
+        <div class="grid">
+            <div>
+                <div class="panel">
+                    <div class="controls">
+                        <input id="fileInput" type="file" accept=".csv" />
+                        <button id="loadSample" class="primary">Load sample questions</button>
+                        <button id="startBtn" class="ok">Start</button>
+                        <button id="pauseBtn">Pause</button>
+                        <button id="nextBtn">Next</button>
+                        <button id="stopBtn" class="warn">Stop</button>
+                        <button id="goToBtn">Go To</button>
+                    </div>
+                    <div class="question-area">
+                        <div id="lblQuestion" class="q-text urdu">(load questions or click "Load sample questions")</div>
+                        <div class="options">
+                            <div id="opt0" class="opt"><input type="radio" name="opt" id="r0"><label for="r0" id="lbl0"></label></div>
+                            <div id="opt1" class="opt"><input type="radio" name="opt" id="r1"><label for="r1" id="lbl1"></label></div>
+                            <div id="opt2" class="opt"><input type="radio" name="opt" id="r2"><label for="r2" id="lbl2"></label></div>
+                            <div id="opt3" class="opt"><input type="radio" name="opt" id="r3"><label for="r3" id="lbl3"></label></div>
+                        </div>
+                        <div class="meta">
+                            <div class="timer" id="lblTimer">Time: -</div>
+                            <div class="progress" id="lblProgress">Question - of -</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="results" id="resultsBox" style="display:none">
+                    <div><strong>Results</strong></div>
+                    <div id="resultText" style="margin-top:8px"></div>
+                    <div style="margin-top:8px">
+                        <button id="downloadResults">Download Results CSV</button>
+                        <button id="closeResults">Close</button>
+                    </div>
+                </div>
+            </div>
+            <aside class="side">
+                <div class="panel">
+                    <label>Name</label>
+                    <input type="text" id="txtName" placeholder="Enter user name (optional)" />
+                    <label>Per-question time limit (seconds)</label>
+                    <input type="number" id="timeLimitInput" min="3" value="15" />
+                    <label>Or paste CSV (first line = header). Columns: question,opt1,opt2,opt3,opt4,correct</label>
+                    <textarea id="csvPaste" placeholder="question,opt1,opt2,opt3,opt4,correct\nWhat is 2+2?,1,2,3,4,4"></textarea>
+                    <div style="display:flex;gap:6px;margin-top:6px">
+                        <button id="pasteLoad">Load from paste</button>
+                        <button id="clearStorage">Clear saved results</button>
+                    </div>
+                    <div style="margin-top:10px" class="small">
+                        <strong>Notes:</strong>
+                        <ul>
+                            <li>The "correct" column accepts: 1/2/3/4 or a/b/c/d or words like "one" or the exact option text.</li>
+                            <li>If you don't load questions, use "Load sample questions".</li>
+                            <li>Options are disabled until you press Start.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div><strong>Saved attempts (localStorage)</strong></div>
+                    <div id="savedCount" class="small" style="margin-top:6px">0 saved attempts</div>
+                    <div style="margin-top:6px">
+                        <button id="downloadAll">Download all saved</button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+        <footer>Converted from VBA by this tool. If you want a version that writes directly to Google Sheets or server-side storage, tell me and I'll add it.</footer>
+    </div>
+    <div id="goToDialogOverlay" class="goto-dialog-overlay">
+        <div class="goto-dialog">
+            <label for="goToInput">Enter question number (1 to <span id="maxQNum"></span>):</label>
+            <input type="number" id="goToInput" min="1" />
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                <button id="cancelGoTo">Cancel</button>
+                <button id="confirmGoTo" class="primary">Go</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // --- state ---
+        let questions = []; // each: {q, opts:[], correctRaw}
+        let currentQuestionIndex = 0; // 0-based
+        let totalQuestions = 0;
+        let secondsLeft = 0;
+        let timeLimit = 15;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let isLocked = false;
+        let quizStarted = false;
+        let isPaused = false;
+        let skippedQuestionsCount = 0;
+        let timerId = null;
+        // --- helpers ---
+        function $(id) { return document.getElementById(id) }
+        function clamp(v, a, b) { return Math.max(a, Math.min(b, v)) }
+        function csvToArray(text) {
+            // Simple CSV parser that supports quoted fields and commas inside quotes
+            const rows = [];
+            const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+            for (const line of lines) {
+                const row = [];
+                let inQuotes = false;
+                let cur = '';
+                for (let i = 0; i < line.length; i++) {
+                    const ch = line[i];
+                    if (ch === '"') {
+                        if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; } else { inQuotes = !inQuotes; }
+                    } else if (ch === ',' && !inQuotes) { row.push(cur); cur = ''; }
+                    else cur += ch;
+                }
+                row.push(cur);
+                rows.push(row.map(c => c.trim()));
+            }
+            return rows;
+        }
+        function parseCorrectOptionFromQuestionData(raw, opts) {
+            if (!raw) return -1;
+            const r = String(raw).trim().toLowerCase();
+            if (r === '') return -1;
+            // numeric
+            if (/^\d+$/.test(r)) {
+                const n = parseInt(r, 10);
+                if (n >= 1 && n <= 4) return n - 1;
+            }
+            // single letter
+            if (r.length === 1) {
+                const map = { 'a': 0, 'b': 1, 'c': 2, 'd': 3 };
+                if (map.hasOwnProperty(r)) return map[r];
+            }
+            // words
+            if (r.includes('one')) return 0;
+            if (r.includes('two')) return 1;
+            if (r.includes('three')) return 2;
+            if (r.includes('four')) return 3;
+            // exact match to option text
+            for (let i = 0; i < 4; i++) {
+                if (!opts[i]) continue;
+                const o = String(opts[i]).trim().toLowerCase();
+                if (o === r) return i;
+                if (o.includes(r) || r.includes(o)) return i;
+            }
+            // contains digit
+            for (let i = 0; i < 4; i++) if (r.includes(String(i + 1))) return i;
+            return -1;
+        }
+        // --- UI ---
+        function setOptionsEnabled(enabled) {
+            for (let i = 0; i < 4; i++) {
+                const el = $('opt' + i);
+                if (enabled) el.classList.remove('disabled'); else el.classList.add('disabled');
+            }
+            const radios = document.querySelectorAll('input[name="opt"]');
+            radios.forEach(r => r.disabled = !enabled);
+        }
+        function resetOptionStyles() {
+            for (let i = 0; i < 4; i++) {
+                const el = $('opt' + i);
+                el.classList.remove('correct', 'wrong', 'selected');
+                const lbl = $('lbl' + i);
+                lbl.style.pointerEvents = 'auto';
+            }
+        }
+        function showQuestion(index) {
+            isLocked = false;
+            if (index < 0 || index >= totalQuestions) return;
+            stopQuizTimer();
+            const q = questions[index];
+            $('lblQuestion').textContent = q.q || '(no question)';
+            for (let i = 0; i < 4; i++) {
+                $('lbl' + i).textContent = q.opts[i] || '';
+                $('r' + i).checked = false;
+            }
+            resetOptionStyles();
+            // Options are only enabled if the quiz has started
+            setOptionsEnabled(quizStarted);
+            timeLimit = parseInt($('timeLimitInput').value || '15', 10);
+            secondsLeft = timeLimit;
+            $('lblTimer').textContent = 'Time: ' + secondsLeft + ' sec';
+            $('lblProgress').textContent = 'Question ' + (currentQuestionIndex + 1) + ' of ' + totalQuestions;
+            if (quizStarted && !isPaused) startQuizTimer();
+        }
+        function startQuizTimer() {
+            stopQuizTimer();
+            timerId = setInterval(() => {
+                timerTickFromModule();
+            }, 1000);
+        }
+        function stopQuizTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+        function timerTickFromModule() {
+            if (isLocked) return;
+            secondsLeft--;
+            if (secondsLeft <= 0) {
+                $('lblTimer').textContent = 'Time: 0 sec';
+                stopQuizTimer();
+                evaluateAnswer(-1); // 0 in VBA = timeout; here -1 means no selection
+            } else {
+                $('lblTimer').textContent = 'Time: ' + secondsLeft + ' sec';
+            }
+        }
+        function evaluateAnswer(selectedIndex) {
+            if (isLocked) return;
+            isLocked = true;
+            stopQuizTimer();
+            const q = questions[currentQuestionIndex];
+            const correctIndex = parseCorrectOptionFromQuestionData(q.correctRaw, q.opts);
+            // Highlight correct
+            if (correctIndex >= 0) $('opt' + correctIndex).classList.add('correct');
+            // If wrong
+            if (selectedIndex >= 0 && selectedIndex !== correctIndex) {
+                $('opt' + selectedIndex).classList.add('wrong');
+            }
+            // Count
+            if (selectedIndex >= 0 && selectedIndex === correctIndex) {
+                correctCount++;
+            } else if (selectedIndex >= 0 && selectedIndex !== correctIndex) {
+                wrongCount++;
+            } else if (selectedIndex === -1) {
+                // timed out, count as wrong
+                wrongCount++;
+            }
+            // Pause for 2 seconds then next
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex >= totalQuestions) {
+                stopQuizTimer();
+                // Only show results if the quiz was running
+                if (quizStarted) {
+                    quizStarted = false;
+                    showResults('Quiz Completed!');
+                } else {
+                    // If stopped/not started, just wrap to the first question
+                    currentQuestionIndex = 0;
+                    showQuestion(currentQuestionIndex);
+                }
+            } else {
+                showQuestion(currentQuestionIndex);
+            }
+        }
+        function showResults(title) {
+            $('resultsBox').style.display = 'block';
+            const attempted = correctCount + wrongCount;
+            const txt = `<div>${title}</div>\n<div style=\"margin-top:6px\">Correct answers: ${correctCount}</div>\n<div>Wrong answers: ${wrongCount}</div>\n<div>Attempted: ${attempted}</div>\n<div>Skipped: ${skippedQuestionsCount}</div>\n<div>Total Questions: ${totalQuestions}</div>`;
+            $('resultText').innerHTML = txt;
+            saveResultToLocal();
+        }
+        function saveResultToLocal() {
+            const name = ($('txtName').value || 'Unknown').trim();
+            const attempted = correctCount + wrongCount;
+            const rec = { name, correct: correctCount, wrong: wrongCount, attempted, skipped: skippedQuestionsCount, total: totalQuestions, date: new Date().toISOString() };
+            const key = 'quiz_attempts_v1';
+            const arr = JSON.parse(localStorage.getItem(key) || '[]');
+            arr.push(rec);
+            localStorage.setItem(key, JSON.stringify(arr));
+            updateSavedCount();
+        }
+        function updateSavedCount() {
+            const arr = JSON.parse(localStorage.getItem('quiz_attempts_v1') || '[]');
+            $('savedCount').textContent = arr.length + ' saved attempts';
+        }
+        function downloadCSV(records, filename) {
+            if (!records || records.length === 0) { alert('No records to download'); return; }
+            const header = ['Name', 'Correct Questions', 'Wrong Questions', 'Attempted Questions', 'Skipped Questions', 'Total Questions', 'Date & Time'];
+            const rows = [header.map(escapeCSV).join(',')];
+            for (const r of records) {
+                rows.push([escapeCSV(r.name), r.correct, r.wrong, r.attempted, r.skipped, r.total, r.date].join(','));
+            }
+            const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename || 'results.csv';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        }
+        function escapeCSV(v) { if (v == null) return ''; return '"' + String(v).replace(/"/g, '""') + '"'; }
+        // --- Go To Dialog Logic ---
+        function showGoToDialog() {
+            if (totalQuestions === 0) {
+                alert('Please load questions first.');
+                return;
+            }
+            $('maxQNum').textContent = totalQuestions;
+            $('goToInput').value = currentQuestionIndex + 1;
+            $('goToDialogOverlay').style.display = 'flex';
+            $('goToInput').focus();
+        }
+        function hideGoToDialog() {
+            $('goToDialogOverlay').style.display = 'none';
+        }
+        function handleGoTo() {
+            const v = $('goToInput').value;
+            hideGoToDialog();
+            if (!v) return;
+            const qn = parseInt(v, 10);
+            if (isNaN(qn) || qn < 1 || qn > totalQuestions) {
+                alert(`Invalid question number. Must be between 1 and ${totalQuestions}`);
+                return;
+            }
+            currentQuestionIndex = qn - 1;
+            showQuestion(currentQuestionIndex);
+            // If the quiz was paused, unpause it after Go To
+            if (isPaused) {
+                isPaused = false;
+                $('pauseBtn').textContent = 'Pause';
+                $('pauseBtn').classList.remove('ok');
+                startQuizTimer();
+            }
+        }
+        // --- events ---
+        window.addEventListener('DOMContentLoaded', () => {
+            // attach handlers
+            $('loadSample').addEventListener('click', () => {
+                loadSampleQuestions();
+            });
+            $('startBtn').addEventListener('click', () => {
+                if (quizStarted) return;
+                if (questions.length === 0) {
+                    alert('Load questions first (CSV/paste or sample)');
+                    return;
+                }
+                // IMPORTANT: Use the currentQuestionIndex set by goToBtn
+                quizStarted = true;
+                correctCount = 0;
+                wrongCount = 0;
+                skippedQuestionsCount = 0;
+                // currentQuestionIndex is already set (default 0, or by goToBtn)
+                $('startBtn').disabled = true;
+                $('txtName').disabled = true;
+                setOptionsEnabled(true);
+                showQuestion(currentQuestionIndex);
+            });
+            $('pauseBtn').addEventListener('click', () => {
+                if (!quizStarted) return;
+                if (isPaused) { // resume
+                    isPaused = false;
+                    $('pauseBtn').textContent = 'Pause';
+                    $('pauseBtn').classList.remove('ok');
+                    startQuizTimer();
+                } else { // pause
+                    isPaused = true;
+                    $('pauseBtn').textContent = 'Play';
+                    $('pauseBtn').classList.add('ok');
+                    stopQuizTimer();
+                }
+            });
+            $('nextBtn').addEventListener('click', () => {
+                // MODIFICATION: Removed the check 'if (!quizStarted) return;'
+                // If currently paused, resume first (mimic VBA behavior)
+                if (isPaused) {
+                    isPaused = false;
+                    $('pauseBtn').textContent = 'Pause';
+                    $('pauseBtn').classList.remove('ok');
+                }
+                // Only count the skip if the quiz is actually running
+                if (quizStarted) {
+                    skippedQuestionsCount++;
+                }
+                stopQuizTimer();
+                currentQuestionIndex++;
+                if (currentQuestionIndex >= totalQuestions) {
+                    // If the quiz was started, show results
+                    if (quizStarted) {
+                        showResults('Quiz Completed!');
+                    } else {
+                        // If stopped/not started, just wrap to the first question
+                        currentQuestionIndex = 0;
+                        showQuestion(currentQuestionIndex);
+                    }
+                } else {
+                    showQuestion(currentQuestionIndex);
+                }
+            });
+            $('stopBtn').addEventListener('click', () => {
+                stopQuizTimer();
+                // Only show results if the quiz was running
+                if (quizStarted) {
+                    showResults('Quiz Stopped!');
+                }
+                quizStarted = false; // Important: set state to stopped
+                $('startBtn').disabled = false;
+                $('txtName').disabled = false;
+                setOptionsEnabled(false);
+            });
+            // Use the custom dialog instead of prompt for better compatibility
+            $('goToBtn').addEventListener('click', showGoToDialog);
+            $('confirmGoTo').addEventListener('click', handleGoTo);
+            $('cancelGoTo').addEventListener('click', hideGoToDialog);
+            // Allow pressing Enter in the input field
+            $('goToInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleGoTo();
+                }
+            });
+            for (let i = 0; i < 4; i++) {
+                $('opt' + i).addEventListener('click', () => {
+                    if (!quizStarted || isLocked || isPaused) return; // disabled until start
+                    checkAndSetPauseButton();
+                    // mark selected visually
+                    document.querySelectorAll('.opt').forEach(el => el.classList.remove('selected'));
+                    $('opt' + i).classList.add('selected');
+                    evaluateAnswer(i);
+                });
+            }
+            $('fileInput').addEventListener('change', (ev) => {
+                const f = ev.target.files[0];
+                if (!f) return;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    loadQuestionsFromCSV(e.target.result);
+                };
+                reader.readAsText(f);
+            });
+            $('pasteLoad').addEventListener('click', () => {
+                const t = $('csvPaste').value.trim();
+                if (!t) { alert('Paste some CSV first'); return; }
+                loadQuestionsFromCSV(t);
+            });
+            $('clearStorage').addEventListener('click', () => {
+                if (confirm('Clear all saved results in localStorage?')) {
+                    localStorage.removeItem('quiz_attempts_v1');
+                    updateSavedCount();
+                }
+            });
+            $('downloadAll').addEventListener('click', () => {
+                const arr = JSON.parse(localStorage.getItem('quiz_attempts_v1') || '[]');
+                if (arr.length === 0) return alert('No saved attempts');
+                downloadCSV(arr, 'all_quiz_attempts.csv');
+            });
+            $('downloadResults').addEventListener('click', () => {
+                // Download the last saved attempt
+                const arr = JSON.parse(localStorage.getItem('quiz_attempts_v1') || '[]');
+                if (arr.length === 0) return alert('No saved attempts to download');
+                const lastAttempt = [arr[arr.length - 1]];
+                downloadCSV(lastAttempt, 'last_quiz_results.csv');
+            });
+            $('closeResults').addEventListener('click', () => {
+                $('resultsBox').style.display = 'none';
+                $('startBtn').disabled = false;
+                $('txtName').disabled = false;
+            });
+            // set initial
+            setOptionsEnabled(false);
+            updateSavedCount();
+            // load an example automatically
+            loadSampleQuestions();
+        });
+        function checkAndSetPauseButton() {
+            if (isPaused) {
+                isPaused = false;
+                $('pauseBtn').textContent = 'Pause';
+                $('pauseBtn').classList.remove('ok');
+                startQuizTimer();
+            }
+        }
+        function loadQuestionsFromCSV(text) {
+            try {
+                const rows = csvToArray(text);
+                if (rows.length === 0) { alert('No rows found'); return; }
+                // detect header
+                let start = 0;
+                const first = rows[0].map(c => c.toLowerCase());
+                if (first.includes('question') || first.includes('opt1') || first.includes('option1')) start = 1;
+                const arr = [];
+                for (let i = start; i < rows.length; i++) {
+                    const r = rows[i];
+                    const q = r[0] || '';
+                    const opts = [r[1] || '', r[2] || '', r[3] || '', r[4] || ''];
+                    const correctRaw = r[5] || '';
+                    arr.push({ q, opts, correctRaw });
+                }
+                questions = arr;
+                totalQuestions = questions.length;
+                currentQuestionIndex = 0; // Reset to start
+                // Reset quiz state when new questions are loaded
+                quizStarted = false;
+                $('startBtn').disabled = false;
+                $('txtName').disabled = false;
+                setOptionsEnabled(false);
+                $('resultsBox').style.display = 'none';
+                alert('Loaded ' + totalQuestions + ' questions');
+                showQuestion(currentQuestionIndex);
+            } catch (e) {
+                console.error(e);
+                alert('Failed to parse CSV: ' + e.message);
+            }
+        }
+        function loadSampleQuestions() {
+            questions = [
+                   {
+                    "q": "The word 'Biology' is derived from which two Greek words?",
+                    "opts": ["Bio and Logy", "Bios and Logos", "Biotus and Log", "Bio and Logos"],
+                    "correctRaw": "Bios and Logos"
+                },
+                {
+                    "q": "In what year did Swedish scientist Carl Linneaus first use the word 'biology'?",
+                    "opts": ["1736", "1836", "1636", "1936"],
+                    "correctRaw": "1736"
+                },
+                {
+                    "q": "Which branch of biology deals with the study of the internal structures of organisms?",
+                    "opts": ["Morphology", "Anatomy", "Histology", "Physiology"],
+                    "correctRaw": "Anatomy"
+                },
+                {
+                    "q": "What is the name of the branch of biology that deals with the study of the composition, structure, and functions of plant and animal tissues?",
+                    "opts": ["Physiology", "Embryology", "Histology", "Taxonomy"],
+                    "correctRaw": "Histology"
+                },
+                {
+                    "q": "Who corrected the Greek concept of vision and located the retina as the seat of vision?",
+                    "opts": ["Ali Bin Isa", "Bu Ali Sina", "Ibn-ul-Haitham", "Ibn-ul-Nafees"],
+                    "correctRaw": "Ibn-ul-Haitham"
+                },
+                {
+                    "q": "Which Muslim scientist wrote the books 'Al-Nabatat' and 'Al-Hayawan'?",
+                    "opts": ["Jabir Bin Hayyan", "Abdul Malik Aasmai", "Abu-Usman Umar Aljahiz", "Al-Farabi"],
+                    "correctRaw": "Jabir Bin Hayyan"
+                },
+                {
+                    "q": "Which kingdom includes organisms that are unicellular, microscopic, and lack a membrane-bound nucleus?",
+                    "opts": ["Protista", "Fungi", "Plantae", "Prokaryotae"],
+                    "correctRaw": "Prokaryotae"
+                },
+                {
+                    "q": "According to the provided text, what are the most commonly transplanted organs, followed by the liver and heart?",
+                    "opts": ["Lungs", "Kidneys", "Brain", "Eyes"],
+                    "correctRaw": "Kidneys"
+                },
+                {
+                    "q": "Which branch of biology deals with the study of the transmission of characters from parents to offspring?",
+                    "opts": ["Embryology", "Immunology", "Genetics", "Biotechnology"],
+                    "correctRaw": "Genetics"
+                },
+                {
+                    "q": "What is the study of fossils of past organisms called?",
+                    "opts": ["Palaeontology", "Paleobotany", "Paleozoology", "Biogeography"],
+                    "correctRaw": "Palaeontology"
+                },
+                {
+                    "q": "Which branch of biology investigates the beneficial relationships among animals living in the same area?",
+                    "opts": ["Environmental biology", "Parasitology", "Socio-biology", "Pharmacology"],
+                    "correctRaw": "Socio-biology"
+                },
+                {
+                    "q": "What is the study of the use of organisms for the benefit and welfare of humanity called?",
+                    "opts": ["Environmental biology", "Biotechnology", "Parasitology", "Socio-biology"],
+                    "correctRaw": "Biotechnology"
+                },
+                {
+                    "q": "Which branch of biology is concerned with the social behavior of animals such as humans, bees, and ants?",
+                    "opts": ["Immunology", "Entomology", "Socio-biology", "Parasitology"],
+                    "correctRaw": "Socio-biology"
+                },
+                {
+                    "q": "What is the application of statistical and mathematical formulas in the study of biology called?",
+                    "opts": ["Biophysics", "Biochemistry", "Biogeography", "Biostatistics"],
+                    "correctRaw": "Biostatistics"
+                },
+                {
+                    "q": "Which kingdom in the 'Five-Kingdom System of Classification' includes unicellular, microscopic organisms that lack a membrane-bound nucleus?",
+                    "opts": ["Animalia", "Fungi", "Protista", "Prokaryotae (Monera)"],
+                    "correctRaw": "Prokaryotae (Monera)"
+                },
+                {
+                    "q": "Which element makes up 99% of the protoplasm along with Oxygen, Carbon, Hydrogen, Nitrogen, and Phosphorus?",
+                    "opts": ["Calcium", "Potassium", "Sulphur", "Iron"],
+                    "correctRaw": "Calcium"
+                },
+                {
+                    "q": "What is the basic structural and functional unit of an organism?",
+                    "opts": ["Organ", "Molecule", "Cell", "Tissue"],
+                    "correctRaw": "Cell"
+                },
+                {
+                    "q": "Which level of biological organization is represented by a group of similar individuals in an area?",
+                    "opts": ["Community", "Population", "Ecosystem", "Organism"],
+                    "correctRaw": "Population"
+                },
+                {
+                    "q": "What is the name of the book written by Abdul Malik Aasmai that is about horses?",
+                    "opts": ["Al-Ibil", "Al-Kheil", "Al-Wahoosh", "Al-Hayawan"],
+                    "correctRaw": "Al-Kheil"
+                },
+                {
+                    "q": "According to the text, which of the following is an example of an organism with colonial organization?",
+                    "opts": ["Chlamydomonas", "Frog", "Volvox", "Amoeba"],
+                    "correctRaw": "Volvox"
+                },
+                {
+                    "q": "Penicillin, the first naturally occurring antibiotic, was discovered in which year?",
+                    "opts": ["1942", "1928", "1936", "1918"],
+                    "correctRaw": "1928"
+                },
+                {
+                    "q": "Which career path in biology is concerned with managing and growing forests for timber, wildlife habitat, and recreation?",
+                    "opts": ["Animal Science", "Horticulture", "Forestry", "Farming"],
+                    "correctRaw": "Forestry"
+                },
+                {
+                    "q": "Who was the Muslim scientist who described the circulation of blood in the human body in the 13th century A.D.?",
+                    "opts": ["Jabir Bin Hayyan", "Ibn-ul-Haitham", "Ali Bin Isa", "Ibn-ul-Nafees"],
+                    "correctRaw": "Ibn-ul-Nafees"
+                },
+                {
+                    "q": "What is the scientific study of drugs and their effects on the human body called?",
+                    "opts": ["Pharmacology", "Biotechnology", "Immunology", "Parasitology"],
+                    "correctRaw": "Pharmacology"
+                },
+                {
+                    "q": "The level of organization where different organs coordinate and constitute a system that performs a particular function is known as?",
+                    "opts": ["Organ", "Tissue", "Organism", "Organ Systems"],
+                    "correctRaw": "Organ Systems"
+                },
+                {
+                    "q": "Which Muslim scientist was a specialist in animal sciences and wrote the book 'Al-Kheil' about horses?",
+                    "opts": ["Bu Ali Sina", "Jabir Bin Hayyan", "Abdul Malik Aasmai", "Abu-Usman Umar Aljahiz"],
+                    "correctRaw": "Abdul Malik Aasmai"
+                },
+                {
+                    "q": "Who classified all living organisms into five kingdoms in 1969?",
+                    "opts": ["Carl Linneaus", "Robert Whittaker", "Jabir Bin Hayyan", "Ibn-ul-Nafees"],
+                    "correctRaw": "Robert Whittaker"
+                },
+                {
+                    "q": "The branch of biology which deals with the inter-relationship of organisms and their environment is known as?",
+                    "opts": ["Socio-biology", "Environmental biology", "Biotechnology", "Parasitology"],
+                    "correctRaw": "Environmental biology"
+                },
+                {
+                    "q": "What is the study of the functions of different parts of organisms and the activities occurring in them?",
+                    "opts": ["Anatomy", "Physiology", "Histology", "Morphology"],
+                    "correctRaw": "Physiology"
+                },
+                {
+                    "q": "Which of the five kingdoms consists of multicellular, eukaryotic, and autotrophic organisms with cell walls made of cellulose?",
+                    "opts": ["Animalia", "Plantae", "Fungi", "Protista"],
+                    "correctRaw": "Plantae"
+                },
+                {
+                    "q": "According to the text, what is the name for the study of the development of an organism from a fertilized egg?",
+                    "opts": ["Embryology", "Genetics", "Cell Biology", "Taxonomy"],
+                    "correctRaw": "Embryology"
+                },
+                {
+                    "q": "What is the name for a group of cells that are similar in structure and perform similar functions?",
+                    "opts": ["Organ", "Organelle", "Tissue", "Organ System"],
+                    "correctRaw": "Tissue"
+                },
+                {
+                    "q": "Which bio-element is one of the ten that collectively make up 1% of the protoplasm?",
+                    "opts": ["Oxygen", "Carbon", "Iron", "Hydrogen"],
+                    "correctRaw": "Iron"
+                },
+                {
+                    "q": "What is the term for the group of similar individuals in an area?",
+                    "opts": ["Community", "Population", "Ecosystem", "Biosphere"],
+                    "correctRaw": "Population"
+                },
+                {
+                    "q": "Which of the following Muslim scientists wrote the famous book 'Al-Haywan,' which described his observations on animals?",
+                    "opts": ["Jabir Bin Hayyan", "Abdul Malik Aasmai", "Al-Farabi", "Abu-Usman Umar Aljahiz"],
+                    "correctRaw": "Abu-Usman Umar Aljahiz"
+                },
+                {
+                    "q": "Which branch of biology is the study of classification of organisms and their scientific naming?",
+                    "opts": ["Anatomy", "Taxonomy", "Embryology", "Morphology"],
+                    "correctRaw": "Taxonomy"
+                },
+                {
+                    "q": "What is the name of Abdul Malik Aasmai's book that is about camels?",
+                    "opts": ["Al-Kheil", "Al-Ibil", "A-sha", "Al-Wahoosh"],
+                    "correctRaw": "Al-Ibil"
+                },
+                {
+                    "q": "According to the text, what does 'structure' in biology mean?",
+                    "opts": ["Any part of an organism that can only be seen with a microscope", "Any part of an organism that can be seen with the naked eye", "Any part of an organism that can be seen with the naked eye or a microscope", "Only the internal parts of an organism"],
+                    "correctRaw": "Any part of an organism that can be seen with the naked eye or a microscope"
+                },
+                {
+                    "q": "The study of fossils of plants is called what?",
+                    "opts": ["Paleozoology", "Palaeontology", "Paleobotany", "Biogeography"],
+                    "correctRaw": "Paleobotany"
+                },
+                {
+                    "q": "What is the first naturally occurring antibiotic mentioned in the text?",
+                    "opts": ["Penicillin", "Meningitis", "Gonorrhoea", "Pneumonia"],
+                    "correctRaw": "Penicillin"
+                },
+                {
+                    "q": "The co-relation between biology and economics is known as?",
+                    "opts": ["Biophysics", "Biostatistics", "Biochemistry", "Bio-economics"],
+                    "correctRaw": "Bio-economics"
+                },
+                {
+                    "q": "What is the name for two or more populations of different organisms living together?",
+                    "opts": ["Ecosystem", "Population", "Community", "Biosphere"],
+                    "correctRaw": "Community"
+                },
+                {
+                    "q": "According to Surah Al-Sajda Ayah: 7, what did Allah use to begin the creation of man?",
+                    "opts": ["Water", "Clay", "Blood", "Wet earth"],
+                    "correctRaw": "Clay"
+                },
+                {
+                    "q": "Animal science or animal husbandry deals with the breeding and raising of what?",
+                    "opts": ["Wild animals", "Fish", "Poultry", "Livestock (domestic animals)"],
+                    "correctRaw": "Livestock (domestic animals)"
+                },
+                {
+                    "q": "What is the branch of biology that deals with the study of parasites and all aspects of parasitism?",
+                    "opts": ["Socio-biology", "Pharmacology", "Parasitology", "Environmental biology"],
+                    "correctRaw": "Parasitology"
+                },
+                {
+                    "q": "The body of a unicellular organism is made of a single cell and the work is distributed among different:",
+                    "opts": ["Organs", "Organelles", "Tissues", "Organ systems"],
+                    "correctRaw": "Organelles"
+                },
+                {
+                    "q": "Which major division of biology is the study of animals?",
+                    "opts": ["Botany", "Microbiology", "Zoology", "Anatomy"],
+                    "correctRaw": "Zoology"
+                },
+                {
+                    "q": "The study of form, shape and structure of organisms is called what?",
+                    "opts": ["Anatomy", "Morphology", "Histology", "Physiology"],
+                    "correctRaw": "Morphology"
+                },
+                {
+                    "q": "Which kingdom includes small, eukaryotic organisms that typically live in aquatic habitats, such as algae and slime molds?",
+                    "opts": ["Fungi", "Protista", "Plantae", "Prokaryotae"],
+                    "correctRaw": "Protista"
+                },
+                {
+                    "q": "Which branch of biology deals with the body's system of defense against disease-causing microorganisms?",
+                    "opts": ["Entomology", "Immunology", "Genetics", "Parasitology"],
+                    "correctRaw": "Immunology"
+                },
+                {
+                    "q": "What is the name of the book written by Al-Farabi that is about animals?",
+                    "opts": ["Kitab-ul-Nabatat", "Al-Haywan", "Kitab-ul-Haywanat", "Al-Ibil"],
+                    "correctRaw": "Kitab-ul-Haywanat"
+                },
+                {
+                    "q": "Which Muslim scientist was an expert in Mathematics, Astronomy, Physics, and Palaeontology and worked on the structure, function, and diseases of the eye?",
+                    "opts": ["Ibn-ul-Haitham", "Abdul Malik Aasmai", "Bu Ali Sina", "Ali Bin Isa"],
+                    "correctRaw": "Bu Ali Sina"
+                },
+                {
+                    "q": "Which kingdom is characterized by organisms that are multicellular, eukaryotic, heterotrophic, and lack a cell wall?",
+                    "opts": ["Plantae", "Fungi", "Animalia", "Protista"],
+                    "correctRaw": "Animalia"
+                },
+                {
+                    "q": "What is the name of the branch of biology that deals with the study of insects?",
+                    "opts": ["Parasitology", "Immunology", "Socio-biology", "Entomology"],
+                    "correctRaw": "Entomology"
+                },
+                {
+                    "q": "The group of similar individuals in an area is called a:",
+                    "opts": ["Community", "Ecosystem", "Population", "Organism"],
+                    "correctRaw": "Population"
+                },
+                {
+                    "q": "Which career path in biology is related to the diagnosis and treatment of human diseases?",
+                    "opts": ["Animal Science", "Horticulture", "Medicine and Surgery", "Forestry"],
+                    "correctRaw": "Medicine and Surgery"
+                },
+                {
+                    "q": "Which of the five kingdoms has a cell wall made of murein?",
+                    "opts": ["Fungi", "Prokaryotae (Monera)", "Plantae", "Protista (Protoctista)"],
+                    "correctRaw": "Prokaryotae (Monera)"
+                },
+                {
+                    "q": "What is the name of the book written by Abdul Malik Aasmai about sheep?",
+                    "opts": ["Al-Kheil", "Al-Ibil", "A-sha", "Al-Wahoosh"],
+                    "correctRaw": "A-sha"
+                },
+                {
+                    "q": "Which two careers are related to the field of medicine and surgery and can be chosen after studying biology at a higher secondary level?",
+                    "opts": ["Horticulture and Forestry", "Farming and Animal Science", "Medicine and Surgery", "Biophysics and Biochemistry"],
+                    "correctRaw": "Medicine and Surgery"
+                },
+                {
+                    "q": "Which of the following describes the cellular organization of a frog?",
+                    "opts": ["Unicellular", "Colonial", "Multicellular", "Bicellular"],
+                    "correctRaw": "Multicellular"
+                },
+                {
+                    "q": "According to the text, what are the two main types of biomolecules based on their molecular weight?",
+                    "opts": ["Water and Amino Acids", "Starch and Proteins", "Micromolecules and Macromolecules", "Glucose and Lipids"],
+                    "correctRaw": "Micromolecules and Macromolecules"
+                },
+                {
+                    "q": "The group of similar individuals in an area is called what?",
+                    "opts": ["Community", "Population", "Ecosystem", "Biosphere"],
+                    "correctRaw": "Population"
+                },
+                {
+                    "q": "What is the study of the structure, function, and diseases of the eye?",
+                    "opts": ["Ophthalmology", "Biophysics", "Histology", "Biochemistry"],
+                    "correctRaw": "Ophthalmology"
+                },
+                {
+                    "q": "Which Muslim scientist wrote a book called 'Kitab-ul-Nabatat' which is about plants?",
+                    "opts": ["Ibn-ul-Haitham", "Al-Farabi", "Abu-Usman Umar Aljahiz", "Bu Ali Sina"],
+                    "correctRaw": "Al-Farabi"
+                },
+                {
+                    "q": "What is the name for the sub-cellular structures that are formed when different biomolecules combine in a specific manner?",
+                    "opts": ["Cells", "Tissues", "Organelles", "Organs"],
+                    "correctRaw": "Organelles"
+                },
+                {
+                    "q": "What is the highest level of biological organization mentioned in the text?",
+                    "opts": ["Organism", "Community", "Biosphere", "Ecosystem"],
+                    "correctRaw": "Biosphere"
+                },
+                {
+                    "q": "Which of the following is a unicellular organism that is mentioned as a common example of colonial organization?",
+                    "opts": ["Amoeba", "Chlamydomonas", "Euglena", "Volvox"],
+                    "correctRaw": "Volvox"
+                },
+                {
+                    "q": "According to the text, which element is not a bio-element?",
+                    "opts": ["Iodine", "Copper", "Uranium", "Iron"],
+                    "correctRaw": "Uranium"
+                },
+                {
+                    "q": "The field of medicine is related with the diagnosis and treatment of what?",
+                    "opts": ["Plant diseases", "Human diseases", "Animal diseases", "Microbial infections"],
+                    "correctRaw": "Human diseases"
+                },
+                {
+                    "q": "Which branch of science is concerned with chemical substances and processes that occur in organisms?",
+                    "opts": ["Biophysics", "Biochemistry", "Biogeography", "Biostatistics"],
+                    "correctRaw": "Biochemistry"
+                },
+                {
+                    "q": "Which kingdom includes organisms that are multicellular, eukaryotic, and heterotrophic, but lack a cell wall?",
+                    "opts": ["Protista", "Fungi", "Animalia", "Plantae"],
+                    "correctRaw": "Animalia"
+                },
+                {
+                    "q": "According to the text, how many diseases of the eye were described by Ali Bin Isa in his book?",
+                    "opts": ["110", "120", "130", "140"],
+                    "correctRaw": "130"
+                },
+                {
+                    "q": "Which level of biological organization is formed when different tissues work together to perform a specific activity?",
+                    "opts": ["Organism", "Organ system", "Organelle", "Organ"],
+                    "correctRaw": "Organ"
+                },
+                {
+                    "q": "Which of the following is an example of a unicellular organism mentioned in the text?",
+                    "opts": ["Volvox", "Amoeba", "Mushroom", "Frog"],
+                    "correctRaw": "Amoeba"
+                },
+                {
+                    "q": "What is the name of the branch of biology that is concerned with the study of the composition, structure, and functions of plant and animal tissues?",
+                    "opts": ["Anatomy", "Morphology", "Histology", "Physiology"],
+                    "correctRaw": "Histology"
+                },
+                {
+                    "q": "Which type of biomolecules have a low molecular weight and include examples like water and amino acids?",
+                    "opts": ["Micromolecules", "Macromolecules", "Organelles", "Bio-elements"],
+                    "correctRaw": "Micromolecules"
+                },
+                {
+                    "q": "Which career path involves developing and maintaining farms for animal breeding, poultry, fruit, and vegetables?",
+                    "opts": ["Forestry", "Horticulture", "Animal Science", "Farming"],
+                    "correctRaw": "Farming"
+                },
+                {
+                    "q": "Who corrected the Greek concept of vision by locating the retina as the seat of vision?",
+                    "opts": ["Ali Bin Isa", "Bu Ali Sina", "Ibn-ul-Nafees", "Ibn-ul-Haitham"],
+                    "correctRaw": "Ibn-ul-Haitham"
+                },
+                {
+                    "q": "Out of a total of 123 elements, how many are considered bio-elements in the bodies of organisms?",
+                    "opts": ["92", "6", "123", "16"],
+                    "correctRaw": "16"
+                },
+                {
+                    "q": "What is the name of Abdul Malik Aasmai's book that is about sheep?",
+                    "opts": ["Al-Wahoosh", "A-sha", "Al-Kheil", "Al-Ibil"],
+                    "correctRaw": "A-sha"
+                },
+                {
+                    "q": "Which of the following describes the cellular organization of a mustard plant?",
+                    "opts": ["Unicellular", "Multicellular", "Colonial", "Bicellular"],
+                    "correctRaw": "Multicellular"
+                },
+                {
+                    "q": "Which of the five kingdoms has a cell wall made of cellulose and stores reserve food as starch?",
+                    "opts": ["Fungi", "Plantae", "Animalia", "Protista"],
+                    "correctRaw": "Plantae"
+                },
+                {
+                    "q": "According to the text, what is the name for the level of biological organization that includes all the ecosystems of the planet Earth?",
+                    "opts": ["Community", "Biosphere", "Ecosystem", "Population"],
+                    "correctRaw": "Biosphere"
+                },
+                {
+                    "q": "What is the study of the synthesis and breakdown, biological activity, and effects of drugs on the human body called?",
+                    "opts": ["Parasitology", "Immunology", "Biotechnology", "Pharmacology"],
+                    "correctRaw": "Pharmacology"
+                },
+                {
+                    "q": "Which of the following career paths deals with the breeding and raising of livestock (domestic animals)?",
+                    "opts": ["Horticulture", "Farming", "Animal Science", "Forestry"],
+                    "correctRaw": "Animal Science"
+                },
+                {
+                    "q": "What is the name of the book written by Abdul Malik Aasmai which is about wild animals?",
+                    "opts": ["Al-Kheil", "Al-Ibil", "A-sha", "Al-Wahoosh"],
+                    "correctRaw": "Al-Wahoosh"
+                },
+                {
+                    "q": "The field of biophysics is an inter-disciplinary study that uses principles and techniques of physics to understand biological phenomena. The text provides which example for this?",
+                    "opts": ["Photosynthesis follows the laws of physics", "Diffusion follows the laws of physics", "Osmosis follows the laws of physics", "Respiration follows the laws of physics"],
+                    "correctRaw": "Photosynthesis follows the laws of physics"
+                },
+                {
+                    "q": "Which of the following is considered a macromolecule?",
+                    "opts": ["Water", "Amino acids", "Starch", "Glucose"],
+                    "correctRaw": "Starch"
+                },
+                {
+                    "q": "According to the text, what is the name for the sub-cellular structures that are formed when different biomolecules combine in a specific manner?",
+                    "opts": ["Cells", "Organelles", "Tissues", "Organs"],
+                    "correctRaw": "Organelles"
+                },
+                {
+                    "q": "What is the name of the book written by Abdul Malik Aasmai that describes different parts and functions of the human body?",
+                    "opts": ["Al-Haywan", "Khalaq-ul-Insan", "Al-Kheil", "Al-Ibil"],
+                    "correctRaw": "Khalaq-ul-Insan"
+                },
+                {
+                    "q": "What is the main target of hypertension and hypotension mentioned in the text?",
+                    "opts": ["Heart, brain, kidneys, eyes, and arterial blood vessels", "Muscles and bones", "Lungs and liver", "Digestive system and nervous system"],
+                    "correctRaw": "Heart, brain, kidneys, eyes, and arterial blood vessels"
+                },
+                {
+                    "q": "Which of the following is considered a macromolecule according to the provided text?",
+                    "opts": ["Water", "Amino acids", "Glucose", "Lipids"],
+                    "correctRaw": "Lipids"
+                },
+                {
+                    "q": "In which of the five kingdoms is food stored as glycogen and the organisms are heterotrophic?",
+                    "opts": ["Plantae", "Fungi", "Animalia", "Protista"],
+                    "correctRaw": "Fungi"
+                },
+                {
+                    "q": "In which of the five kingdoms do organisms have centrioles in their cells?",
+                    "opts": ["Prokaryotae", "Protista", "Plantae", "Animalia"],
+                    "correctRaw": "Animalia"
+                },
+                {
+                    "q": "In embryology, what is the process being studied?",
+                    "opts": ["The study of genes", "The development of an organism from a fertilized egg", "The classification of organisms", "The study of internal structures"],
+                    "correctRaw": "The development of an organism from a fertilized egg"
+                },
+                {
+                    "q": "Which of the following is an example of a unicellular organism that is mentioned as a common example of colonial organization?",
+                    "opts": ["Amoeba", "Chlamydomonas", "Euglena", "Volvox"],
+                    "correctRaw": "Volvox"
+                },
+                {
+                    "q": "According to the text, which of the following is considered a macromolecule?",
+                    "opts": ["Water", "Amino acids", "Starch", "Glucose"],
+                    "correctRaw": "Starch"
+                },
+                {
+                    "q": "What is the study of the composition, structure, and functions of plant and animal tissues called?",
+                    "opts": ["Anatomy", "Histology", "Morphology", "Physiology"],
+                    "correctRaw": "Histology"
+                },
+                {
+                    "q": "What is the name of the branch of biology that deals with the body's system of defense against disease-causing microorganisms?",
+                    "opts": ["Immunology", "Parasitology", "Biotechnology", "Entomology"],
+                    "correctRaw": "Immunology"
+                },
+                {
+                    "q": "Which career path in biology is concerned with managing forests for timber and wildlife habitat?",
+                    "opts": ["Horticulture", "Animal Science", "Farming", "Forestry"],
+                    "correctRaw": "Forestry"
+                },
+                {
+                    "q": "Which of the following is an example of a unicellular organism?",
+                    "opts": ["Volvox", "Chlamydomonas", "Frog", "Mustard Plant"],
+                    "correctRaw": "Chlamydomonas"
+                },
+                {
+                    "q": "What is the function of the muscular tissue in the stomach?",
+                    "opts": ["To secrete gastric juice", "To absorb nutrients", "To contract and grind food", "To produce bile"],
+                    "correctRaw": "To contract and grind food"
+                },
+                {
+                    "q": "Which of the following describes the function of ribosomes within a cell?",
+                    "opts": ["They provide energy to the cell", "They prepare proteins", "They store food", "They control cell division"],
+                    "correctRaw": "They prepare proteins"
+                },
+                {
+                    "q": "Which of the following best describes the purpose of inter-disciplinary sciences mentioned in the text?",
+                    "opts": ["To divide fields of study into smaller, more specialized branches", "To study the history of mankind", "To link the principles of other fields like physics and chemistry to biological phenomena", "To explore living things exclusively"],
+                    "correctRaw": "To link the principles of other fields like physics and chemistry to biological phenomena"
+                },
+                {
+                    "q": "In multicellular organisms, a group of related tissues is called an:",
+                    "opts": ["Organelle", "Cell", "Organ system", "Organ"],
+                    "correctRaw": "Organ"
+                },
+                {
+                    "q": "According to the text, what is the composition of the cell wall in fungi?",
+                    "opts": ["Murein", "Cellulose", "Chitin", "Glycogen"],
+                    "correctRaw": "Chitin"
+                },
+                {
+                    "q": "The body of a plant is made of which two types of organs?",
+                    "opts": ["Vegetative and reproductive", "Root and shoot", "Stem and leaf", "Flower and fruit"],
+                    "correctRaw": "Vegetative and reproductive"
+                },
+                {
+                    "q": "According to the provided text, what is the study of microorganisms?",
+                    "opts": ["Zoology", "Botany", "Microbiology", "Anatomy"],
+                    "correctRaw": "Microbiology"
+                },
+                {
+                    "q": "The Holy Quran states that 'every living thing' was made of what?",
+                    "opts": ["Clay", "Fire", "Water", "Air"],
+                    "correctRaw": "Water"
+                },
+                {
+                    "q": "Which of the following is an example of a unicellular organism that can live independently?",
+                    "opts": ["Volvox", "Amoeba", "Mushroom", "Frog"],
+                    "correctRaw": "Amoeba"
+                },
+                {
+                    "q": "The field of surgery is defined as the profession where defective parts of the body are what?",
+                    "opts": ["Observed and analyzed", "Repaired, replaced, or removed", "Diagnosed and treated", "Studied for research purposes"],
+                    "correctRaw": "Repaired, replaced, or removed"
+                },
+                {
+                    "q": "The book 'Kitabul Manazir' was written by which Muslim scientist?",
+                    "opts": ["Bu Ali Sina", "Ali Bin Isa", "Ibn-ul-Haitham", "Ibn-ul-Nafees"],
+                    "correctRaw": "Ibn-ul-Haitham"
+                },
+                {
+                    "q": "The cell wall of organisms in the Prokaryotae (Monera) kingdom is made of which material?",
+                    "opts": ["Cellulose", "Chitin", "Murein", "Glycogen"],
+                    "correctRaw": "Murein"
+                },
+                {
+                    "q": "A community and the non-living components of an area collectively make up what level of organization?",
+                    "opts": ["A population", "An organism", "An ecosystem", "A biosphere"],
+                    "correctRaw": "An ecosystem"
+                },
+                {
+                    "q": "What is the study of fossils of animals called?",
+                    "opts": ["Paleobotany", "Palaeontology", "Paleozoology", "Biogeography"],
+                    "correctRaw": "Paleozoology"
+                },
+                {
+                    "q": "In plants, what is the function of mesophyll tissue?",
+                    "opts": ["To transport water", "To provide support", "To perform photosynthesis", "To produce secretions"],
+                    "correctRaw": "To perform photosynthesis"
+                },
+                {
+                    "q": "Which of the following organs is part of the blood circulatory system?",
+                    "opts": ["Stomach", "Heart", "Lungs", "Kidneys"],
+                    "correctRaw": "Heart"
+                },
+                {
+                    "q": "What is the function of mitochondria?",
+                    "opts": ["Prepare proteins", "Store waste products", "Provide energy to the cell", "Control cell division"],
+                    "correctRaw": "Provide energy to the cell"
+                },
+                {
+                    "q": "In the field of surgery, what happens to defective parts of the body?",
+                    "opts": ["They are observed and analyzed", "They are repaired, replaced, or removed", "They are diagnosed and treated with medicine", "They are studied for research purposes"],
+                    "correctRaw": "They are repaired, replaced, or removed"
+                },
+                {
+                    "q": "The six bio-elements that make up 99% of the protoplasm are Oxygen, Carbon, Hydrogen, Nitrogen, Phosphorus, and what other element?",
+                    "opts": ["Potassium", "Calcium", "Sulphur", "Magnesium"],
+                    "correctRaw": "Calcium"
+                },
+                {
+                    "q": "In the Fungi kingdom, how is food stored?",
+                    "opts": ["As starch", "As cellulose", "As glycogen", "As murein"],
+                    "correctRaw": "As glycogen"
+                },
+                {
+                    "q": "Which of the following is an example of an organism from the Protista kingdom?",
+                    "opts": ["Bacteria", "Mushrooms", "Plasmodium", "Yeast"],
+                    "correctRaw": "Plasmodium"
+                },
+                {
+                    "q": "Which of the following kingdoms is characterized by organisms that have centrioles in their cells?",
+                    "opts": ["Plantae", "Animalia", "Fungi", "Protista"],
+                    "correctRaw": "Animalia"
+                },
+                {
+                    "q": "The book 'Al-Wahoosh' by Abdul Malik Aasmai is about which type of animals?",
+                    "opts": ["Horses", "Camels", "Sheep", "Wild animals"],
+                    "correctRaw": "Wild animals"
+                },
+                {
+                    "q": "Who was a renowned Hakim and biologist who wrote 'Kitab-ul-Nabatat' and 'Kitab-ul-Haywanat'?",
+                    "opts": ["Abdul Malik Aasmai", "Abu-Usman Umar Aljahiz", "Al-Farabi", "Ibn-ul-Nafees"],
+                    "correctRaw": "Al-Farabi"
+                },
+                {
+                    "q": "Which branch of biology is concerned with the study of organisms from an economical point of view?",
+                    "opts": ["Biophysics", "Biostatistics", "Bio-economics", "Biogeography"],
+                    "correctRaw": "Bio-economics"
+                },
+                {
+                    "q": "Who described the circulation of blood in the human body in the 13th century A.D.?",
+                    "opts": ["Jabir Bin Hayyan", "Ibn-ul-Haitham", "Ali Bin Isa", "Ibn-ul-Nafees"],
+                    "correctRaw": "Ibn-ul-Nafees"
+                },
+                {
+                    "q": "The first patient was successfully treated with Penicillin in which country?",
+                    "opts": ["United States", "Sweden", "Iraq", "Iran"],
+                    "correctRaw": "United States"
+                },
+                {
+                    "q": "What is the other name for Cell Biology mentioned in the text?",
+                    "opts": ["Morphology", "Cytology", "Histology", "Anatomy"],
+                    "correctRaw": "Cytology"
+                },
+                {
+                    "q": "Which of the following is the correct order of the levels of biological organization, as mentioned in the text?",
+                    "opts": ["Organisms → Organ Systems → Organs → Tissues", "Atoms → Molecules → Organelles → Cells", "Cells → Tissues → Atoms → Molecules", "Organelles → Molecules → Cells → Tissues"],
+                    "correctRaw": "Atoms → Molecules → Organelles → Cells"
+                },
+                {
+                    "q": "Which of the following is mentioned as a main target of hypertension and hypotension?",
+                    "opts": ["Lungs", "Stomach", "Heart", "Liver"],
+                    "correctRaw": "Heart"
+                },
+                {
+                    "q": "The book 'Kitabul Manazir' was translated into Latin, Hebrew, Greek, and other western languages. Who wrote this book?",
+                    "opts": ["Al-Farabi", "Ibn-ul-Haitham", "Ibn-ul-Nafees", "Abdul Qasim Ali-Zahravi"],
+                    "correctRaw": "Ibn-ul-Haitham"
+                },
+                {
+                    "q": "Which of the following is an example of an organism from the Animalia kingdom mentioned in the text?",
+                    "opts": ["Mushrooms", "Ferns", "Jellyfish", "Bacteria"],
+                    "correctRaw": "Jellyfish"
+                },
+                {
+                    "q": "What is the meaning of 'heterotrophic' as it applies to fungi and animals?",
+                    "opts": ["They can synthesize their own food", "They lack a cell wall", "They cannot synthesize their own food", "They are unicellular"],
+                    "correctRaw": "They cannot synthesize their own food"
+                },
+                {
+                    "q": "What is the function of mitochondria, as stated in the text?",
+                    "opts": ["Prepare proteins", "Provide energy to the cell", "Control cell division", "Store food"],
+                    "correctRaw": "Provide energy to the cell"
+                },
+                {
+                    "q": "Which of the following is considered a vegetative organ of a plant?",
+                    "opts": ["Flower", "Fruit", "Leaf", "Seed"],
+                    "correctRaw": "Leaf"
+                },
+                {
+                    "q": "Which Muslim scientist was an ophthalmologist and corrected the Greek concept of vision?",
+                    "opts": ["Ali Bin Isa", "Bu Ali Sina", "Ibn-ul-Haitham", "Ibn-ul-Nafees"],
+                    "correctRaw": "Ibn-ul-Haitham"
+                },
+                {
+                    "q": "What is the study of the distribution of organisms in space and time called?",
+                    "opts": ["Biophysics", "Biogeography", "Biostatistics", "Bio-economics"],
+                    "correctRaw": "Biogeography"
+                },
+                {
+                    "q": "Which of the following is an example of an organism from the Prokaryotae kingdom mentioned in the text?",
+                    "opts": ["Plasmodium", "Yeast", "Bacteria", "Slime molds"],
+                    "correctRaw": "Bacteria"
+                },
+                {
+                    "q": "What does the term 'autotrophic' mean, as described for the kingdom Plantae?",
+                    "opts": ["Cannot synthesize their own food", "Can synthesize their own food", "Lack a membrane-bound nucleus", "Lack a cell wall"],
+                    "correctRaw": "Can synthesize their own food"
+                },
+                {
+                    "q": "Which career path in biology focuses on fruit and vegetable production, landscape design, and nurseries?",
+                    "opts": ["Forestry", "Horticulture", "Farming", "Animal Science"],
+                    "correctRaw": "Horticulture"
+                },
+                {
+                    "q": "Which level of biological organization is made up of a community and the non-living components of an area?",
+                    "opts": ["Population", "Ecosystem", "Biosphere", "Organism"],
+                    "correctRaw": "Ecosystem"
+                },
+                {
+                    "q": "In which field of study do scientists calculate and compare the cost and profit of biological projects?",
+                    "opts": ["Biophysics", "Bio-economics", "Biostatistics", "Biogeography"],
+                    "correctRaw": "Bio-economics"
+                },
+                {
+                    "q": "Which Muslim scientist was a specialist in animal sciences and wrote the book 'Al-Ibil' about camels?",
+                    "opts": ["Jabir Bin Hayyan", "Abdul Malik Aasmai", "Abu-Usman Umar Aljahiz", "Al-Farabi"],
+                    "correctRaw": "Abdul Malik Aasmai"
+                },
+                {
+                    "q": "Which of the five kingdoms includes organisms that are unicellular, microscopic, and have a cell wall made of murein?",
+                    "opts": ["Fungi", "Protista", "Prokaryotae", "Plantae"],
+                    "correctRaw": "Prokaryotae"
+                },
+                {
+                    "q": "What is the study of the inheritance of characters from parents to offspring?",
+                    "opts": ["Immunology", "Genetics", "Embryology", "Taxonomy"],
+                    "correctRaw": "Genetics"
+                },
+                {
+                    "q": "In the five-kingdom system of classification, which kingdom has a cell wall made of chitin?",
+                    "opts": ["Plantae", "Animalia", "Fungi", "Prokaryotae"],
+                    "correctRaw": "Fungi"
+                },
+                {
+                    "q": "According to the text, what is the meaning of the Greek word 'logos' in the term 'biology'?",
+                    "opts": ["Life", "Living things", "To study", "To create"],
+                    "correctRaw": "To study"
+                },
+                {
+                    "q": "Who was the famous Muslim surgeon known for the removal of stones from the urinary bladder?",
+                    "opts": ["Ibn-ul-Nafees", "Abdul Qasim Ali-Zahravi", "Bu Ali Sina", "Al-Farabi"],
+                    "correctRaw": "Abdul Qasim Ali-Zahravi"
+                },
+                {
+                    "q": "What is the study of the inter-relationship of organisms and their environment called?",
+                    "opts": ["Socio-biology", "Environmental biology", "Biotechnology", "Parasitology"],
+                    "correctRaw": "Environmental biology"
+                },
+                {
+                    "q": "The book 'Al-Qanun-fil-Tibb' was written by which Muslim scientist?",
+                    "opts": ["Ibn-ul-Haitham", "Bu Ali Sina", "Abdul Malik Aasmai", "Al-Farabi"],
+                    "correctRaw": "Bu Ali Sina"
+                },
+                {
+                    "q": "What is the branch of biology that studies the body’s system of defense against disease-causing microorganisms?",
+                    "opts": ["Immunology", "Entomology", "Parasitology", "Pharmacology"],
+                    "correctRaw": "Immunology"
+                },
+                {
+                    "q": "What is the study of the form, shape, and structure of organisms called?",
+                    "opts": ["Histology", "Anatomy", "Morphology", "Physiology"],
+                    "correctRaw": "Morphology"
+                },
+                {
+                    "q": "Which of the following is an example of an organism from the Prokaryotae kingdom mentioned in the text?",
+                    "opts": ["Slime molds", "Algae", "Protozoans", "Cyanobacteria"],
+                    "correctRaw": "Cyanobacteria"
+                },
+                {
+                    "q": "The bodies of all living things are made of how many kinds of bio-elements?",
+                    "opts": ["6", "10", "16", "92"],
+                    "correctRaw": "16"
+                },
+                {
+                    "q": "In the Fungi kingdom, what is the composition of the cell wall?",
+                    "opts": ["Murein", "Cellulose", "Chitin", "Glycogen"],
+                    "correctRaw": "Chitin"
+                },
+                {
+                    "q": "The level of organization that consists of a community and the non-living components of an area is known as what?",
+                    "opts": ["Biosphere", "Population", "Ecosystem", "Organism"],
+                    "correctRaw": "Ecosystem"
+                },
+                {
+                    "q": "According to the text, what is the function of ribosomes?",
+                    "opts": ["To provide energy to the cell", "To prepare proteins", "To store nutrients", "To control cell division"],
+                    "correctRaw": "To prepare proteins"
+                },
+                {
+                    "q": "What is the name of the branch of biology that deals with the study of cells and their organelles?",
+                    "opts": ["Morphology", "Histology", "Cell Biology", "Anatomy"],
+                    "correctRaw": "Cell Biology"
+                },
+                {
+                    "q": "In the provided text, who is described as the 'Originator of the heavens and the earth'?",
+                    "opts": ["Carl Linneaus", "Allah", "Jabir Bin Hayyan", "Robert Whittaker"],
+                    "correctRaw": "Allah"
+                },
+                {
+                    "q": "What is the specific name for the study of fossils of plants?",
+                    "opts": ["Palaeontology", "Paleozoology", "Paleobotany", "Biogeography"],
+                    "correctRaw": "Paleobotany"
+                },
+                {
+                    "q": "In the provided text, what are the three major divisions of biology?",
+                    "opts": ["Zoology, Botany, and Anatomy", "Botany, Microbiology, and Biochemistry", "Botany, Zoology, and Microbiology", "Physiology, Histology, and Zoology"],
+                    "correctRaw": "Botany, Zoology, and Microbiology"
+                },
+                {
+                    "q": "The cell wall of organisms in the Prokaryotae (Monera) kingdom is made of which material?",
+                    "opts": ["Cellulose", "Chitin", "Murein", "Glycogen"],
+                    "correctRaw": "Murein"
+                },
+                {
+                    "q": "The study of the inheritance of characters from parents to offspring is called what?",
+                    "opts": ["Immunology", "Genetics", "Embryology", "Taxonomy"],
+                    "correctRaw": "Genetics"
+                },
+                {
+                    "q": "What is the specific name for the study of fossils of animals?",
+                    "opts": ["Palaeontology", "Paleozoology", "Paleobotany", "Biogeography"],
+                    "correctRaw": "Paleozoology"
+                },
+                {
+                    "q": "Which field of study uses the principles and techniques of physics to understand biological phenomena?",
+                    "opts": ["Biochemistry", "Biophysics", "Biogeography", "Biostatistics"],
+                    "correctRaw": "Biophysics"
+                },
+                {
+                    "q": "The bodies of all living things are made of different parts organized in a certain manner. What is the correct order of this organization?",
+                    "opts": ["Atoms → Molecules → Organelles → Cells → Tissues", "Cells → Molecules → Atoms → Tissues → Organelles", "Molecules → Organelles → Atoms → Cells → Tissues", "Tissues → Organelles → Cells → Molecules → Atoms"],
+                    "correctRaw": "Atoms → Molecules → Organelles → Cells → Tissues"
+                },
+                {
+                    "q": "Which career path in biology focuses on fruit and vegetable production, landscape design, and nurseries?",
+                    "opts": ["Forestry", "Horticulture", "Farming", "Animal Science"],
+                    "correctRaw": "Horticulture"
+                },
+                {
+                    "q": "What is the name for the level of biological organization that includes all the ecosystems of the planet Earth?",
+                    "opts": ["Community", "Biosphere", "Ecosystem", "Population"],
+                    "correctRaw": "Biosphere"
+                },
+                {
+                    "q": "Which of the five kingdoms has a cell wall made of chitin and stores food as glycogen?",
+                    "opts": ["Plantae", "Animalia", "Fungi", "Protista"],
+                    "correctRaw": "Fungi"
+                },
+                {
+                    "q": "What is the function of the epithelial (glandular) tissue in the stomach?",
+                    "opts": ["To contract and grind food", "To absorb nutrients", "To secrete gastric juice", "To transport food"],
+                    "correctRaw": "To secrete gastric juice"
+                },
+                {
+                    "q": "In colonial organisms like Volvox, what is a key difference from unicellular organisms regarding division of labor?",
+                    "opts": ["The cells live independently", "The work is distributed among different organelles", "The division of labor is above the cellular level", "A single cell performs all vital activities"],
+                    "correctRaw": "The division of labor is above the cellular level"
+                },
+                {
+                    "q": "What is the term for similar organisms that can interbreed and produce fertile offspring?",
+                    "opts": ["Population", "Community", "Species", "Ecosystem"],
+                    "correctRaw": "Species"
+                },
+                {
+                    "q": "According to the text, which of the following career paths involves managing forests for purposes such as timber, wildlife habitat, and recreation?",
+                    "opts": ["Horticulture", "Animal Science", "Farming", "Forestry"],
+                    "correctRaw": "Forestry"
+                },
+                {
+                    "q": "What is the function of the reproductive organs in a plant?",
+                    "opts": ["To absorb water from the soil", "To produce food through photosynthesis", "To produce new organisms", "To support the plant's structure"],
+                    "correctRaw": "To produce new organisms"
+                },
+                {
+                    "q": "According to the text, which of the following is a unicellular organism that can live independently?",
+                    "opts": ["Volvox", "Chlamydomonas", "Multicellular organisms", "Colonial organisms"],
+                    "correctRaw": "Chlamydomonas"
+                },
+                {
+                    "q": "Which of the five kingdoms is characterized by organisms that are eukaryotic and multicellular with a cell wall made of chitin?",
+                    "opts": ["Plantae", "Animalia", "Fungi", "Protista"],
+                    "correctRaw": "Fungi"
+                },
+                {
+                    "q": "According to the text, which is the most complex of all matter?",
+                    "opts": ["Atoms", "Molecules", "Living organisms", "Organelles"],
+                    "correctRaw": "Living organisms"
+                },
+                {
+                    "q": "According to the text, which Muslim scientist wrote the book 'Al-Wahoosh' about wild animals?",
+                    "opts": ["Jabir Bin Hayyan", "Abdul Malik Aasmai", "Al-Farabi", "Abu-Usman Umar Aljahiz"],
+                    "correctRaw": "Abdul Malik Aasmai"
+                },
+                {
+                    "q": "Which of the following is an example of a unicellular organism that can live independently, as mentioned in the text?",
+                    "opts": ["Volvox", "Chlamydomonas", "Multicellular organisms", "Colonial organisms"],
+                    "correctRaw": "Chlamydomonas"
+                },
+                {
+                    "q": "Which of the following describes the function of the epithelial (glandular) tissue in the stomach?",
+                    "opts": ["To contract and grind food", "To absorb nutrients", "To secrete gastric juice", "To transport food"],
+                    "correctRaw": "To secrete gastric juice"
+                },
+                {
+                    "q": "The bodies of organisms are made up of how many kinds of elements, also known as bio-elements?",
+                    "opts": ["6", "10", "16", "92"],
+                    "correctRaw": "16"
+                },
+                {
+                    "q": "Which of the following is an example of an organ system in animals, as mentioned in the text?",
+                    "opts": ["Mesophyll tissue", "Stomach", "Blood circulatory system", "Glandular tissue"],
+                    "correctRaw": "Blood circulatory system"
+                },
+                {
+                    "q": "Which two types of biomolecules are distinguished by their molecular weight?",
+                    "opts": ["Water and Starch", "Amino Acids and Proteins", "Micromolecules and Macromolecules", "Glucose and Lipids"],
+                    "correctRaw": "Micromolecules and Macromolecules"
+                },
+                {
+                    "q": "Which of the following is an example of a unicellular organism that is capable of carrying out all the vital activities of life independently?",
+                    "opts": ["Volvox", "Amoeba", "Mushroom", "Frog"],
+                    "correctRaw": "Amoeba"
+                },
+                {
+                    "q": "The linkage between biology and other fields of study is known as what?",
+                    "opts": ["Multidisciplinary science", "Inter-disciplinary sciences", "Biochemical studies", "Biophysical studies"],
+                    "correctRaw": "Inter-disciplinary sciences"
+                },
+                {
+                    "q": "Which of the following is a vegetative organ of a plant?",
+                    "opts": ["Flower", "Stem", "Fruit", "Seed"],
+                    "correctRaw": "Stem"
+                },
+                {
+                    "q": "According to the text, which Muslim scientist wrote the book 'Al-Haywan' and described the seasonal migration of fish?",
+                    "opts": ["Jabir Bin Hayyan", "Abdul Malik Aasmai", "Al-Farabi", "Abu-Usman Umar Aljahiz"],
+                    "correctRaw": "Abu-Usman Umar Aljahiz"
+                },
+                {
+                    "q": "In unicellular organisms, where is the work distributed for vital activities?",
+                    "opts": ["Among different cells", "Among different organelles", "Among different tissues", "Among different organs"],
+                    "correctRaw": "Among different organelles"
+                },
+                {
+                    "q": "What is the name for the study of the development of an organism from a fertilized egg?",
+                    "opts": ["Genetics", "Embryology", "Cell Biology", "Taxonomy"],
+                    "correctRaw": "Embryology"
+                },
+                {
+                    "q": "In the five-kingdom system of classification, which kingdom has a cell wall made of chitin and stores food as glycogen?",
+                    "opts": ["Plantae", "Animalia", "Fungi", "Prokaryotae"],
+                    "correctRaw": "Fungi"
+                },
+                {
+                    "q": "What is the study of the body's system of defense against disease-causing microorganisms?",
+                    "opts": ["Biotechnology", "Immunology", "Parasitology", "Pharmacology"],
+                    "correctRaw": "Immunology"
+                },
+                {
+                    "q": "What is the name for the group of similar individuals in an area?",
+                    "opts": ["Community", "Population", "Ecosystem", "Organism"],
+                    "correctRaw": "Population"
+                },
+                {
+                    "q": "The group of similar individuals in an area is called a:",
+                    "opts": ["Community", "Population", "Ecosystem", "Biosphere"],
+                    "correctRaw": "Population"
+                },
+                {
+                    "q": "What is the name of the book by Bu Ali Sina that was translated into many European languages?",
+                    "opts": ["Al-Nabatat", "Al-Haywan", "Al-Qanun-fil-Tibb", "Kitabul Manazir"],
+                    "correctRaw": "Al-Qanun-fil-Tibb"
+                },
+        ],
+            totalQuestions = questions.length;
+            currentQuestionIndex = 0;
+            showQuestion(currentQuestionIndex);
+            // Reset quiz state when new questions are loaded
+            quizStarted = false;
+            $('startBtn').disabled = false;
+            $('txtName').disabled = false;
+            setOptionsEnabled(false);
+            $('resultsBox').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+
+

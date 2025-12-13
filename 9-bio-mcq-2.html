@@ -1,0 +1,1709 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Quiz App — VBA → HTML/JS Conversion</title>
+    <style>
+        /* EJAZ ACADEMY Navigation Bar */
+        .nav-links {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #2c3e50;
+        }
+        .nav-links li {
+            float: left;
+        }
+        .nav-links li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .nav-links li a:hover {
+            background-color: #1a252f;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            background-color: #2c3e50;
+            margin: 0;
+            padding: 10px 0;
+        }
+        :root {
+            --accent: #2b6cb0;
+            --danger: #e53e3e;
+            --ok: #38a169;
+        }
+        body {
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            padding: 20px;
+            background: #f7fafc;
+            color: #1a202c
+        }
+        .wrap {
+            max-width: 920px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 18px;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(2,6,23,0.08)
+        }
+        h1 {
+            margin: 0 0 8px;
+            font-size: 20px
+        }
+        p.lead {
+            margin: 0 0 18px;
+            color: #4a5568
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 18px
+        }
+        .panel {
+            padding: 12px;
+            border-radius: 8px;
+            background: #f1f5f9
+        }
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px
+        }
+        button {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            cursor: pointer
+        }
+            button.primary {
+                background: var(--accent);
+                color: white;
+                border-color: transparent
+            }
+            button.warn {
+                background: var(--danger);
+                color: white
+            }
+            button.ok {
+                background: var(--ok);
+                color: white
+            }
+            button:disabled {
+                opacity: 0.6;
+                cursor: not-allowed
+            }
+        .question-area {
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px
+        }
+        .q-text {
+            font-size: 18px;
+            padding: 12px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 1px 0 rgba(2,6,23,0.04)
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px
+        }
+        .opt {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+            .opt.disabled {
+                opacity: 0.6;
+                cursor: not-allowed
+            }
+            .opt.correct {
+                background: #c6f6d5;
+                border-color: #9ae6b4
+            }
+            .opt.wrong {
+                background: #fed7d7;
+                border-color: #f6adad
+            }
+        .meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px
+        }
+        .timer {
+            font-weight: 700
+        }
+        .progress {
+            color: #4a5568
+        }
+        .side {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+        label {
+            font-size: 13px;
+            color: #4a5568
+        }
+        input[type="text"], textarea,
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1
+        }
+        textarea {
+            min-height: 80px
+        }
+        .small {
+            font-size: 12px;
+            color: #718096
+        }
+        .results {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            background: #fff
+        }
+        /* Urdu font fallback - use if installed on user's system */
+        .urdu {
+            font-family: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif
+        }
+        footer {
+            margin-top: 12px;
+            color: #718096;
+            font-size: 13px
+        }
+        /* GoTo Input Dialog Style */
+        .goto-dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .goto-dialog {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        @media (max-width:900px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+            .side {
+                order: 2
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>EJAZ ACADEMY</h1>
+    <ul class="nav-links">
+        <li><a href="9th.html">Home</a></li>
+        <li><a href="#courses">Courses</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="easypaisa.html">EesyPaisa</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="register.html">Register</a></li>
+    </ul>
+    <div class="wrap">
+        <h1>KPK-Class-9th-Biology-MCQs</h1>
+        <p class="lead">Unit 2- (Solving a Biological Problem).</p>
+        <div class="grid">
+            <div>
+                <div class="panel">
+                    <div class="controls">
+                        <input id="fileInput" type="file" accept=".csv" />
+                        <button id="loadSample" class="primary">Load sample questions</button>
+                        <button id="startBtn" class="ok">Start</button>
+                        <button id="pauseBtn">Pause</button>
+                        <button id="nextBtn">Next</button>
+                        <button id="stopBtn" class="warn">Stop</button>
+                        <button id="goToBtn">Go To</button>
+                    </div>
+                    <div class="question-area">
+                        <div id="lblQuestion" class="q-text urdu">(load questions or click "Load sample questions")</div>
+                        <div class="options">
+                            <div id="opt0" class="opt"><input type="radio" name="opt" id="r0"><label for="r0" id="lbl0"></label></div>
+                            <div id="opt1" class="opt"><input type="radio" name="opt" id="r1"><label for="r1" id="lbl1"></label></div>
+                            <div id="opt2" class="opt"><input type="radio" name="opt" id="r2"><label for="r2" id="lbl2"></label></div>
+                            <div id="opt3" class="opt"><input type="radio" name="opt" id="r3"><label for="r3" id="lbl3"></label></div>
+                        </div>
+                        <div class="meta">
+                            <div class="timer" id="lblTimer">Time: -</div>
+                            <div class="progress" id="lblProgress">Question - of -</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="results" id="resultsBox" style="display:none">
+                    <div><strong>Results</strong></div>
+                    <div id="resultText" style="margin-top:8px"></div>
+                    <div style="margin-top:8px">
+                        <button id="downloadResults">Download Results CSV</button>
+                        <button id="closeResults">Close</button>
+                    </div>
+                </div>
+            </div>
+            <aside class="side">
+                <div class="panel">
+                    <label>Name</label>
+                    <input type="text" id="txtName" placeholder="Enter user name (optional)" />
+                    <label>Per-question time limit (seconds)</label>
+                    <input type="number" id="timeLimitInput" min="3" value="15" />
+                    <label>Or paste CSV (first line = header). Columns: question,opt1,opt2,opt3,opt4,correct</label>
+                    <textarea id="csvPaste" placeholder="question,opt1,opt2,opt3,opt4,correct\nWhat is 2+2?,1,2,3,4,4"></textarea>
+                    <div style="display:flex;gap:6px;margin-top:6px">
+                        <button id="pasteLoad">Load from paste</button>
+                        <button id="clearStorage">Clear saved results</button>
+                    </div>
+                    <div style="margin-top:10px" class="small">
+                        <strong>Notes:</strong>
+                        <ul>
+                            <li>The "correct" column accepts: 1/2/3/4 or a/b/c/d or words like "one" or the exact option text.</li>
+                            <li>If you don't load questions, use "Load sample questions".</li>
+                            <li>Options are disabled until you press Start.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div><strong>Saved attempts (localStorage)</strong></div>
+                    <div id="savedCount" class="small" style="margin-top:6px">0 saved attempts</div>
+                    <div style="margin-top:6px">
+                        <button id="downloadAll">Download all saved</button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+        <footer>Converted from VBA by this tool. If you want a version that writes directly to Google Sheets or server-side storage, tell me and I'll add it.</footer>
+    </div>
+    <div id="goToDialogOverlay" class="goto-dialog-overlay">
+        <div class="goto-dialog">
+            <label for="goToInput">Enter question number (1 to <span id="maxQNum"></span>):</label>
+            <input type="number" id="goToInput" min="1" />
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                <button id="cancelGoTo">Cancel</button>
+                <button id="confirmGoTo" class="primary">Go</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // --- state ---
+        let questions = []; // each: {q, opts:[], correctRaw}
+        let currentQuestionIndex = 0; // 0-based
+        let totalQuestions = 0;
+        let secondsLeft = 0;
+        let timeLimit = 15;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let isLocked = false;
+        let quizStarted = false;
+        let isPaused = false;
+        let skippedQuestionsCount = 0;
+        let timerId = null;
+        // --- helpers ---
+        function $(id) { return document.getElementById(id) }
+        function clamp(v, a, b) { return Math.max(a, Math.min(b, v)) }
+        function csvToArray(text) {
+            // Simple CSV parser that supports quoted fields and commas inside quotes
+            const rows = [];
+            const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+            for (const line of lines) {
+                const row = [];
+                let inQuotes = false;
+                let cur = '';
+                for (let i = 0; i < line.length; i++) {
+                    const ch = line[i];
+                    if (ch === '"') {
+                        if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; } else { inQuotes = !inQuotes; }
+                    } else if (ch === ',' && !inQuotes) { row.push(cur); cur = ''; }
+                    else cur += ch;
+                }
+                row.push(cur);
+                rows.push(row.map(c => c.trim()));
+            }
+            return rows;
+        }
+        function parseCorrectOptionFromQuestionData(raw, opts) {
+            if (!raw) return -1;
+            const r = String(raw).trim().toLowerCase();
+            if (r === '') return -1;
+            // numeric
+            if (/^\d+$/.test(r)) {
+                const n = parseInt(r, 10);
+                if (n >= 1 && n <= 4) return n - 1;
+            }
+            // single letter
+            if (r.length === 1) {
+                const map = { 'a': 0, 'b': 1, 'c': 2, 'd': 3 };
+                if (map.hasOwnProperty(r)) return map[r];
+            }
+            // words
+            if (r.includes('one')) return 0;
+            if (r.includes('two')) return 1;
+            if (r.includes('three')) return 2;
+            if (r.includes('four')) return 3;
+            // exact match to option text
+            for (let i = 0; i < 4; i++) {
+                if (!opts[i]) continue;
+                const o = String(opts[i]).trim().toLowerCase();
+                if (o === r) return i;
+                if (o.includes(r) || r.includes(o)) return i;
+            }
+            // contains digit
+            for (let i = 0; i < 4; i++) if (r.includes(String(i + 1))) return i;
+            return -1;
+        }
+        // --- UI ---
+        function setOptionsEnabled(enabled) {
+            for (let i = 0; i < 4; i++) {
+                const el = $('opt' + i);
+                if (enabled) el.classList.remove('disabled'); else el.classList.add('disabled');
+            }
+            const radios = document.querySelectorAll('input[name="opt"]');
+            radios.forEach(r => r.disabled = !enabled);
+        }
+        function resetOptionStyles() {
+            for (let i = 0; i < 4; i++) {
+                const el = $('opt' + i);
+                el.classList.remove('correct', 'wrong', 'selected');
+                const lbl = $('lbl' + i);
+                lbl.style.pointerEvents = 'auto';
+            }
+        }
+        function showQuestion(index) {
+            isLocked = false;
+            if (index < 0 || index >= totalQuestions) return;
+            stopQuizTimer();
+            const q = questions[index];
+            $('lblQuestion').textContent = q.q || '(no question)';
+            for (let i = 0; i < 4; i++) {
+                $('lbl' + i).textContent = q.opts[i] || '';
+                $('r' + i).checked = false;
+            }
+            resetOptionStyles();
+            // Options are only enabled if the quiz has started
+            setOptionsEnabled(quizStarted);
+            timeLimit = parseInt($('timeLimitInput').value || '15', 10);
+            secondsLeft = timeLimit;
+            $('lblTimer').textContent = 'Time: ' + secondsLeft + ' sec';
+            $('lblProgress').textContent = 'Question ' + (currentQuestionIndex + 1) + ' of ' + totalQuestions;
+            if (quizStarted && !isPaused) startQuizTimer();
+        }
+        function startQuizTimer() {
+            stopQuizTimer();
+            timerId = setInterval(() => {
+                timerTickFromModule();
+            }, 1000);
+        }
+        function stopQuizTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+        function timerTickFromModule() {
+            if (isLocked) return;
+            secondsLeft--;
+            if (secondsLeft <= 0) {
+                $('lblTimer').textContent = 'Time: 0 sec';
+                stopQuizTimer();
+                evaluateAnswer(-1); // 0 in VBA = timeout; here -1 means no selection
+            } else {
+                $('lblTimer').textContent = 'Time: ' + secondsLeft + ' sec';
+            }
+        }
+        function evaluateAnswer(selectedIndex) {
+            if (isLocked) return;
+            isLocked = true;
+            stopQuizTimer();
+            const q = questions[currentQuestionIndex];
+            const correctIndex = parseCorrectOptionFromQuestionData(q.correctRaw, q.opts);
+            // Highlight correct
+            if (correctIndex >= 0) $('opt' + correctIndex).classList.add('correct');
+            // If wrong
+            if (selectedIndex >= 0 && selectedIndex !== correctIndex) {
+                $('opt' + selectedIndex).classList.add('wrong');
+            }
+            // Count
+            if (selectedIndex >= 0 && selectedIndex === correctIndex) {
+                correctCount++;
+            } else if (selectedIndex >= 0 && selectedIndex !== correctIndex) {
+                wrongCount++;
+            } else if (selectedIndex === -1) {
+                // timed out, count as wrong
+                wrongCount++;
+            }
+            // Pause for 2 seconds then next
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex >= totalQuestions) {
+                stopQuizTimer();
+                // Only show results if the quiz was running
+                if (quizStarted) {
+                    quizStarted = false;
+                    showResults('Quiz Completed!');
+                } else {
+                    // If stopped/not started, just wrap to the first question
+                    currentQuestionIndex = 0;
+                    showQuestion(currentQuestionIndex);
+                }
+            } else {
+                showQuestion(currentQuestionIndex);
+            }
+        }
+        function showResults(title) {
+            $('resultsBox').style.display = 'block';
+            const attempted = correctCount + wrongCount;
+            const txt = `<div>${title}</div>\n<div style=\"margin-top:6px\">Correct answers: ${correctCount}</div>\n<div>Wrong answers: ${wrongCount}</div>\n<div>Attempted: ${attempted}</div>\n<div>Skipped: ${skippedQuestionsCount}</div>\n<div>Total Questions: ${totalQuestions}</div>`;
+            $('resultText').innerHTML = txt;
+            saveResultToLocal();
+        }
+        function saveResultToLocal() {
+            const name = ($('txtName').value || 'Unknown').trim();
+            const attempted = correctCount + wrongCount;
+            const rec = { name, correct: correctCount, wrong: wrongCount, attempted, skipped: skippedQuestionsCount, total: totalQuestions, date: new Date().toISOString() };
+            const key = 'quiz_attempts_v1';
+            const arr = JSON.parse(localStorage.getItem(key) || '[]');
+            arr.push(rec);
+            localStorage.setItem(key, JSON.stringify(arr));
+            updateSavedCount();
+        }
+        function updateSavedCount() {
+            const arr = JSON.parse(localStorage.getItem('quiz_attempts_v1') || '[]');
+            $('savedCount').textContent = arr.length + ' saved attempts';
+        }
+        function downloadCSV(records, filename) {
+            if (!records || records.length === 0) { alert('No records to download'); return; }
+            const header = ['Name', 'Correct Questions', 'Wrong Questions', 'Attempted Questions', 'Skipped Questions', 'Total Questions', 'Date & Time'];
+            const rows = [header.map(escapeCSV).join(',')];
+            for (const r of records) {
+                rows.push([escapeCSV(r.name), r.correct, r.wrong, r.attempted, r.skipped, r.total, r.date].join(','));
+            }
+            const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename || 'results.csv';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        }
+        function escapeCSV(v) { if (v == null) return ''; return '"' + String(v).replace(/"/g, '""') + '"'; }
+        // --- Go To Dialog Logic ---
+        function showGoToDialog() {
+            if (totalQuestions === 0) {
+                alert('Please load questions first.');
+                return;
+            }
+            $('maxQNum').textContent = totalQuestions;
+            $('goToInput').value = currentQuestionIndex + 1;
+            $('goToDialogOverlay').style.display = 'flex';
+            $('goToInput').focus();
+        }
+        function hideGoToDialog() {
+            $('goToDialogOverlay').style.display = 'none';
+        }
+        function handleGoTo() {
+            const v = $('goToInput').value;
+            hideGoToDialog();
+            if (!v) return;
+            const qn = parseInt(v, 10);
+            if (isNaN(qn) || qn < 1 || qn > totalQuestions) {
+                alert(`Invalid question number. Must be between 1 and ${totalQuestions}`);
+                return;
+            }
+            currentQuestionIndex = qn - 1;
+            showQuestion(currentQuestionIndex);
+            // If the quiz was paused, unpause it after Go To
+            if (isPaused) {
+                isPaused = false;
+                $('pauseBtn').textContent = 'Pause';
+                $('pauseBtn').classList.remove('ok');
+                startQuizTimer();
+            }
+        }
+        // --- events ---
+        window.addEventListener('DOMContentLoaded', () => {
+            // attach handlers
+            $('loadSample').addEventListener('click', () => {
+                loadSampleQuestions();
+            });
+            $('startBtn').addEventListener('click', () => {
+                if (quizStarted) return;
+                if (questions.length === 0) {
+                    alert('Load questions first (CSV/paste or sample)');
+                    return;
+                }
+                // IMPORTANT: Use the currentQuestionIndex set by goToBtn
+                quizStarted = true;
+                correctCount = 0;
+                wrongCount = 0;
+                skippedQuestionsCount = 0;
+                // currentQuestionIndex is already set (default 0, or by goToBtn)
+                $('startBtn').disabled = true;
+                $('txtName').disabled = true;
+                setOptionsEnabled(true);
+                showQuestion(currentQuestionIndex);
+            });
+            $('pauseBtn').addEventListener('click', () => {
+                if (!quizStarted) return;
+                if (isPaused) { // resume
+                    isPaused = false;
+                    $('pauseBtn').textContent = 'Pause';
+                    $('pauseBtn').classList.remove('ok');
+                    startQuizTimer();
+                } else { // pause
+                    isPaused = true;
+                    $('pauseBtn').textContent = 'Play';
+                    $('pauseBtn').classList.add('ok');
+                    stopQuizTimer();
+                }
+            });
+            $('nextBtn').addEventListener('click', () => {
+                // MODIFICATION: Removed the check 'if (!quizStarted) return;'
+                // If currently paused, resume first (mimic VBA behavior)
+                if (isPaused) {
+                    isPaused = false;
+                    $('pauseBtn').textContent = 'Pause';
+                    $('pauseBtn').classList.remove('ok');
+                }
+                // Only count the skip if the quiz is actually running
+                if (quizStarted) {
+                    skippedQuestionsCount++;
+                }
+                stopQuizTimer();
+                currentQuestionIndex++;
+                if (currentQuestionIndex >= totalQuestions) {
+                    // If the quiz was started, show results
+                    if (quizStarted) {
+                        showResults('Quiz Completed!');
+                    } else {
+                        // If stopped/not started, just wrap to the first question
+                        currentQuestionIndex = 0;
+                        showQuestion(currentQuestionIndex);
+                    }
+                } else {
+                    showQuestion(currentQuestionIndex);
+                }
+            });
+            $('stopBtn').addEventListener('click', () => {
+                stopQuizTimer();
+                // Only show results if the quiz was running
+                if (quizStarted) {
+                    showResults('Quiz Stopped!');
+                }
+                quizStarted = false; // Important: set state to stopped
+                $('startBtn').disabled = false;
+                $('txtName').disabled = false;
+                setOptionsEnabled(false);
+            });
+            // Use the custom dialog instead of prompt for better compatibility
+            $('goToBtn').addEventListener('click', showGoToDialog);
+            $('confirmGoTo').addEventListener('click', handleGoTo);
+            $('cancelGoTo').addEventListener('click', hideGoToDialog);
+            // Allow pressing Enter in the input field
+            $('goToInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleGoTo();
+                }
+            });
+            for (let i = 0; i < 4; i++) {
+                $('opt' + i).addEventListener('click', () => {
+                    if (!quizStarted || isLocked || isPaused) return; // disabled until start
+                    checkAndSetPauseButton();
+                    // mark selected visually
+                    document.querySelectorAll('.opt').forEach(el => el.classList.remove('selected'));
+                    $('opt' + i).classList.add('selected');
+                    evaluateAnswer(i);
+                });
+            }
+            $('fileInput').addEventListener('change', (ev) => {
+                const f = ev.target.files[0];
+                if (!f) return;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    loadQuestionsFromCSV(e.target.result);
+                };
+                reader.readAsText(f);
+            });
+            $('pasteLoad').addEventListener('click', () => {
+                const t = $('csvPaste').value.trim();
+                if (!t) { alert('Paste some CSV first'); return; }
+                loadQuestionsFromCSV(t);
+            });
+            $('clearStorage').addEventListener('click', () => {
+                if (confirm('Clear all saved results in localStorage?')) {
+                    localStorage.removeItem('quiz_attempts_v1');
+                    updateSavedCount();
+                }
+            });
+            $('downloadAll').addEventListener('click', () => {
+                const arr = JSON.parse(localStorage.getItem('quiz_attempts_v1') || '[]');
+                if (arr.length === 0) return alert('No saved attempts');
+                downloadCSV(arr, 'all_quiz_attempts.csv');
+            });
+            $('downloadResults').addEventListener('click', () => {
+                // Download the last saved attempt
+                const arr = JSON.parse(localStorage.getItem('quiz_attempts_v1') || '[]');
+                if (arr.length === 0) return alert('No saved attempts to download');
+                const lastAttempt = [arr[arr.length - 1]];
+                downloadCSV(lastAttempt, 'last_quiz_results.csv');
+            });
+            $('closeResults').addEventListener('click', () => {
+                $('resultsBox').style.display = 'none';
+                $('startBtn').disabled = false;
+                $('txtName').disabled = false;
+            });
+            // set initial
+            setOptionsEnabled(false);
+            updateSavedCount();
+            // load an example automatically
+            loadSampleQuestions();
+        });
+        function checkAndSetPauseButton() {
+            if (isPaused) {
+                isPaused = false;
+                $('pauseBtn').textContent = 'Pause';
+                $('pauseBtn').classList.remove('ok');
+                startQuizTimer();
+            }
+        }
+        function loadQuestionsFromCSV(text) {
+            try {
+                const rows = csvToArray(text);
+                if (rows.length === 0) { alert('No rows found'); return; }
+                // detect header
+                let start = 0;
+                const first = rows[0].map(c => c.toLowerCase());
+                if (first.includes('question') || first.includes('opt1') || first.includes('option1')) start = 1;
+                const arr = [];
+                for (let i = start; i < rows.length; i++) {
+                    const r = rows[i];
+                    const q = r[0] || '';
+                    const opts = [r[1] || '', r[2] || '', r[3] || '', r[4] || ''];
+                    const correctRaw = r[5] || '';
+                    arr.push({ q, opts, correctRaw });
+                }
+                questions = arr;
+                totalQuestions = questions.length;
+                currentQuestionIndex = 0; // Reset to start
+                // Reset quiz state when new questions are loaded
+                quizStarted = false;
+                $('startBtn').disabled = false;
+                $('txtName').disabled = false;
+                setOptionsEnabled(false);
+                $('resultsBox').style.display = 'none';
+                alert('Loaded ' + totalQuestions + ' questions');
+                showQuestion(currentQuestionIndex);
+            } catch (e) {
+                console.error(e);
+                alert('Failed to parse CSV: ' + e.message);
+            }
+        }
+        function loadSampleQuestions() {
+            questions = [
+                   {
+                    q: 'Which of the following is NOT a characteristic of a hypothesis?',
+                    opts: ['It must be testable', 'It must be correct', 'It must be consistent with all available data', 'It must make deductions'],
+                    correctRaw: 'It must be correct'
+                },
+                {
+                    q: 'What is the correct experiment to determine if Plasmodium destroys red blood cells?',
+                    opts: ['Examine the blood of a single healthy person', 'Examine the blood of a single infected person', 'Examine the blood of some healthy and some infected persons', 'Allow a mosquito to bite a healthy person and examine their blood'],
+                    correctRaw: 'Examine the blood of some healthy and some infected persons'
+                },
+                {
+                    q: 'What is the best way to analyze data collected from experiments?',
+                    opts: ['Reading the data and drawing conclusions', 'Discussion with scientists', 'Simple calculations on a calculator', 'Application of statistical formulas'],
+                    correctRaw: 'Application of statistical formulas'
+                },
+                {
+                    q: 'Why did people who slept near a smoky fire have less chance of suffering from malaria?',
+                    opts: ['Smoke kills Plasmodium in their blood', 'Fire increases temperature and kills Plasmodium in the air', 'Mosquitoes cannot tolerate smoke and are repelled', 'Smoke kills Plasmodium present in mosquitoes'],
+                    correctRaw: 'Mosquitoes cannot tolerate smoke and are repelled'
+                },
+                {
+                    q: 'Which mosquito transmits Plasmodium in human beings?',
+                    opts: ['Anopheles', 'Culex', 'Aedes', 'All of these'],
+                    correctRaw: 'Anopheles'
+                },
+                {
+                    q: 'Who discovered Plasmodium in the blood of a malarial patient for the first time?',
+                    opts: ['Ronald Ross', 'Laveran', 'A.F.A. King', 'Mendel'],
+                    correctRaw: 'Laveran'
+                },
+                {
+                    q: 'What is the role of a control group in a scientific study?',
+                    opts: ['It is used to test the hypothesis', 'It is kept under different conditions than the experimental group', 'It is used to compare results with the experimental group', 'It is not necessary in experiments'],
+                    correctRaw: 'It is used to compare results with the experimental group'
+                },
+                {
+                    q: 'What deductions were developed during the study of malaria?',
+                    opts: ['Plasmodium is present in mosquitoes', 'Mosquitoes transmit Plasmodium', 'Both A and B', 'None of these'],
+                    correctRaw: 'Both A and B'
+                },
+                {
+                    q: 'How did Ronald Ross prove that mosquitoes are involved in the spread of malaria?',
+                    opts: ['By allowing infected mosquitoes to bite healthy sparrows', 'By examining the blood of malarial patients', 'By allowing mosquitoes to bite malarial patients', 'By studying the life cycle of Plasmodium in humans'],
+                    correctRaw: 'By allowing infected mosquitoes to bite healthy sparrows'
+                },
+                {
+                    q: 'At what stage of the biological method is a hypothesis accepted or rejected?',
+                    opts: ['Observations', 'Deductions', 'Experiment', 'Conclusion'],
+                    correctRaw: 'Conclusion'
+                },
+                {
+                    q: 'What is the difference between inductive and deductive reasoning?',
+                    opts: ['Inductive reasoning moves from specific observations to broader generalizations', 'Deductive reasoning moves from general principles to specific conclusions', 'Both A and B', 'None of these'],
+                    correctRaw: 'Both A and B'
+                },
+                {
+                    q: 'What is the role of mathematics in interpreting data obtained through experimentation?',
+                    opts: ['It helps in organizing data', 'It helps in analyzing data', 'It helps in drawing conclusions', 'All of these'],
+                    correctRaw: 'All of these'
+                },
+                {
+                    q: 'What is the purpose of the biological method?',
+                    opts: ['To solve biological problems', 'To create new hypotheses', 'To conduct experiments', 'To analyze data'],
+                    correctRaw: 'To solve biological problems'
+                },
+                {
+                    q: 'What is the role of the scientific method in biology?',
+                    opts: ['To solve biological problems', 'To create new theories', 'To conduct experiments', 'To analyze data'],
+                    correctRaw: 'To solve biological problems'
+                },
+                {
+                    q: 'What is the importance of data analysis in the biological method?',
+                    opts: ['To confirm a hypothesis', 'To modify a hypothesis', 'To reject a hypothesis', 'All of these'],
+                    correctRaw: 'All of these'
+                },
+                {
+                    q: 'What is the role of a hypothesis in the biological method?',
+                    opts: ['To provide a possible answer to a biological problem', 'To conduct experiments', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To provide a possible answer to a biological problem'
+                },
+                {
+                    q: 'What is the role of conclusions in the biological method?',
+                    opts: ['To summarize findings', 'To confirm hypotheses', 'To reject hypotheses', 'All of these'],
+                    correctRaw: 'All of these'
+                },
+                {
+                    q: 'What is the role of observations in the biological method?',
+                    opts: ['To identify biological problems', 'To create hypotheses', 'To conduct experiments', 'To analyze data'],
+                    correctRaw: 'To identify biological problems'
+                },
+                {
+                    q: 'What is the role of deductions in the biological method?',
+                    opts: ['To test hypotheses', 'To analyze data', 'To draw logical conclusions from hypotheses', 'To create new hypotheses'],
+                    correctRaw: 'To draw logical conclusions from hypotheses'
+                },
+                {
+                    q: 'What is the role of reporting in the biological method?',
+                    opts: ['To share findings with the scientific community', 'To confirm hypotheses', 'To reject hypotheses', 'To create new hypotheses'],
+                    correctRaw: 'To share findings with the scientific community'
+                },
+                {
+                    q: 'What is the role of statistical analysis in the biological method?',
+                    opts: ['To analyze data', 'To confirm hypotheses', 'To reject hypotheses', 'All of these'],
+                    correctRaw: 'All of these'
+                },
+                {
+                    q: 'What is the role of the control group in an experiment?',
+                    opts: ['To provide a baseline for comparison', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To provide a baseline for comparison'
+                },
+                {
+                    q: 'What is the role of the experimental group in an experiment?',
+                    opts: ['To test the hypothesis', 'To provide a baseline for comparison', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To test the hypothesis'
+                },
+                {
+                    q: 'What is the role of variables in an experiment?',
+                    opts: ['To test the hypothesis', 'To provide a baseline for comparison', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To test the hypothesis'
+                },
+                {
+                    q: 'What is the role of replication in an experiment?',
+                    opts: ['To ensure reliability of results', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To ensure reliability of results'
+                },
+                {
+                    q: 'What is the role of peer review in the biological method?',
+                    opts: ['To validate findings', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To validate findings'
+                },
+                {
+                    q: 'What is the role of scientific journals in the biological method?',
+                    opts: ['To publish findings', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To publish findings'
+                },
+                {
+                    q: 'What is the role of conferences in the biological method?',
+                    opts: ['To share findings', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To share findings'
+                },
+                {
+                    q: 'What is the role of collaboration in the biological method?',
+                    opts: ['To enhance research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To enhance research'
+                },
+                {
+                    q: 'What is the role of technology in the biological method?',
+                    opts: ['To improve data collection', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To improve data collection'
+                },
+                {
+                    q: 'What is the role of ethics in the biological method?',
+                    opts: ['To ensure responsible research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To ensure responsible research'
+                },
+                {
+                    q: 'What is the role of funding in the biological method?',
+                    opts: ['To support research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To support research'
+                },
+                {
+                    q: 'What is the role of education in the biological method?',
+                    opts: ['To train future scientists', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To train future scientists'
+                },
+                {
+                    q: 'What is the role of public awareness in the biological method?',
+                    opts: ['To inform society', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To inform society'
+                },
+                {
+                    q: 'What is the role of government policies in the biological method?',
+                    opts: ['To regulate research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To regulate research'
+                },
+                {
+                    q: 'What is the role of creativity in the biological method?',
+                    opts: ['To develop new hypotheses', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To develop new hypotheses'
+                },
+                {
+                    q: 'What is the role of patience in the biological method?',
+                    opts: ['To conduct long-term experiments', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To conduct long-term experiments'
+                },
+                {
+                    q: 'What is the role of persistence in the biological method?',
+                    opts: ['To overcome challenges', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To overcome challenges'
+                },
+                {
+                    q: 'What is the role of teamwork in the biological method?',
+                    opts: ['To enhance collaboration', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To enhance collaboration'
+                },
+                {
+                    q: 'What is the role of documentation in the biological method?',
+                    opts: ['To record findings', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To record findings'
+                },
+                {
+                    q: 'What is the role of review in the biological method?',
+                    opts: ['To refine hypotheses', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To refine hypotheses'
+                },
+                {
+                    q: 'What is the role of experimentation in the biological method?',
+                    opts: ['To validate hypotheses', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To validate hypotheses'
+                },
+                {
+                    q: 'What is the role of observation skills in the biological method?',
+                    opts: ['To identify patterns', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To identify patterns'
+                },
+                {
+                    q: 'What is the role of problem-solving in the biological method?',
+                    opts: ['To address biological issues', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To address biological issues'
+                },
+                {
+                    q: 'What is the role of adaptability in the biological method?',
+                    opts: ['To adjust to new findings', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To adjust to new findings'
+                },
+                {
+                    q: 'What is the role of open-mindedness in the biological method?',
+                    opts: ['To consider alternative hypotheses', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To consider alternative hypotheses'
+                },
+                {
+                    q: 'What is the role of transparency in the biological method?',
+                    opts: ['To share methodologies', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To share methodologies'
+                },
+                {
+                    q: 'What is the role of integrity in the biological method?',
+                    opts: ['To maintain ethical standards', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To maintain ethical standards'
+                },
+                {
+                    q: 'What is the role of accountability in the biological method?',
+                    opts: ['To ensure responsibility', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To ensure responsibility'
+                },
+                {
+                    q: 'What is the role of global perspectives in the biological method?',
+                    opts: ['To address worldwide issues', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To address worldwide issues'
+                },
+                {
+                    q: 'What is the role of sustainability in the biological method?',
+                    opts: ['To promote eco-friendly research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To promote eco-friendly research'
+                },
+                {
+                    q: 'What is the role of public engagement in the biological method?',
+                    opts: ['To involve society', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To involve society'
+                },
+                {
+                    q: 'What is the role of mentorship in the biological method?',
+                    opts: ['To guide new researchers', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To guide new researchers'
+                },
+                {
+                    q: 'What is the role of leadership in the biological method?',
+                    opts: ['To direct research efforts', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To direct research efforts'
+                },
+                {
+                    q: 'What is the role of reflection in the biological method?',
+                    opts: ['To evaluate progress', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To evaluate progress'
+                },
+                {
+                    q: 'What is the role of continuous learning in the biological method?',
+                    opts: ['To stay updated', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To stay updated'
+                },
+                {
+                    q: 'What is the role of resourcefulness in the biological method?',
+                    opts: ['To find solutions', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To find solutions'
+                },
+                {
+                    q: 'What is the role of humility in the biological method?',
+                    opts: ['To accept limitations', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To accept limitations'
+                },
+                {
+                    q: 'What is the role of curiosity in the biological method?',
+                    opts: ['To explore new ideas', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To explore new ideas'
+                },
+                {
+                    q: 'What is the role of critical analysis in the biological method?',
+                    opts: ['To evaluate evidence', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To evaluate evidence'
+                },
+                {
+                    q: 'What is the role of networking in the biological method?',
+                    opts: ['To build professional research relationships', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To build professional research relationships'
+                },
+                {
+                    q: 'What is the role of resilience in the biological method?',
+                    opts: ['To overcome research setbacks', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To overcome research setbacks'
+                },
+                {
+                    q: 'What is the role of vision in the biological method?',
+                    opts: ['To set long-term research goals', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To set long-term research goals'
+                },
+                {
+                    q: 'What is the role of passion in the biological method?',
+                    opts: ['To drive research motivation', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To drive research motivation'
+                },
+                {
+                    q: 'What is the role of innovation in the biological method?',
+                    opts: ['To develop new research techniques', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To develop new research techniques'
+                },
+                {
+                    q: 'What is the role of interdisciplinary collaboration in the biological method?',
+                    opts: ['To integrate diverse research knowledge', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To integrate diverse research knowledge'
+                },
+                {
+                    q: 'Which step in the biological method is a tentative explanation for a biological problem?',
+                    opts: ['Observations', 'Hypothesis', 'Experiment', 'Conclusion'],
+                    correctRaw: 'Hypothesis'
+                },
+                {
+                    q: 'A hypothesis that is always correct is not a characteristic of a good one. Which of these is NOT a good characteristic?',
+                    opts: ['It is testable', 'It is based on observations', 'It is always correct', 'It can be disproven'],
+                    correctRaw: 'It is always correct'
+                },
+                {
+                    q: 'What is the key feature of quantitative observations in the biological method?',
+                    opts: ['They are less accurate than qualitative observations', 'They are measurable and can be recorded in numbers', 'They are based on descriptions', 'They are not important in scientific research'],
+                    correctRaw: 'They are measurable and can be recorded in numbers'
+                },
+                {
+                    q: 'Qualitative observations in the biological method are best described as...',
+                    opts: ['They are measurable and can be recorded in numbers', 'They are based on descriptions and cannot be measured', 'They are less important than quantitative observations', 'They are not used in scientific research'],
+                    correctRaw: 'They are based on descriptions and cannot be measured'
+                },
+                {
+                    q: 'Deductions in the biological method are used for?',
+                    opts: ['To test hypotheses', 'To draw logical conclusions from hypotheses', 'To analyze data', 'To create new hypotheses'],
+                    correctRaw: 'To draw logical conclusions from hypotheses'
+                },
+                {
+                    q: 'Experiments serve what function in the biological method?',
+                    opts: ['To test hypotheses', 'To create new hypotheses', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To test hypotheses'
+                },
+                {
+                    q: 'When you reach the conclusion stage of the biological method, what are you doing?',
+                    opts: ['To summarize findings', 'To confirm hypotheses', 'To reject hypotheses', 'All of these'],
+                    correctRaw: 'All of these'
+                },
+                {
+                    q: 'The scientific community is informed of findings through which step of the biological method?',
+                    opts: ['To share findings with the scientific community', 'To confirm hypotheses', 'To reject hypotheses', 'To create new hypotheses'],
+                    correctRaw: 'To share findings with the scientific community'
+                },
+                {
+                    q: 'How is statistical analysis utilized in the biological method?',
+                    opts: ['To analyze data', 'To confirm hypotheses', 'To reject hypotheses', 'All of these'],
+                    correctRaw: 'All of these'
+                },
+                {
+                    q: 'What is the outcome of peer review in the biological method?',
+                    opts: ['To validate findings', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To validate findings'
+                },
+                {
+                    q: 'Scientific journals are primarily used for what in the biological method?',
+                    opts: ['To publish findings', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To publish findings'
+                },
+                {
+                    q: 'Conferences play what part in the biological method?',
+                    opts: ['To share findings', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To share findings'
+                },
+                {
+                    q: 'Why is collaboration important in the biological method?',
+                    opts: ['To enhance research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To enhance research'
+                },
+                {
+                    q: 'What benefit does technology provide to the biological method?',
+                    opts: ['To improve data collection', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To improve data collection'
+                },
+                {
+                    q: 'What is the purpose of ethics in the biological method?',
+                    opts: ['To ensure responsible research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To ensure responsible research'
+                },
+                {
+                    q: 'Funding plays what role in the biological method?',
+                    opts: ['To support research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To support research'
+                },
+                {
+                    q: 'How does education contribute to the biological method?',
+                    opts: ['To train future scientists', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To train future scientists'
+                },
+                {
+                    q: 'Informing society about findings is a role of what in the biological method?',
+                    opts: ['To inform society', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To inform society'
+                },
+                {
+                    q: 'Government policies are utilized for what in the biological method?',
+                    opts: ['To regulate research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To regulate research'
+                },
+                {
+                    q: 'What is the function of innovation in the biological method?',
+                    opts: ['To advance scientific knowledge', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To advance scientific knowledge'
+                },
+                {
+                    q: 'Curiosity serves what purpose in the biological method?',
+                    opts: ['To drive scientific inquiry', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To drive scientific inquiry'
+                },
+                {
+                    q: 'Critical thinking is used for what purpose in the biological method?',
+                    opts: ['To evaluate hypotheses', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To evaluate hypotheses'
+                },
+                {
+                    q: 'Creativity in the biological method helps to?',
+                    opts: ['To develop new hypotheses', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To develop new hypotheses'
+                },
+                {
+                    q: 'In the biological method, teamwork helps to?',
+                    opts: ['To enhance collaboration', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To enhance collaboration'
+                },
+                {
+                    q: 'Communication is used in the biological method to?',
+                    opts: ['To share ideas', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To share ideas'
+                },
+                {
+                    q: 'What is the reason for documentation in the biological method?',
+                    opts: ['To record findings', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To record findings'
+                },
+                {
+                    q: 'The purpose of review in the biological method is to?',
+                    opts: ['To refine hypotheses', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To refine hypotheses'
+                },
+                {
+                    q: 'What is the role of feedback in the biological method?',
+                    opts: ['To improve research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To improve research'
+                },
+                {
+                    q: 'Problem-solving in the biological method is used for?',
+                    opts: ['To address biological issues', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To address biological issues'
+                },
+                {
+                    q: 'Adaptability in the biological method serves to?',
+                    opts: ['To adjust to new findings', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To adjust to new findings'
+                },
+                {
+                    q: 'Open-mindedness in the biological method allows you to?',
+                    opts: ['To consider alternative hypotheses', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To consider alternative hypotheses'
+                },
+                {
+                    q: 'What is the purpose of skepticism in the biological method?',
+                    opts: ['To question research assumptions', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To question research assumptions'
+                },
+                {
+                    q: 'Why is precision important in the biological method?',
+                    opts: ['To ensure accuracy', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To ensure accuracy'
+                },
+                {
+                    q: 'Objectivity in the biological method helps to?',
+                    opts: ['To avoid bias', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To avoid bias'
+                },
+                {
+                    q: 'Reproducibility is important in the biological method for?',
+                    opts: ['To ensure reliability', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To ensure reliability'
+                },
+                {
+                    q: 'Transparency in the biological method involves?',
+                    opts: ['To share methodologies', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To share methodologies'
+                },
+                {
+                    q: 'Integrity in the biological method is about?',
+                    opts: ['To maintain ethical standards', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To maintain ethical standards'
+                },
+                {
+                    q: 'Accountability in the biological method ensures?',
+                    opts: ['To ensure responsibility', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To ensure responsibility'
+                },
+                {
+                    q: 'What is the purpose of developing new techniques in the biological method?',
+                    opts: ['To develop new techniques', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To develop new techniques'
+                },
+                {
+                    q: 'Why is interdisciplinary collaboration important in the biological method?',
+                    opts: ['To integrate knowledge', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To integrate knowledge'
+                },
+                {
+                    q: 'What does sustainability in the biological method promote?',
+                    opts: ['To promote eco-friendly research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To promote eco-friendly research'
+                },
+                {
+                    q: 'In the biological method, public engagement helps to?',
+                    opts: ['To involve society', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To involve society'
+                },
+                {
+                    q: 'Mentorship in the biological method is used for?',
+                    opts: ['To guide new researchers', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To guide new researchers'
+                },
+                {
+                    q: 'What is the function of leadership in the biological method?',
+                    opts: ['To direct research efforts', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To direct research efforts'
+                },
+                {
+                    q: 'Resilience in the biological method helps to?',
+                    opts: ['To overcome setbacks', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To overcome setbacks'
+                },
+                {
+                    q: 'Reflection in the biological method is used to?',
+                    opts: ['To evaluate progress', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To evaluate progress'
+                },
+                {
+                    q: 'What is the purpose of continuous learning in the biological method?',
+                    opts: ['To stay updated', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To stay updated'
+                },
+                {
+                    q: 'Networking in the biological method helps to?',
+                    opts: ['To build professional relationships', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To build professional relationships'
+                },
+                {
+                    q: 'Resourcefulness in the biological method is used to?',
+                    opts: ['To find solutions', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To find solutions'
+                },
+                {
+                    q: 'Adaptability in the biological method helps researchers to?',
+                    opts: ['To adjust to new findings', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To adjust to new findings'
+                },
+                {
+                    q: 'Curiosity in the biological method helps you to?',
+                    opts: ['To explore new ideas', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To explore new ideas'
+                },
+                {
+                    q: 'What is the purpose of critical analysis in the biological method?',
+                    opts: ['To evaluate evidence', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To evaluate evidence'
+                },
+                {
+                    q: 'Skepticism in the biological method is used to?',
+                    opts: ['To question assumptions', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To question assumptions'
+                },
+                {
+                    q: 'Interdisciplinary collaboration is for?',
+                    opts: ['To integrate diverse research knowledge', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To integrate diverse research knowledge'
+                },
+                {
+                    q: 'Sustainability is important for?',
+                    opts: ['To promote eco-friendly research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To promote eco-friendly research'
+                },
+                {
+                    q: 'Public engagement helps to?',
+                    opts: ['To involve society in research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To involve society in research'
+                },
+                {
+                    q: 'Leadership in the biological method is used to?',
+                    opts: ['To direct research efforts', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To direct research efforts'
+                },
+                {
+                    q: 'Reflection in the biological method is about?',
+                    opts: ['To evaluate research progress', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To evaluate research progress'
+                },
+                {
+                    q: 'Continuous learning helps to?',
+                    opts: ['To stay updated with research advancements', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To stay updated with research advancements'
+                },
+                {
+                    q: 'Resourcefulness helps to?',
+                    opts: ['To find solutions to research challenges', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To find solutions to research challenges'
+                },
+                {
+                    q: 'Humility in the biological method is about?',
+                    opts: ['To accept research limitations', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To accept research limitations'
+                },
+                {
+                    q: 'Passion is important in the biological method to?',
+                    opts: ['To drive research motivation', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To drive research motivation'
+                },
+                {
+                    q: 'Vision in the biological method helps to?',
+                    opts: ['To set long-term research goals', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To set long-term research goals'
+                },
+                {
+                    q: 'Adaptability in the biological method is used to?',
+                    opts: ['To adjust to changing research conditions', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To adjust to changing research conditions'
+                },
+                {
+                    q: 'Collaboration in the biological method is for?',
+                    opts: ['To enhance teamwork', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To enhance teamwork'
+                },
+                {
+                    q: 'Reproducibility is key to?',
+                    opts: ['To ensure reliable research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To ensure reliable research'
+                },
+                {
+                    q: 'Integrity in the biological method helps to?',
+                    opts: ['To maintain ethical standards', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To maintain ethical standards'
+                },
+                {
+                    q: 'Accountability in the biological method is used to?',
+                    opts: ['To ensure responsible research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To ensure responsible research'
+                },
+                {
+                    q: 'Innovation in the biological method is used to?',
+                    opts: ['To develop new techniques', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To develop new techniques'
+                },
+                {
+                    q: 'Global perspectives in the biological method are important to...',
+                    opts: ['To address international research issues', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To address international research issues'
+                },
+                {
+                    q: 'Experimentation in the biological method is used to...',
+                    opts: ['To validate research hypotheses', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To validate research hypotheses'
+                },
+                {
+                    q: 'Observation in the biological method is used to...',
+                    opts: ['To gather data', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To gather data'
+                },
+                {
+                    q: 'Open-mindedness in the biological method helps to...',
+                    opts: ['To consider diverse perspectives', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To consider diverse perspectives'
+                },
+                {
+                    q: 'Precision in the biological method is used to...',
+                    opts: ['To ensure accurate research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To ensure accurate research'
+                },
+                {
+                    q: 'Documentation\'s purpose in the biological method is to...',
+                    opts: ['To record research progress', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To record research progress'
+                },
+                {
+                    q: 'Problem-solving is needed for?',
+                    opts: ['To address research challenges', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To address research challenges'
+                },
+                {
+                    q: 'How does a control group function in an experiment?',
+                    opts: ['To test the hypothesis', 'To provide a baseline for comparison', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To provide a baseline for comparison'
+                },
+                {
+                    q: 'Which of the following is NOT a characteristic of a good hypothesis?',
+                    opts: ['It is testable', 'It is based on observations', 'It is always correct', 'It can be disproven'],
+                    correctRaw: 'It is always correct'
+                },
+                {
+                    q: 'An experiment\'s control group is primarily used to...',
+                    opts: ['To provide a baseline for comparison', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To provide a baseline for comparison'
+                },
+                {
+                    q: 'The experimental group is used to...',
+                    opts: ['To test the hypothesis', 'To provide a baseline for comparison', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To test the hypothesis'
+                },
+                {
+                    q: 'Variables are used in an experiment to...',
+                    opts: ['To test the hypothesis', 'To provide a baseline for comparison', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To test the hypothesis'
+                },
+                {
+                    q: 'Replication ensures an experiment\'s...',
+                    opts: ['To ensure reliability of results', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To ensure reliability of results'
+                },
+                {
+                    q: 'Peer review helps to...',
+                    opts: ['To validate findings', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To validate findings'
+                },
+                {
+                    q: 'The objective of reporting in the biological method is to...',
+                    opts: ['Share findings with the scientific community', 'To confirm hypotheses', 'To reject hypotheses', 'To create new hypotheses'],
+                    correctRaw: 'Share findings with the scientific community'
+                },
+                {
+                    q: 'Conclusions in the biological method function to...',
+                    opts: ['To summarize findings', 'To confirm hypotheses', 'To reject hypotheses', 'All of these'],
+                    correctRaw: 'All of these'
+                },
+                {
+                    q: 'In the biological method, an experiment is used to...',
+                    opts: ['To test hypotheses', 'To create new hypotheses', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To test hypotheses'
+                },
+                {
+                    q: 'Observation skills enable scientists to...',
+                    opts: ['To identify patterns', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To identify patterns'
+                },
+                {
+                    q: 'Critical analysis helps you...',
+                    opts: ['To evaluate evidence', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To evaluate evidence'
+                },
+                {
+                    q: 'Skepticism is used to...',
+                    opts: ['To question research assumptions', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To question research assumptions'
+                },
+                {
+                    q: 'Objectivity in the biological method helps to?',
+                    opts: ['To avoid bias', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To avoid bias'
+                },
+                {
+                    q: 'Transparency is needed to...',
+                    opts: ['To share methodologies', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To share methodologies'
+                },
+                {
+                    q: 'Interdisciplinary collaboration helps to...',
+                    opts: ['To integrate knowledge', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To integrate knowledge'
+                },
+                {
+                    q: 'Global perspectives are important to...',
+                    opts: ['To address worldwide issues', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To address worldwide issues'
+                },
+                {
+                    q: 'Curiosity is essential for...',
+                    opts: ['To explore new ideas', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To explore new ideas'
+                },
+                {
+                    q: 'Critical analysis helps you...',
+                    opts: ['To evaluate evidence', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To evaluate evidence'
+                },
+                {
+                    q: 'Skepticism is used to...',
+                    opts: ['To question research assumptions', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To question research assumptions'
+                },
+                {
+                    q: 'Interdisciplinary collaboration is for...',
+                    opts: ['To integrate diverse research knowledge', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To integrate diverse research knowledge'
+                },
+                {
+                    q: 'Resilience helps researchers to...',
+                    opts: ['To overcome research setbacks', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To overcome research setbacks'
+                },
+                {
+                    q: 'Reflection helps to...',
+                    opts: ['To evaluate research progress', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To evaluate research progress'
+                },
+                {
+                    q: 'Networking is important to...',
+                    opts: ['To build professional research relationships', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To build professional research relationships'
+                },
+                {
+                    q: 'Resourcefulness helps to...',
+                    opts: ['To find solutions to research challenges', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To find solutions to research challenges'
+                },
+                {
+                    q: 'Humility helps a researcher to...',
+                    opts: ['To accept research limitations', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To accept research limitations'
+                },
+                {
+                    q: 'Vision is used to...',
+                    opts: ['To set long-term research goals', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To set long-term research goals'
+                },
+                {
+                    q: 'Adaptability is needed to...',
+                    opts: ['To adjust to new findings', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To adjust to new findings'
+                },
+                {
+                    q: 'Collaboration is for...',
+                    opts: ['To enhance teamwork', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To enhance teamwork'
+                },
+                {
+                    q: 'Adaptability is used to...',
+                    opts: ['To adjust to changing research conditions', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To adjust to changing research conditions'
+                },
+                {
+                    q: 'Reproducibility is key to...',
+                    opts: ['To ensure reliable research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To ensure reliable research'
+                },
+                {
+                    q: 'Integrity in the biological method helps to...',
+                    opts: ['To maintain ethical standards', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To maintain ethical standards'
+                },
+                {
+                    q: 'Accountability in the biological method ensures?',
+                    opts: ['To ensure responsibility', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To ensure responsibility'
+                },
+                {
+                    q: 'Innovation is used in the biological method to...',
+                    opts: ['To develop new techniques', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To develop new techniques'
+                },
+                {
+                    q: 'Interdisciplinary collaboration serves to...',
+                    opts: ['To integrate knowledge', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To integrate knowledge'
+                },
+                {
+                    q: 'Sustainability is important for...',
+                    opts: ['To promote eco-friendly research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To promote eco-friendly research'
+                },
+                {
+                    q: 'Public engagement helps to...',
+                    opts: ['To involve society in research', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To involve society in research'
+                },
+                {
+                    q: 'Mentorship in the biological method is used for?',
+                    opts: ['To guide new researchers', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To guide new researchers'
+                },
+                {
+                    q: 'Leadership in the biological method is used to...',
+                    opts: ['To direct research efforts', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To direct research efforts'
+                },
+                {
+                    q: 'Reflection in the biological method is about...',
+                    opts: ['To evaluate progress', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To evaluate progress'
+                },
+                {
+                    q: 'Continuous learning helps to...',
+                    opts: ['To stay updated', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To stay updated'
+                },
+                {
+                    q: 'Resourcefulness is a way to...',
+                    opts: ['To find solutions', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To find solutions'
+                },
+                {
+                    q: 'Humility in the biological method is about...',
+                    opts: ['To accept limitations', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To accept limitations'
+                },
+                {
+                    q: 'Passion is a driving force in the biological method to...',
+                    opts: ['To drive motivation', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To drive motivation'
+                },
+                {
+                    q: 'Vision in the biological method is about...',
+                    opts: ['To set long-term goals', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To set long-term goals'
+                },
+                {
+                    q: 'Adaptability in the biological method helps to...',
+                    opts: ['To adjust to new findings', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To adjust to new findings'
+                },
+                {
+                    q: 'Critical analysis is a function to...',
+                    opts: ['To evaluate evidence', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To evaluate evidence'
+                },
+                {
+                    q: 'Creativity in the biological method is used to...',
+                    opts: ['To develop innovative solutions', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To develop innovative solutions'
+                },
+                {
+                    q: 'Communication in the biological method serves to...',
+                    opts: ['To share research findings', 'To test the hypothesis', 'To analyze data', 'To draw conclusions'],
+                    correctRaw: 'To share research findings'
+                },
+                {
+                    q: 'Which of the following is NOT a step in the biological method?',
+                    opts: ['Observations', 'Hypothesis', 'Experiment', 'Prediction'],
+                    correctRaw: 'Prediction'
+                }
+        ],
+            totalQuestions = questions.length;
+            currentQuestionIndex = 0;
+            showQuestion(currentQuestionIndex);
+            // Reset quiz state when new questions are loaded
+            quizStarted = false;
+            $('startBtn').disabled = false;
+            $('txtName').disabled = false;
+            setOptionsEnabled(false);
+            $('resultsBox').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+
+

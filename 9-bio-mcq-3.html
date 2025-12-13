@@ -1,0 +1,1422 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Quiz App — VBA → HTML/JS Conversion</title>
+    <style>
+        /* EJAZ ACADEMY Navigation Bar */
+        .nav-links {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #2c3e50;
+        }
+        .nav-links li {
+            float: left;
+        }
+        .nav-links li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .nav-links li a:hover {
+            background-color: #1a252f;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            background-color: #2c3e50;
+            margin: 0;
+            padding: 10px 0;
+        }
+        :root {
+            --accent: #2b6cb0;
+            --danger: #e53e3e;
+            --ok: #38a169;
+        }
+        body {
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            padding: 20px;
+            background: #f7fafc;
+            color: #1a202c
+        }
+        .wrap {
+            max-width: 920px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 18px;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(2,6,23,0.08)
+        }
+        h1 {
+            margin: 0 0 8px;
+            font-size: 20px
+        }
+        p.lead {
+            margin: 0 0 18px;
+            color: #4a5568
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 18px
+        }
+        .panel {
+            padding: 12px;
+            border-radius: 8px;
+            background: #f1f5f9
+        }
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px
+        }
+        button {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            cursor: pointer
+        }
+            button.primary {
+                background: var(--accent);
+                color: white;
+                border-color: transparent
+            }
+            button.warn {
+                background: var(--danger);
+                color: white
+            }
+            button.ok {
+                background: var(--ok);
+                color: white
+            }
+            button:disabled {
+                opacity: 0.6;
+                cursor: not-allowed
+            }
+        .question-area {
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px
+        }
+        .q-text {
+            font-size: 18px;
+            padding: 12px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 1px 0 rgba(2,6,23,0.04)
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px
+        }
+        .opt {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+            .opt.disabled {
+                opacity: 0.6;
+                cursor: not-allowed
+            }
+            .opt.correct {
+                background: #c6f6d5;
+                border-color: #9ae6b4
+            }
+            .opt.wrong {
+                background: #fed7d7;
+                border-color: #f6adad
+            }
+        .meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px
+        }
+        .timer {
+            font-weight: 700
+        }
+        .progress {
+            color: #4a5568
+        }
+        .side {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+        label {
+            font-size: 13px;
+            color: #4a5568
+        }
+        input[type="text"], textarea,
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1
+        }
+        textarea {
+            min-height: 80px
+        }
+        .small {
+            font-size: 12px;
+            color: #718096
+        }
+        .results {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            background: #fff
+        }
+        /* Urdu font fallback - use if installed on user's system */
+        .urdu {
+            font-family: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif
+        }
+        footer {
+            margin-top: 12px;
+            color: #718096;
+            font-size: 13px
+        }
+        /* GoTo Input Dialog Style */
+        .goto-dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .goto-dialog {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        @media (max-width:900px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+            .side {
+                order: 2
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>EJAZ ACADEMY</h1>
+    <ul class="nav-links">
+        <li><a href="9th.html">Home</a></li>
+        <li><a href="#courses">Courses</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="easypaisa.html">EesyPaisa</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="register.html">Register</a></li>
+    </ul>
+    <div class="wrap">
+        <h1>KPK-Class-9th-Biology-MCQs</h1>
+        <p class="lead">Unit 3- (Biodiversity).</p>
+        <div class="grid">
+            <div>
+                <div class="panel">
+                    <div class="controls">
+                        <input id="fileInput" type="file" accept=".csv" />
+                        <button id="loadSample" class="primary">Load sample questions</button>
+                        <button id="startBtn" class="ok">Start</button>
+                        <button id="pauseBtn">Pause</button>
+                        <button id="nextBtn">Next</button>
+                        <button id="stopBtn" class="warn">Stop</button>
+                        <button id="goToBtn">Go To</button>
+                    </div>
+                    <div class="question-area">
+                        <div id="lblQuestion" class="q-text urdu">(load questions or click "Load sample questions")</div>
+                        <div class="options">
+                            <div id="opt0" class="opt"><input type="radio" name="opt" id="r0"><label for="r0" id="lbl0"></label></div>
+                            <div id="opt1" class="opt"><input type="radio" name="opt" id="r1"><label for="r1" id="lbl1"></label></div>
+                            <div id="opt2" class="opt"><input type="radio" name="opt" id="r2"><label for="r2" id="lbl2"></label></div>
+                            <div id="opt3" class="opt"><input type="radio" name="opt" id="r3"><label for="r3" id="lbl3"></label></div>
+                        </div>
+                        <div class="meta">
+                            <div class="timer" id="lblTimer">Time: -</div>
+                            <div class="progress" id="lblProgress">Question - of -</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="results" id="resultsBox" style="display:none">
+                    <div><strong>Results</strong></div>
+                    <div id="resultText" style="margin-top:8px"></div>
+                    <div style="margin-top:8px">
+                        <button id="downloadResults">Download Results CSV</button>
+                        <button id="closeResults">Close</button>
+                    </div>
+                </div>
+            </div>
+            <aside class="side">
+                <div class="panel">
+                    <label>Name</label>
+                    <input type="text" id="txtName" placeholder="Enter user name (optional)" />
+                    <label>Per-question time limit (seconds)</label>
+                    <input type="number" id="timeLimitInput" min="3" value="15" />
+                    <label>Or paste CSV (first line = header). Columns: question,opt1,opt2,opt3,opt4,correct</label>
+                    <textarea id="csvPaste" placeholder="question,opt1,opt2,opt3,opt4,correct\nWhat is 2+2?,1,2,3,4,4"></textarea>
+                    <div style="display:flex;gap:6px;margin-top:6px">
+                        <button id="pasteLoad">Load from paste</button>
+                        <button id="clearStorage">Clear saved results</button>
+                    </div>
+                    <div style="margin-top:10px" class="small">
+                        <strong>Notes:</strong>
+                        <ul>
+                            <li>The "correct" column accepts: 1/2/3/4 or a/b/c/d or words like "one" or the exact option text.</li>
+                            <li>If you don't load questions, use "Load sample questions".</li>
+                            <li>Options are disabled until you press Start.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div><strong>Saved attempts (localStorage)</strong></div>
+                    <div id="savedCount" class="small" style="margin-top:6px">0 saved attempts</div>
+                    <div style="margin-top:6px">
+                        <button id="downloadAll">Download all saved</button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+        <footer>Converted from VBA by this tool. If you want a version that writes directly to Google Sheets or server-side storage, tell me and I'll add it.</footer>
+    </div>
+    <div id="goToDialogOverlay" class="goto-dialog-overlay">
+        <div class="goto-dialog">
+            <label for="goToInput">Enter question number (1 to <span id="maxQNum"></span>):</label>
+            <input type="number" id="goToInput" min="1" />
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                <button id="cancelGoTo">Cancel</button>
+                <button id="confirmGoTo" class="primary">Go</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // --- state ---
+        let questions = []; // each: {q, opts:[], correctRaw}
+        let currentQuestionIndex = 0; // 0-based
+        let totalQuestions = 0;
+        let secondsLeft = 0;
+        let timeLimit = 15;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let isLocked = false;
+        let quizStarted = false;
+        let isPaused = false;
+        let skippedQuestionsCount = 0;
+        let timerId = null;
+        // --- helpers ---
+        function $(id) { return document.getElementById(id) }
+        function clamp(v, a, b) { return Math.max(a, Math.min(b, v)) }
+        function csvToArray(text) {
+            // Simple CSV parser that supports quoted fields and commas inside quotes
+            const rows = [];
+            const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+            for (const line of lines) {
+                const row = [];
+                let inQuotes = false;
+                let cur = '';
+                for (let i = 0; i < line.length; i++) {
+                    const ch = line[i];
+                    if (ch === '"') {
+                        if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; } else { inQuotes = !inQuotes; }
+                    } else if (ch === ',' && !inQuotes) { row.push(cur); cur = ''; }
+                    else cur += ch;
+                }
+                row.push(cur);
+                rows.push(row.map(c => c.trim()));
+            }
+            return rows;
+        }
+        function parseCorrectOptionFromQuestionData(raw, opts) {
+            if (!raw) return -1;
+            const r = String(raw).trim().toLowerCase();
+            if (r === '') return -1;
+            // numeric
+            if (/^\d+$/.test(r)) {
+                const n = parseInt(r, 10);
+                if (n >= 1 && n <= 4) return n - 1;
+            }
+            // single letter
+            if (r.length === 1) {
+                const map = { 'a': 0, 'b': 1, 'c': 2, 'd': 3 };
+                if (map.hasOwnProperty(r)) return map[r];
+            }
+            // words
+            if (r.includes('one')) return 0;
+            if (r.includes('two')) return 1;
+            if (r.includes('three')) return 2;
+            if (r.includes('four')) return 3;
+            // exact match to option text
+            for (let i = 0; i < 4; i++) {
+                if (!opts[i]) continue;
+                const o = String(opts[i]).trim().toLowerCase();
+                if (o === r) return i;
+                if (o.includes(r) || r.includes(o)) return i;
+            }
+            // contains digit
+            for (let i = 0; i < 4; i++) if (r.includes(String(i + 1))) return i;
+            return -1;
+        }
+        // --- UI ---
+        function setOptionsEnabled(enabled) {
+            for (let i = 0; i < 4; i++) {
+                const el = $('opt' + i);
+                if (enabled) el.classList.remove('disabled'); else el.classList.add('disabled');
+            }
+            const radios = document.querySelectorAll('input[name="opt"]');
+            radios.forEach(r => r.disabled = !enabled);
+        }
+        function resetOptionStyles() {
+            for (let i = 0; i < 4; i++) {
+                const el = $('opt' + i);
+                el.classList.remove('correct', 'wrong', 'selected');
+                const lbl = $('lbl' + i);
+                lbl.style.pointerEvents = 'auto';
+            }
+        }
+        function showQuestion(index) {
+            isLocked = false;
+            if (index < 0 || index >= totalQuestions) return;
+            stopQuizTimer();
+            const q = questions[index];
+            $('lblQuestion').textContent = q.q || '(no question)';
+            for (let i = 0; i < 4; i++) {
+                $('lbl' + i).textContent = q.opts[i] || '';
+                $('r' + i).checked = false;
+            }
+            resetOptionStyles();
+            // Options are only enabled if the quiz has started
+            setOptionsEnabled(quizStarted);
+            timeLimit = parseInt($('timeLimitInput').value || '15', 10);
+            secondsLeft = timeLimit;
+            $('lblTimer').textContent = 'Time: ' + secondsLeft + ' sec';
+            $('lblProgress').textContent = 'Question ' + (currentQuestionIndex + 1) + ' of ' + totalQuestions;
+            if (quizStarted && !isPaused) startQuizTimer();
+        }
+        function startQuizTimer() {
+            stopQuizTimer();
+            timerId = setInterval(() => {
+                timerTickFromModule();
+            }, 1000);
+        }
+        function stopQuizTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+        function timerTickFromModule() {
+            if (isLocked) return;
+            secondsLeft--;
+            if (secondsLeft <= 0) {
+                $('lblTimer').textContent = 'Time: 0 sec';
+                stopQuizTimer();
+                evaluateAnswer(-1); // 0 in VBA = timeout; here -1 means no selection
+            } else {
+                $('lblTimer').textContent = 'Time: ' + secondsLeft + ' sec';
+            }
+        }
+        function evaluateAnswer(selectedIndex) {
+            if (isLocked) return;
+            isLocked = true;
+            stopQuizTimer();
+            const q = questions[currentQuestionIndex];
+            const correctIndex = parseCorrectOptionFromQuestionData(q.correctRaw, q.opts);
+            // Highlight correct
+            if (correctIndex >= 0) $('opt' + correctIndex).classList.add('correct');
+            // If wrong
+            if (selectedIndex >= 0 && selectedIndex !== correctIndex) {
+                $('opt' + selectedIndex).classList.add('wrong');
+            }
+            // Count
+            if (selectedIndex >= 0 && selectedIndex === correctIndex) {
+                correctCount++;
+            } else if (selectedIndex >= 0 && selectedIndex !== correctIndex) {
+                wrongCount++;
+            } else if (selectedIndex === -1) {
+                // timed out, count as wrong
+                wrongCount++;
+            }
+            // Pause for 2 seconds then next
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex >= totalQuestions) {
+                stopQuizTimer();
+                // Only show results if the quiz was running
+                if (quizStarted) {
+                    quizStarted = false;
+                    showResults('Quiz Completed!');
+                } else {
+                    // If stopped/not started, just wrap to the first question
+                    currentQuestionIndex = 0;
+                    showQuestion(currentQuestionIndex);
+                }
+            } else {
+                showQuestion(currentQuestionIndex);
+            }
+        }
+        function showResults(title) {
+            $('resultsBox').style.display = 'block';
+            const attempted = correctCount + wrongCount;
+            const txt = `<div>${title}</div>\n<div style=\"margin-top:6px\">Correct answers: ${correctCount}</div>\n<div>Wrong answers: ${wrongCount}</div>\n<div>Attempted: ${attempted}</div>\n<div>Skipped: ${skippedQuestionsCount}</div>\n<div>Total Questions: ${totalQuestions}</div>`;
+            $('resultText').innerHTML = txt;
+            saveResultToLocal();
+        }
+        function saveResultToLocal() {
+            const name = ($('txtName').value || 'Unknown').trim();
+            const attempted = correctCount + wrongCount;
+            const rec = { name, correct: correctCount, wrong: wrongCount, attempted, skipped: skippedQuestionsCount, total: totalQuestions, date: new Date().toISOString() };
+            const key = 'quiz_attempts_v1';
+            const arr = JSON.parse(localStorage.getItem(key) || '[]');
+            arr.push(rec);
+            localStorage.setItem(key, JSON.stringify(arr));
+            updateSavedCount();
+        }
+        function updateSavedCount() {
+            const arr = JSON.parse(localStorage.getItem('quiz_attempts_v1') || '[]');
+            $('savedCount').textContent = arr.length + ' saved attempts';
+        }
+        function downloadCSV(records, filename) {
+            if (!records || records.length === 0) { alert('No records to download'); return; }
+            const header = ['Name', 'Correct Questions', 'Wrong Questions', 'Attempted Questions', 'Skipped Questions', 'Total Questions', 'Date & Time'];
+            const rows = [header.map(escapeCSV).join(',')];
+            for (const r of records) {
+                rows.push([escapeCSV(r.name), r.correct, r.wrong, r.attempted, r.skipped, r.total, r.date].join(','));
+            }
+            const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename || 'results.csv';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        }
+        function escapeCSV(v) { if (v == null) return ''; return '"' + String(v).replace(/"/g, '""') + '"'; }
+        // --- Go To Dialog Logic ---
+        function showGoToDialog() {
+            if (totalQuestions === 0) {
+                alert('Please load questions first.');
+                return;
+            }
+            $('maxQNum').textContent = totalQuestions;
+            $('goToInput').value = currentQuestionIndex + 1;
+            $('goToDialogOverlay').style.display = 'flex';
+            $('goToInput').focus();
+        }
+        function hideGoToDialog() {
+            $('goToDialogOverlay').style.display = 'none';
+        }
+        function handleGoTo() {
+            const v = $('goToInput').value;
+            hideGoToDialog();
+            if (!v) return;
+            const qn = parseInt(v, 10);
+            if (isNaN(qn) || qn < 1 || qn > totalQuestions) {
+                alert(`Invalid question number. Must be between 1 and ${totalQuestions}`);
+                return;
+            }
+            currentQuestionIndex = qn - 1;
+            showQuestion(currentQuestionIndex);
+            // If the quiz was paused, unpause it after Go To
+            if (isPaused) {
+                isPaused = false;
+                $('pauseBtn').textContent = 'Pause';
+                $('pauseBtn').classList.remove('ok');
+                startQuizTimer();
+            }
+        }
+        // --- events ---
+        window.addEventListener('DOMContentLoaded', () => {
+            // attach handlers
+            $('loadSample').addEventListener('click', () => {
+                loadSampleQuestions();
+            });
+            $('startBtn').addEventListener('click', () => {
+                if (quizStarted) return;
+                if (questions.length === 0) {
+                    alert('Load questions first (CSV/paste or sample)');
+                    return;
+                }
+                // IMPORTANT: Use the currentQuestionIndex set by goToBtn
+                quizStarted = true;
+                correctCount = 0;
+                wrongCount = 0;
+                skippedQuestionsCount = 0;
+                // currentQuestionIndex is already set (default 0, or by goToBtn)
+                $('startBtn').disabled = true;
+                $('txtName').disabled = true;
+                setOptionsEnabled(true);
+                showQuestion(currentQuestionIndex);
+            });
+            $('pauseBtn').addEventListener('click', () => {
+                if (!quizStarted) return;
+                if (isPaused) { // resume
+                    isPaused = false;
+                    $('pauseBtn').textContent = 'Pause';
+                    $('pauseBtn').classList.remove('ok');
+                    startQuizTimer();
+                } else { // pause
+                    isPaused = true;
+                    $('pauseBtn').textContent = 'Play';
+                    $('pauseBtn').classList.add('ok');
+                    stopQuizTimer();
+                }
+            });
+            $('nextBtn').addEventListener('click', () => {
+                // MODIFICATION: Removed the check 'if (!quizStarted) return;'
+                // If currently paused, resume first (mimic VBA behavior)
+                if (isPaused) {
+                    isPaused = false;
+                    $('pauseBtn').textContent = 'Pause';
+                    $('pauseBtn').classList.remove('ok');
+                }
+                // Only count the skip if the quiz is actually running
+                if (quizStarted) {
+                    skippedQuestionsCount++;
+                }
+                stopQuizTimer();
+                currentQuestionIndex++;
+                if (currentQuestionIndex >= totalQuestions) {
+                    // If the quiz was started, show results
+                    if (quizStarted) {
+                        showResults('Quiz Completed!');
+                    } else {
+                        // If stopped/not started, just wrap to the first question
+                        currentQuestionIndex = 0;
+                        showQuestion(currentQuestionIndex);
+                    }
+                } else {
+                    showQuestion(currentQuestionIndex);
+                }
+            });
+            $('stopBtn').addEventListener('click', () => {
+                stopQuizTimer();
+                // Only show results if the quiz was running
+                if (quizStarted) {
+                    showResults('Quiz Stopped!');
+                }
+                quizStarted = false; // Important: set state to stopped
+                $('startBtn').disabled = false;
+                $('txtName').disabled = false;
+                setOptionsEnabled(false);
+            });
+            // Use the custom dialog instead of prompt for better compatibility
+            $('goToBtn').addEventListener('click', showGoToDialog);
+            $('confirmGoTo').addEventListener('click', handleGoTo);
+            $('cancelGoTo').addEventListener('click', hideGoToDialog);
+            // Allow pressing Enter in the input field
+            $('goToInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleGoTo();
+                }
+            });
+            for (let i = 0; i < 4; i++) {
+                $('opt' + i).addEventListener('click', () => {
+                    if (!quizStarted || isLocked || isPaused) return; // disabled until start
+                    checkAndSetPauseButton();
+                    // mark selected visually
+                    document.querySelectorAll('.opt').forEach(el => el.classList.remove('selected'));
+                    $('opt' + i).classList.add('selected');
+                    evaluateAnswer(i);
+                });
+            }
+            $('fileInput').addEventListener('change', (ev) => {
+                const f = ev.target.files[0];
+                if (!f) return;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    loadQuestionsFromCSV(e.target.result);
+                };
+                reader.readAsText(f);
+            });
+            $('pasteLoad').addEventListener('click', () => {
+                const t = $('csvPaste').value.trim();
+                if (!t) { alert('Paste some CSV first'); return; }
+                loadQuestionsFromCSV(t);
+            });
+            $('clearStorage').addEventListener('click', () => {
+                if (confirm('Clear all saved results in localStorage?')) {
+                    localStorage.removeItem('quiz_attempts_v1');
+                    updateSavedCount();
+                }
+            });
+            $('downloadAll').addEventListener('click', () => {
+                const arr = JSON.parse(localStorage.getItem('quiz_attempts_v1') || '[]');
+                if (arr.length === 0) return alert('No saved attempts');
+                downloadCSV(arr, 'all_quiz_attempts.csv');
+            });
+            $('downloadResults').addEventListener('click', () => {
+                // Download the last saved attempt
+                const arr = JSON.parse(localStorage.getItem('quiz_attempts_v1') || '[]');
+                if (arr.length === 0) return alert('No saved attempts to download');
+                const lastAttempt = [arr[arr.length - 1]];
+                downloadCSV(lastAttempt, 'last_quiz_results.csv');
+            });
+            $('closeResults').addEventListener('click', () => {
+                $('resultsBox').style.display = 'none';
+                $('startBtn').disabled = false;
+                $('txtName').disabled = false;
+            });
+            // set initial
+            setOptionsEnabled(false);
+            updateSavedCount();
+            // load an example automatically
+            loadSampleQuestions();
+        });
+        function checkAndSetPauseButton() {
+            if (isPaused) {
+                isPaused = false;
+                $('pauseBtn').textContent = 'Pause';
+                $('pauseBtn').classList.remove('ok');
+                startQuizTimer();
+            }
+        }
+        function loadQuestionsFromCSV(text) {
+            try {
+                const rows = csvToArray(text);
+                if (rows.length === 0) { alert('No rows found'); return; }
+                // detect header
+                let start = 0;
+                const first = rows[0].map(c => c.toLowerCase());
+                if (first.includes('question') || first.includes('opt1') || first.includes('option1')) start = 1;
+                const arr = [];
+                for (let i = start; i < rows.length; i++) {
+                    const r = rows[i];
+                    const q = r[0] || '';
+                    const opts = [r[1] || '', r[2] || '', r[3] || '', r[4] || ''];
+                    const correctRaw = r[5] || '';
+                    arr.push({ q, opts, correctRaw });
+                }
+                questions = arr;
+                totalQuestions = questions.length;
+                currentQuestionIndex = 0; // Reset to start
+                // Reset quiz state when new questions are loaded
+                quizStarted = false;
+                $('startBtn').disabled = false;
+                $('txtName').disabled = false;
+                setOptionsEnabled(false);
+                $('resultsBox').style.display = 'none';
+                alert('Loaded ' + totalQuestions + ' questions');
+                showQuestion(currentQuestionIndex);
+            } catch (e) {
+                console.error(e);
+                alert('Failed to parse CSV: ' + e.message);
+            }
+        }
+        function loadSampleQuestions() {
+            questions = [
+                   {
+                    q: 'State the origin of the term "biodiversity."',
+                    opts: ['"Bio" and "diversity"', '"Bio" and "variety"', '"Life" and "diversity"', '"Life" and "variety"'],
+                    correctRaw: '"Bio" and "diversity"'
+                },
+                {
+                    q: 'Identify the factor below that is NOT a benefit of biodiversity.',
+                    opts: ['Food for human beings', 'Production of drugs', 'Industrial benefits', 'Destruction of ecosystems'],
+                    correctRaw: 'Destruction of ecosystems'
+                },
+                {
+                    q: 'Determine the foundation for classifying organisms.',
+                    opts: ['Habitat', 'Physical characteristics', 'Genetics', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Select the kingdom containing autotrophic organisms with cell walls made of cellulose.',
+                    opts: ['Protista', 'Fungi', 'Plantae', 'Animalia'],
+                    correctRaw: 'Plantae'
+                },
+                {
+                    q: 'Select the kingdom containing heterotrophic organisms with cell walls made of chitin.',
+                    opts: ['Protista', 'Fungi', 'Plantae', 'Animalia'],
+                    correctRaw: 'Fungi'
+                },
+                {
+                    q: 'Select the kingdom containing multicellular organisms that lack cell walls and are heterotrophic.',
+                    opts: ['Protista', 'Fungi', 'Plantae', 'Animalia'],
+                    correctRaw: 'Animalia'
+                },
+                {
+                    q: 'Determine the correct order of taxonomic hierarchy from smallest to largest.',
+                    opts: ['Species → Genus → Family', 'Genus → Species → Family', 'Family → Genus → Species', 'Species → Family → Genus'],
+                    correctRaw: 'Species → Genus → Family'
+                },
+                {
+                    q: 'Identify the option that is NOT a limitation of the two-kingdom system of classification.',
+                    opts: ['Euglena in Kingdom Plantae', 'Difference between prokaryotes and eukaryotes', 'Fungi in Kingdom Plantae', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Name the scientist who proposed the five-kingdom system of classification.',
+                    opts: ['Carolus Linnaeus', 'Robert Whittaker', 'Aristotle', 'Abu Usman Umer Aljahiz'],
+                    correctRaw: 'Robert Whittaker'
+                },
+                {
+                    q: 'Select the kingdom that includes organisms that are unicellular or colonial and lack membrane-bound organelles.',
+                    opts: ['Protista', 'Fungi', 'Monera', 'Plantae'],
+                    correctRaw: 'Monera'
+                },
+                {
+                    q: 'Which kingdom includes organisms that are eukaryotic, unicellular, or multicellular, and lack chlorophyll?',
+                    opts: ['Protista', 'Fungi', 'Monera', 'Plantae'],
+                    correctRaw: 'Fungi'
+                },
+                {
+                    q: 'Select the kingdom that includes organisms that are multicellular, eukaryotic, and autotrophic.',
+                    opts: ['Protista', 'Fungi', 'Monera', 'Plantae'],
+                    correctRaw: 'Plantae'
+                },
+                {
+                    q: 'Select the kingdom that includes organisms that are multicellular, eukaryotic, and heterotrophic.',
+                    opts: ['Protista', 'Fungi', 'Monera', 'Animalia'],
+                    correctRaw: 'Animalia'
+                },
+                {
+                    q: 'State the correct scientific name format for organisms according to binomial nomenclature.',
+                    opts: ['Genus species', 'Species genus', 'Genus-Species', 'Species-Genus'],
+                    correctRaw: 'Genus species'
+                },
+                {
+                    q: 'What is the term for a species that is in danger of extinction?',
+                    opts: ['Endangered species', 'Threatened species', 'Extinct species', 'Rare species'],
+                    correctRaw: 'Endangered species'
+                },
+                {
+                    q: 'Define the term for a species likely to become endangered in the near future.',
+                    opts: ['Endangered species', 'Threatened species', 'Extinct species', 'Rare species'],
+                    correctRaw: 'Threatened species'
+                },
+                {
+                    q: 'Identify a contributing factor to the loss of biodiversity.',
+                    opts: ['Habitat loss', 'Over-hunting', 'Introduction or removal of species', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Define the term for the destruction of natural habitats of species.',
+                    opts: ['Deforestation', 'Habitat loss', 'Over-hunting', 'Industrialization'],
+                    correctRaw: 'Habitat loss'
+                },
+                {
+                    q: 'Define the term for the cutting down of trees for the conversion of a forest to non-forest land.',
+                    opts: ['Deforestation', 'Habitat loss', 'Over-hunting', 'Industrialization'],
+                    correctRaw: 'Deforestation'
+                },
+                {
+                    q: 'Identify an endangered species found in Pakistan.',
+                    opts: ['Asiatic cheetah', 'Tiger', 'Lion', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Which of the following is an example of an endangered plant species in Pakistan?',
+                    opts: ['Yew', 'Chilghoza', 'Sanobar', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Identify an example of an endangered animal species in Pakistan.',
+                    opts: ['Houbara bustard', 'Markhor', 'Indus river dolphin', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Define the term for the process of renewing damaged forests.',
+                    opts: ['Deforestation', 'Reforestation', 'Afforestation', 'Desertification'],
+                    correctRaw: 'Reforestation'
+                },
+                {
+                    q: 'Which of the following is a national park in Pakistan?',
+                    opts: ['Indus Dolphin Park', 'Himalayan National Park', 'Chitral National Park', 'None of the above'],
+                    correctRaw: 'Himalayan National Park'
+                },
+                {
+                    q: 'What does the term "biodiversity" refer to?',
+                    opts: ['Variety of ecosystems', 'Variety of organisms', 'Variety of habitats', 'Variety of climates'],
+                    correctRaw: 'Variety of organisms'
+                },
+                {
+                    q: 'Which of the following is NOT a factor affecting biodiversity?',
+                    opts: ['Climate', 'Altitude', 'Soil composition', 'Human population'],
+                    correctRaw: 'Human population'
+                },
+                {
+                    q: 'Select the region of the Earth with the greatest biodiversity.',
+                    opts: ['Polar regions', 'Tropical regions', 'Temperate regions', 'Desert regions'],
+                    correctRaw: 'Tropical regions'
+                },
+                {
+                    q: 'What is the primary importance of biodiversity for ecosystems?',
+                    opts: ['Aesthetic value', 'Economic value', 'Ecological balance', 'Industrial use'],
+                    correctRaw: 'Ecological balance'
+                },
+                {
+                    q: 'Which of the following is NOT a source of food derived from biodiversity?',
+                    opts: ['Crops', 'Livestock', 'Forestry', 'Plastics'],
+                    correctRaw: 'Plastics'
+                },
+                {
+                    q: 'Identify the drug that is derived from fungi.',
+                    opts: ['Streptomycin', 'Morphine', 'Quinine', 'Caffeine'],
+                    correctRaw: 'Streptomycin'
+                },
+                {
+                    q: 'Which of the following is NOT an industrial material derived from plants?',
+                    opts: ['Rubber', 'Oil', 'Dyes', 'Steel'],
+                    correctRaw: 'Steel'
+                },
+                {
+                    q: 'State the function of biodiversity in natural cycles.',
+                    opts: ['Disrupts cycles', 'Maintains cycles', 'Has no effect', 'Creates new cycles'],
+                    correctRaw: 'Maintains cycles'
+                },
+                {
+                    q: 'State the primary method used by biologists to study a large collection of organisms.',
+                    opts: ['Classification', 'Experimentation', 'Observation', 'Dissection'],
+                    correctRaw: 'Classification'
+                },
+                {
+                    q: 'Determine the basis of Aristotle\'s classification of organisms.',
+                    opts: ['Habitat', 'Cell structure', 'Morphology', 'Anatomy'],
+                    correctRaw: 'Habitat'
+                },
+                {
+                    q: 'Identify the modern basis of classification of organisms.',
+                    opts: ['Habitat', 'Physical characteristics', 'Genetics', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Determine the primary purpose of classification.',
+                    opts: ['To confuse biologists', 'To group organisms randomly', 'To determine similarities and differences', 'To create new species'],
+                    correctRaw: 'To determine similarities and differences'
+                },
+                {
+                    q: 'State the smallest unit of classification.',
+                    opts: ['Genus', 'Species', 'Family', 'Order'],
+                    correctRaw: 'Species'
+                },
+                {
+                    q: 'Define the group of organisms that can naturally interbreed and produce fertile offspring.',
+                    opts: ['Genus', 'Species', 'Family', 'Order'],
+                    correctRaw: 'Species'
+                },
+                {
+                    q: 'Name the scientist who proposed the two-kingdom system of classification.',
+                    opts: ['Robert Whittaker', 'Carolus Linnaeus', 'Aristotle', 'Abu Usman Umer Aljahiz'],
+                    correctRaw: 'Carolus Linnaeus'
+                },
+                {
+                    q: 'Identify a restriction of the two-kingdom system of classification.',
+                    opts: ['Euglena in Kingdom Plantae', 'Difference between prokaryotes and eukaryotes', 'Fungi in Kingdom Plantae', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Which kingdom includes prokaryotic organisms?',
+                    opts: ['Protista', 'Fungi', 'Monera', 'Plantae'],
+                    correctRaw: 'Monera'
+                },
+                {
+                    q: 'Define the term for the destruction of natural habitats of species.',
+                    opts: ['Deforestation', 'Habitat loss', 'Over-hunting', 'Industrialization'],
+                    correctRaw: 'Habitat loss'
+                },
+                {
+                    q: 'Identify an endangered species found in Pakistan.',
+                    opts: ['Asiatic cheetah', 'Tiger', 'Lion', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Define the term for the process of creating new forest lands.',
+                    opts: ['Deforestation', 'Reforestation', 'Afforestation', 'Desertification'],
+                    correctRaw: 'Afforestation'
+                },
+                {
+                    q: 'Define the term for the process of renewing damaged forests.',
+                    opts: ['Deforestation', 'Reforestation', 'Afforestation', 'Desertification'],
+                    correctRaw: 'Reforestation'
+                },
+                {
+                    q: 'Identify a project aimed at conserving biodiversity in Pakistan.',
+                    opts: ['Indus Dolphin Project', 'Marine Turtle Conservation Project', 'Himalayan Jungle Project', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Which of the following is a national park in Pakistan?',
+                    opts: ['Indus Dolphin Park', 'Himalayan National Park', 'Chitral National Park', 'None of the above'],
+                    correctRaw: 'Himalayan National Park'
+                },
+                {
+                    q: 'What is the term for the use of resources in a sensible way?',
+                    opts: ['Conservation', 'Exploitation', 'Pollution', 'Deforestation'],
+                    correctRaw: 'Conservation'
+                },
+                {
+                    q: 'Define the term for a species that no longer lives anywhere on Earth.',
+                    opts: ['Endangered species', 'Threatened species', 'Extinct species', 'Rare species'],
+                    correctRaw: 'Extinct species'
+                },
+                {
+                    q: 'Identify the action that is NOT a cause of deforestation.',
+                    opts: ['Extension of cities', 'Agricultural activities', 'Planting trees', 'Timber mafia'],
+                    correctRaw: 'Planting trees'
+                },
+                {
+                    q: 'Define the term for the process of the formation of deserts.',
+                    opts: ['Afforestation', 'Deforestation', 'Desertification', 'Reforestation'],
+                    correctRaw: 'Desertification'
+                },
+                {
+                    q: 'Identify a consequence of deforestation.',
+                    opts: ['Soil erosion', 'Destruction of habitats', 'Extinction of species', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Define the term for the introduction of a new species into an ecosystem.',
+                    opts: ['Introduction', 'Removal', 'Extinction', 'Migration'],
+                    correctRaw: 'Introduction'
+                },
+                {
+                    q: 'Which of the following is a consequence of rapid industrialization?',
+                    opts: ['Pollution', 'Loss of species', 'Habitat destruction', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'What is the term for the death of most or all cells in an organ or tissue due to disease or injury?',
+                    opts: ['Apoptosis', 'Necrosis', 'Mitosis', 'Meiosis'],
+                    correctRaw: 'Necrosis'
+                },
+                {
+                    q: 'Define the term for the programmed cell death.',
+                    opts: ['Apoptosis', 'Necrosis', 'Mitosis', 'Meiosis'],
+                    correctRaw: 'Apoptosis'
+                },
+                {
+                    q: 'Identify the statement that is NOT a characteristic of viruses.',
+                    opts: ['They contain DNA or RNA', 'They are made of cells', 'They reproduce', 'They cause diseases'],
+                    correctRaw: 'They are made of cells'
+                },
+                {
+                    q: 'Explain why viruses are not included in the five-kingdom classification system.',
+                    opts: ['They are not living', 'They are too small', 'They lack cells', 'They are prokaryotes'],
+                    correctRaw: 'They lack cells'
+                },
+                {
+                    q: 'What is the term for the scientific naming system introduced by Carolus Linnaeus?',
+                    opts: ['Binomial nomenclature', 'Taxonomy', 'Classification', 'Phylogeny'],
+                    correctRaw: 'Binomial nomenclature'
+                },
+                {
+                    q: 'State the term for the first part of the scientific name of an organism.',
+                    opts: ['Species', 'Genus', 'Family', 'Order'],
+                    correctRaw: 'Genus'
+                },
+                {
+                    q: 'State the term for the second part of the scientific name of an organism.',
+                    opts: ['Species', 'Genus', 'Family', 'Order'],
+                    correctRaw: 'Species'
+                },
+                {
+                    q: 'Identify the statement that is NOT an advantage of binomial nomenclature.',
+                    opts: ['Universal acceptance', 'Precise names', 'Indicates evolutionary relationships', 'Confuses scientists'],
+                    correctRaw: 'Confuses scientists'
+                },
+                {
+                    q: 'Define the term for the variety of life on Earth.',
+                    opts: ['Biodiversity', 'Ecology', 'Taxonomy', 'Phylogeny'],
+                    correctRaw: 'Biodiversity'
+                },
+                {
+                    q: 'Which of the following is NOT a level of biodiversity?',
+                    opts: ['Genetic diversity', 'Species diversity', 'Ecosystem diversity', 'Industrial diversity'],
+                    correctRaw: 'Industrial diversity'
+                },
+                {
+                    q: 'Which of the following is a threat to biodiversity?',
+                    opts: ['Habitat loss', 'Climate change', 'Pollution', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Define the term for the variety of genes within a species.',
+                    opts: ['Genetic diversity', 'Species diversity', 'Ecosystem diversity', 'Industrial diversity'],
+                    correctRaw: 'Genetic diversity'
+                },
+                {
+                    q: 'Define the term for the variety of species in a region.',
+                    opts: ['Genetic diversity', 'Species diversity', 'Ecosystem diversity', 'Industrial diversity'],
+                    correctRaw: 'Species diversity'
+                },
+                {
+                    q: 'Define the term for the variety of ecosystems in a region.',
+                    opts: ['Genetic diversity', 'Species diversity', 'Ecosystem diversity', 'Industrial diversity'],
+                    correctRaw: 'Ecosystem diversity'
+                },
+                {
+                    q: 'Identify the option that is NOT a method of conservation.',
+                    opts: ['Afforestation', 'Deforestation', 'Reforestation', 'Protected areas'],
+                    correctRaw: 'Deforestation'
+                },
+                {
+                    q: 'Define the term for areas where hunting and pollution are banned to conserve biodiversity.',
+                    opts: ['National parks', 'Zoos', 'Botanical gardens', 'Aquariums'],
+                    correctRaw: 'National parks'
+                },
+                {
+                    q: 'Which of the following is a project aimed at conserving the Indus dolphin?',
+                    opts: ['Indus Dolphin Project', 'Marine Turtle Conservation Project', 'Himalayan Jungle Project', 'Chitral National Park'],
+                    correctRaw: 'Indus Dolphin Project'
+                },
+                {
+                    q: 'Identify the project aimed at conserving marine turtles.',
+                    opts: ['Indus Dolphin Project', 'Marine Turtle Conservation Project', 'Himalayan Jungle Project', 'Chitral National Park'],
+                    correctRaw: 'Marine Turtle Conservation Project'
+                },
+                {
+                    q: 'Which of the following is a project aimed at conserving the biodiversity of the Himalayan region?',
+                    opts: ['Indus Dolphin Project', 'Marine Turtle Conservation Project', 'Himalayan Jungle Project', 'Chitral National Park'],
+                    correctRaw: 'Himalayan Jungle Project'
+                },
+                {
+                    q: 'Identify the project aimed at conserving migratory birds in Chitral.',
+                    opts: ['Indus Dolphin Project', 'Marine Turtle Conservation Project', 'Himalayan Jungle Project', 'Conservation of migratory birds in Chitral'],
+                    correctRaw: 'Conservation of migratory birds in Chitral'
+                },
+                {
+                    q: 'State the term for the variety of life at the genetic level.',
+                    opts: ['Genetic diversity', 'Species diversity', 'Ecosystem diversity', 'Industrial diversity'],
+                    correctRaw: 'Genetic diversity'
+                },
+                {
+                    q: 'State the term for the variety of life at the ecosystem level.',
+                    opts: ['Genetic diversity', 'Species diversity', 'Ecosystem diversity', 'Industrial diversity'],
+                    correctRaw: 'Ecosystem diversity'
+                },
+                {
+                    q: 'What is the term for the process of converting forest land into agricultural land?',
+                    opts: ['Deforestation', 'Afforestation', 'Reforestation', 'Desertification'],
+                    correctRaw: 'Deforestation'
+                },
+                {
+                    q: 'Identify a consequence of over-hunting.',
+                    opts: ['Extinction of species', 'Loss of genetic diversity', 'Habitat destruction', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Identify a consequence of introducing a non-native species.',
+                    opts: ['Loss of native species', 'Disruption of food chains', 'Spread of diseases', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Identify a consequence of removing a species from an ecosystem.',
+                    opts: ['Loss of biodiversity', 'Disruption of food chains', 'Spread of diseases', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Identify the statement that is NOT a cause of necrosis.',
+                    opts: ['Disease', 'Injury', 'Lack of blood supply', 'Normal cell death'],
+                    correctRaw: 'Normal cell death'
+                },
+                {
+                    q: 'Define the normal, programmed death of cells.',
+                    opts: ['Apoptosis', 'Necrosis', 'Mitosis', 'Meiosis'],
+                    correctRaw: 'Apoptosis'
+                },
+                {
+                    q: 'Identify an example of apoptosis.',
+                    opts: ['Death of cells in a leaf', 'Tail disappearance in tadpoles', 'Web disappearance in human fingers', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Define the term for the death of cells due to toxic chemicals or physical events.',
+                    opts: ['Apoptosis', 'Necrosis', 'Mitosis', 'Meiosis'],
+                    correctRaw: 'Necrosis'
+                },
+                {
+                    q: 'Identify a cause of necrosis.',
+                    opts: ['Toxic chemicals', 'Radiation', 'Heat', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Define the term for the death of bone tissue due to lack of blood supply.',
+                    opts: ['Apoptosis', 'Necrosis', 'Avascular necrosis', 'Osteoporosis'],
+                    correctRaw: 'Avascular necrosis'
+                },
+                {
+                    q: 'Define the term for the variety of life in a particular habitat.',
+                    opts: ['Biodiversity', 'Ecology', 'Taxonomy', 'Phylogeny'],
+                    correctRaw: 'Biodiversity'
+                },
+                {
+                    q: 'Define the term for the variety of species within a community.',
+                    opts: ['Genetic diversity', 'Species diversity', 'Ecosystem diversity', 'Industrial diversity'],
+                    correctRaw: 'Species diversity'
+                },
+                {
+                    q: 'What is the term for the variety of ecosystems within a biosphere?',
+                    opts: ['Genetic diversity', 'Species diversity', 'Ecosystem diversity', 'Industrial diversity'],
+                    correctRaw: 'Ecosystem diversity'
+                },
+                {
+                    q: 'Define the term for the process of planting trees to create new forests.',
+                    opts: ['Afforestation', 'Deforestation', 'Reforestation', 'Desertification'],
+                    correctRaw: 'Afforestation'
+                },
+                {
+                    q: 'Define the term for the process of converting forest land into non-forest land.',
+                    opts: ['Afforestation', 'Deforestation', 'Reforestation', 'Desertification'],
+                    correctRaw: 'Deforestation'
+                },
+                {
+                    q: 'Define the term for the removal of a species from its natural habitat.',
+                    opts: ['Introduction', 'Removal', 'Extinction', 'Migration'],
+                    correctRaw: 'Removal'
+                },
+                {
+                    q: 'What is the term for the death of a species?',
+                    opts: ['Extinction', 'Endangerment', 'Threat', 'Migration'],
+                    correctRaw: 'Extinction'
+                },
+                {
+                    q: 'What is the term for a species that is at risk of becoming extinct?',
+                    opts: ['Extinct species', 'Endangered species', 'Threatened species', 'Rare species'],
+                    correctRaw: 'Endangered species'
+                },
+                {
+                    q: 'Which of the following is an example of an endangered species in Pakistan?',
+                    opts: ['Asiatic cheetah', 'Tiger', 'Lion', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Identify an example of an endangered animal species in Pakistan.',
+                    opts: ['Houbara bustard', 'Markhor', 'Indus river dolphin', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Define the term for the variety of life in a particular area.',
+                    opts: ['Biodiversity', 'Ecology', 'Taxonomy', 'Phylogeny'],
+                    correctRaw: 'Biodiversity'
+                },
+                {
+                    q: 'Define the term for the variety of genes within a population.',
+                    opts: ['Genetic diversity', 'Species diversity', 'Ecosystem diversity', 'Industrial diversity'],
+                    correctRaw: 'Genetic diversity'
+                },
+                {
+                    q: 'Which of the following is a method of conserving biodiversity?',
+                    opts: ['Afforestation', 'Deforestation', 'Pollution', 'Over-hunting'],
+                    correctRaw: 'Afforestation'
+                },
+                {
+                    q: 'What is the term for the introduction of a species into a new environment?',
+                    opts: ['Introduction', 'Removal', 'Extinction', 'Migration'],
+                    correctRaw: 'Introduction'
+                },
+                {
+                    q: 'Identify a consequence of introducing a new species.',
+                    opts: ['Loss of native species', 'Disruption of food chains', 'Spread of diseases', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Define the term for the death of cells due to disease or injury.',
+                    opts: ['Apoptosis', 'Necrosis', 'Mitosis', 'Meiosis'],
+                    correctRaw: 'Necrosis'
+                },
+                {
+                    q: 'Identify the statement that is NOT a characteristic of apoptosis.',
+                    opts: ['Programmed cell death', 'Inflammation', 'No release of cellular contents', 'Engulfment by neighbors'],
+                    correctRaw: 'Inflammation'
+                },
+                {
+                    q: 'Identify a consequence of avascular necrosis.',
+                    opts: ['Bone collapse', 'Pain', 'Loss of function', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Define the scientific study of naming and classifying organisms.',
+                    opts: ['Taxonomy', 'Ecology', 'Physiology', 'Biodiversity'],
+                    correctRaw: 'Taxonomy'
+                },
+                {
+                    q: 'Name the scientist known as the founder of biological classification.',
+                    opts: ['Charles Darwin', 'Carolus Linnaeus', 'Robert Whittaker', 'Aristotle'],
+                    correctRaw: 'Aristotle'
+                },
+                {
+                    q: 'Define the group of organisms that can interbreed and produce fertile offspring.',
+                    opts: ['Genus', 'Species', 'Family', 'Order'],
+                    correctRaw: 'Species'
+                },
+                {
+                    q: 'Select the kingdom that includes organisms like bacteria and blue-green algae.',
+                    opts: ['Protista', 'Fungi', 'Monera', 'Plantae'],
+                    correctRaw: 'Monera'
+                },
+                {
+                    q: 'Select the kingdom that includes organisms like Amoeba and Paramecium.',
+                    opts: ['Protista', 'Fungi', 'Monera', 'Plantae'],
+                    correctRaw: 'Protista'
+                },
+                {
+                    q: 'Select the kingdom that includes organisms like mushrooms and molds.',
+                    opts: ['Protista', 'Fungi', 'Monera', 'Plantae'],
+                    correctRaw: 'Fungi'
+                },
+                {
+                    q: 'Which kingdom includes organisms like pine trees and roses?',
+                    opts: ['Protista', 'Fungi', 'Monera', 'Plantae'],
+                    correctRaw: 'Plantae'
+                },
+                {
+                    q: 'Select the kingdom that includes organisms like humans and frogs.',
+                    opts: ['Protista', 'Fungi', 'Monera', 'Animalia'],
+                    correctRaw: 'Animalia'
+                },
+                {
+                    q: 'Define the system of naming organisms using two names.',
+                    opts: ['Binomial nomenclature', 'Taxonomy', 'Classification', 'Phylogeny'],
+                    correctRaw: 'Binomial nomenclature'
+                },
+                {
+                    q: 'State the first part of the scientific name of an organism.',
+                    opts: ['Species', 'Genus', 'Family', 'Order'],
+                    correctRaw: 'Genus'
+                },
+                {
+                    q: 'State the second part of the scientific name of an organism.',
+                    opts: ['Species', 'Genus', 'Family', 'Order'],
+                    correctRaw: 'Species'
+                },
+                {
+                    q: 'Identify the correct format for writing a scientific name.',
+                    opts: ['Canis lupus', 'Canis Lupus', 'canis lupus', 'CANIS LUPUS'],
+                    correctRaw: 'Canis lupus'
+                },
+                {
+                    q: 'Define the term for the variety of life at the species level.',
+                    opts: ['Genetic diversity', 'Species diversity', 'Ecosystem diversity', 'Industrial diversity'],
+                    correctRaw: 'Species diversity'
+                },
+                {
+                    q: 'What is the term for the variety of life at the ecosystem level?',
+                    opts: ['Genetic diversity', 'Species diversity', 'Ecosystem diversity', 'Industrial diversity'],
+                    correctRaw: 'Ecosystem diversity'
+                },
+                {
+                    q: 'Which of the following is NOT a threat to biodiversity?',
+                    opts: ['Habitat loss', 'Conservation', 'Pollution', 'Over-hunting'],
+                    correctRaw: 'Conservation'
+                },
+                {
+                    q: 'Define the term for the process of cutting down trees.',
+                    opts: ['Afforestation', 'Deforestation', 'Reforestation', 'Desertification'],
+                    correctRaw: 'Deforestation'
+                },
+                {
+                    q: 'Define the term for the process of planting trees.',
+                    opts: ['Afforestation', 'Deforestation', 'Reforestation', 'Desertification'],
+                    correctRaw: 'Afforestation'
+                },
+                {
+                    q: 'Define the term for the process of restoring damaged forests.',
+                    opts: ['Afforestation', 'Deforestation', 'Reforestation', 'Desertification'],
+                    correctRaw: 'Reforestation'
+                },
+                {
+                    q: 'Define the term for the removal of a species from an ecosystem.',
+                    opts: ['Introduction', 'Removal', 'Extinction', 'Migration'],
+                    correctRaw: 'Removal'
+                },
+                {
+                    q: 'Define the term for the death of a species.',
+                    opts: ['Extinction', 'Endangerment', 'Threat', 'Migration'],
+                    correctRaw: 'Extinction'
+                },
+                {
+                    q: 'What is the term for a species that is at risk of becoming extinct?',
+                    opts: ['Extinct species', 'Endangered species', 'Threatened species', 'Rare species'],
+                    correctRaw: 'Endangered species'
+                },
+                {
+                    q: 'Which of the following is an example of an endangered species in Pakistan?',
+                    opts: ['Asiatic cheetah', 'Tiger', 'Lion', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Identify an example of an endangered animal species in Pakistan.',
+                    opts: ['Houbara bustard', 'Markhor', 'Indus river dolphin', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Define the term for the variety of life in a particular area.',
+                    opts: ['Biodiversity', 'Ecology', 'Taxonomy', 'Phylogeny'],
+                    correctRaw: 'Biodiversity'
+                },
+                {
+                    q: 'Define the term for the variety of genes within a population.',
+                    opts: ['Genetic diversity', 'Species diversity', 'Ecosystem diversity', 'Industrial diversity'],
+                    correctRaw: 'Genetic diversity'
+                },
+                {
+                    q: 'Which of the following is a method of conserving biodiversity?',
+                    opts: ['Afforestation', 'Deforestation', 'Pollution', 'Over-hunting'],
+                    correctRaw: 'Afforestation'
+                },
+                {
+                    q: 'What is the term for the introduction of a species into a new environment?',
+                    opts: ['Introduction', 'Removal', 'Extinction', 'Migration'],
+                    correctRaw: 'Introduction'
+                },
+                {
+                    q: 'Identify a consequence of introducing a new species.',
+                    opts: ['Loss of native species', 'Disruption of food chains', 'Spread of diseases', 'All of the above'],
+                    correctRaw: 'All of the above'
+                },
+                {
+                    q: 'Define the term for the death of cells due to disease or injury.',
+                    opts: ['Apoptosis', 'Necrosis', 'Mitosis', 'Meiosis'],
+                    correctRaw: 'Necrosis'
+                },
+                {
+                    q: 'Identify the statement that is NOT a characteristic of apoptosis.',
+                    opts: ['Programmed cell death', 'Inflammation', 'No release of cellular contents', 'Engulfment by neighbors'],
+                    correctRaw: 'Inflammation'
+                },
+                {
+                    q: 'Identify a consequence of avascular necrosis.',
+                    opts: ['Bone collapse', 'Pain', 'Loss of function', 'All of the above'],
+                    correctRaw: 'All of the above'
+                }
+        ],
+            totalQuestions = questions.length;
+            currentQuestionIndex = 0;
+            showQuestion(currentQuestionIndex);
+            // Reset quiz state when new questions are loaded
+            quizStarted = false;
+            $('startBtn').disabled = false;
+            $('txtName').disabled = false;
+            setOptionsEnabled(false);
+            $('resultsBox').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+
+

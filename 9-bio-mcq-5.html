@@ -1,0 +1,1147 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Quiz App — VBA → HTML/JS Conversion</title>
+    <style>
+        /* EJAZ ACADEMY Navigation Bar */
+        .nav-links {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #2c3e50;
+        }
+        .nav-links li {
+            float: left;
+        }
+        .nav-links li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .nav-links li a:hover {
+            background-color: #1a252f;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            background-color: #2c3e50;
+            margin: 0;
+            padding: 10px 0;
+        }
+        :root {
+            --accent: #2b6cb0;
+            --danger: #e53e3e;
+            --ok: #38a169;
+        }
+        body {
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            padding: 20px;
+            background: #f7fafc;
+            color: #1a202c
+        }
+        .wrap {
+            max-width: 920px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 18px;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(2,6,23,0.08)
+        }
+        h1 {
+            margin: 0 0 8px;
+            font-size: 20px
+        }
+        p.lead {
+            margin: 0 0 18px;
+            color: #4a5568
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 18px
+        }
+        .panel {
+            padding: 12px;
+            border-radius: 8px;
+            background: #f1f5f9
+        }
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px
+        }
+        button {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            cursor: pointer
+        }
+            button.primary {
+                background: var(--accent);
+                color: white;
+                border-color: transparent
+            }
+            button.warn {
+                background: var(--danger);
+                color: white
+            }
+            button.ok {
+                background: var(--ok);
+                color: white
+            }
+            button:disabled {
+                opacity: 0.6;
+                cursor: not-allowed
+            }
+        .question-area {
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px
+        }
+        .q-text {
+            font-size: 18px;
+            padding: 12px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 1px 0 rgba(2,6,23,0.04)
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px
+        }
+        .opt {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+            .opt.disabled {
+                opacity: 0.6;
+                cursor: not-allowed
+            }
+            .opt.correct {
+                background: #c6f6d5;
+                border-color: #9ae6b4
+            }
+            .opt.wrong {
+                background: #fed7d7;
+                border-color: #f6adad
+            }
+        .meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px
+        }
+        .timer {
+            font-weight: 700
+        }
+        .progress {
+            color: #4a5568
+        }
+        .side {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+        label {
+            font-size: 13px;
+            color: #4a5568
+        }
+        input[type="text"], textarea,
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1
+        }
+        textarea {
+            min-height: 80px
+        }
+        .small {
+            font-size: 12px;
+            color: #718096
+        }
+        .results {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            background: #fff
+        }
+        /* Urdu font fallback - use if installed on user's system */
+        .urdu {
+            font-family: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif
+        }
+        footer {
+            margin-top: 12px;
+            color: #718096;
+            font-size: 13px
+        }
+        /* GoTo Input Dialog Style */
+        .goto-dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .goto-dialog {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        @media (max-width:900px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+            .side {
+                order: 2
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>EJAZ ACADEMY</h1>
+    <ul class="nav-links">
+        <li><a href="9th.html">Home</a></li>
+        <li><a href="#courses">Courses</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="easypaisa.html">EesyPaisa</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="register.html">Register</a></li>
+    </ul>
+    <div class="wrap">
+        <h1>KPK-Class-9th-Biology-MCQs</h1>
+        <p class="lead">Unit 5- (Cell and Cycle).</p>
+        <div class="grid">
+            <div>
+                <div class="panel">
+                    <div class="controls">
+                        <input id="fileInput" type="file" accept=".csv" />
+                        <button id="loadSample" class="primary">Load sample questions</button>
+                        <button id="startBtn" class="ok">Start</button>
+                        <button id="pauseBtn">Pause</button>
+                        <button id="nextBtn">Next</button>
+                        <button id="stopBtn" class="warn">Stop</button>
+                        <button id="goToBtn">Go To</button>
+                    </div>
+                    <div class="question-area">
+                        <div id="lblQuestion" class="q-text urdu">(load questions or click "Load sample questions")</div>
+                        <div class="options">
+                            <div id="opt0" class="opt"><input type="radio" name="opt" id="r0"><label for="r0" id="lbl0"></label></div>
+                            <div id="opt1" class="opt"><input type="radio" name="opt" id="r1"><label for="r1" id="lbl1"></label></div>
+                            <div id="opt2" class="opt"><input type="radio" name="opt" id="r2"><label for="r2" id="lbl2"></label></div>
+                            <div id="opt3" class="opt"><input type="radio" name="opt" id="r3"><label for="r3" id="lbl3"></label></div>
+                        </div>
+                        <div class="meta">
+                            <div class="timer" id="lblTimer">Time: -</div>
+                            <div class="progress" id="lblProgress">Question - of -</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="results" id="resultsBox" style="display:none">
+                    <div><strong>Results</strong></div>
+                    <div id="resultText" style="margin-top:8px"></div>
+                    <div style="margin-top:8px">
+                        <button id="downloadResults">Download Results CSV</button>
+                        <button id="closeResults">Close</button>
+                    </div>
+                </div>
+            </div>
+            <aside class="side">
+                <div class="panel">
+                    <label>Name</label>
+                    <input type="text" id="txtName" placeholder="Enter user name (optional)" />
+                    <label>Per-question time limit (seconds)</label>
+                    <input type="number" id="timeLimitInput" min="3" value="15" />
+                    <label>Or paste CSV (first line = header). Columns: question,opt1,opt2,opt3,opt4,correct</label>
+                    <textarea id="csvPaste" placeholder="question,opt1,opt2,opt3,opt4,correct\nWhat is 2+2?,1,2,3,4,4"></textarea>
+                    <div style="display:flex;gap:6px;margin-top:6px">
+                        <button id="pasteLoad">Load from paste</button>
+                        <button id="clearStorage">Clear saved results</button>
+                    </div>
+                    <div style="margin-top:10px" class="small">
+                        <strong>Notes:</strong>
+                        <ul>
+                            <li>The "correct" column accepts: 1/2/3/4 or a/b/c/d or words like "one" or the exact option text.</li>
+                            <li>If you don't load questions, use "Load sample questions".</li>
+                            <li>Options are disabled until you press Start.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div><strong>Saved attempts (localStorage)</strong></div>
+                    <div id="savedCount" class="small" style="margin-top:6px">0 saved attempts</div>
+                    <div style="margin-top:6px">
+                        <button id="downloadAll">Download all saved</button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+        <footer>Converted from VBA by this tool. If you want a version that writes directly to Google Sheets or server-side storage, tell me and I'll add it.</footer>
+    </div>
+    <div id="goToDialogOverlay" class="goto-dialog-overlay">
+        <div class="goto-dialog">
+            <label for="goToInput">Enter question number (1 to <span id="maxQNum"></span>):</label>
+            <input type="number" id="goToInput" min="1" />
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                <button id="cancelGoTo">Cancel</button>
+                <button id="confirmGoTo" class="primary">Go</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // --- state ---
+        let questions = []; // each: {q, opts:[], correctRaw}
+        let currentQuestionIndex = 0; // 0-based
+        let totalQuestions = 0;
+        let secondsLeft = 0;
+        let timeLimit = 15;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let isLocked = false;
+        let quizStarted = false;
+        let isPaused = false;
+        let skippedQuestionsCount = 0;
+        let timerId = null;
+        // --- helpers ---
+        function $(id) { return document.getElementById(id) }
+        function clamp(v, a, b) { return Math.max(a, Math.min(b, v)) }
+        function csvToArray(text) {
+            // Simple CSV parser that supports quoted fields and commas inside quotes
+            const rows = [];
+            const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+            for (const line of lines) {
+                const row = [];
+                let inQuotes = false;
+                let cur = '';
+                for (let i = 0; i < line.length; i++) {
+                    const ch = line[i];
+                    if (ch === '"') {
+                        if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; } else { inQuotes = !inQuotes; }
+                    } else if (ch === ',' && !inQuotes) { row.push(cur); cur = ''; }
+                    else cur += ch;
+                }
+                row.push(cur);
+                rows.push(row.map(c => c.trim()));
+            }
+            return rows;
+        }
+        function parseCorrectOptionFromQuestionData(raw, opts) {
+            if (!raw) return -1;
+            const r = String(raw).trim().toLowerCase();
+            if (r === '') return -1;
+            // numeric
+            if (/^\d+$/.test(r)) {
+                const n = parseInt(r, 10);
+                if (n >= 1 && n <= 4) return n - 1;
+            }
+            // single letter
+            if (r.length === 1) {
+                const map = { 'a': 0, 'b': 1, 'c': 2, 'd': 3 };
+                if (map.hasOwnProperty(r)) return map[r];
+            }
+            // words
+            if (r.includes('one')) return 0;
+            if (r.includes('two')) return 1;
+            if (r.includes('three')) return 2;
+            if (r.includes('four')) return 3;
+            // exact match to option text
+            for (let i = 0; i < 4; i++) {
+                if (!opts[i]) continue;
+                const o = String(opts[i]).trim().toLowerCase();
+                if (o === r) return i;
+                if (o.includes(r) || r.includes(o)) return i;
+            }
+            // contains digit
+            for (let i = 0; i < 4; i++) if (r.includes(String(i + 1))) return i;
+            return -1;
+        }
+        // --- UI ---
+        function setOptionsEnabled(enabled) {
+            for (let i = 0; i < 4; i++) {
+                const el = $('opt' + i);
+                if (enabled) el.classList.remove('disabled'); else el.classList.add('disabled');
+            }
+            const radios = document.querySelectorAll('input[name="opt"]');
+            radios.forEach(r => r.disabled = !enabled);
+        }
+        function resetOptionStyles() {
+            for (let i = 0; i < 4; i++) {
+                const el = $('opt' + i);
+                el.classList.remove('correct', 'wrong', 'selected');
+                const lbl = $('lbl' + i);
+                lbl.style.pointerEvents = 'auto';
+            }
+        }
+        function showQuestion(index) {
+            isLocked = false;
+            if (index < 0 || index >= totalQuestions) return;
+            stopQuizTimer();
+            const q = questions[index];
+            $('lblQuestion').textContent = q.q || '(no question)';
+            for (let i = 0; i < 4; i++) {
+                $('lbl' + i).textContent = q.opts[i] || '';
+                $('r' + i).checked = false;
+            }
+            resetOptionStyles();
+            // Options are only enabled if the quiz has started
+            setOptionsEnabled(quizStarted);
+            timeLimit = parseInt($('timeLimitInput').value || '15', 10);
+            secondsLeft = timeLimit;
+            $('lblTimer').textContent = 'Time: ' + secondsLeft + ' sec';
+            $('lblProgress').textContent = 'Question ' + (currentQuestionIndex + 1) + ' of ' + totalQuestions;
+            if (quizStarted && !isPaused) startQuizTimer();
+        }
+        function startQuizTimer() {
+            stopQuizTimer();
+            timerId = setInterval(() => {
+                timerTickFromModule();
+            }, 1000);
+        }
+        function stopQuizTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+        function timerTickFromModule() {
+            if (isLocked) return;
+            secondsLeft--;
+            if (secondsLeft <= 0) {
+                $('lblTimer').textContent = 'Time: 0 sec';
+                stopQuizTimer();
+                evaluateAnswer(-1); // 0 in VBA = timeout; here -1 means no selection
+            } else {
+                $('lblTimer').textContent = 'Time: ' + secondsLeft + ' sec';
+            }
+        }
+        function evaluateAnswer(selectedIndex) {
+            if (isLocked) return;
+            isLocked = true;
+            stopQuizTimer();
+            const q = questions[currentQuestionIndex];
+            const correctIndex = parseCorrectOptionFromQuestionData(q.correctRaw, q.opts);
+            // Highlight correct
+            if (correctIndex >= 0) $('opt' + correctIndex).classList.add('correct');
+            // If wrong
+            if (selectedIndex >= 0 && selectedIndex !== correctIndex) {
+                $('opt' + selectedIndex).classList.add('wrong');
+            }
+            // Count
+            if (selectedIndex >= 0 && selectedIndex === correctIndex) {
+                correctCount++;
+            } else if (selectedIndex >= 0 && selectedIndex !== correctIndex) {
+                wrongCount++;
+            } else if (selectedIndex === -1) {
+                // timed out, count as wrong
+                wrongCount++;
+            }
+            // Pause for 2 seconds then next
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex >= totalQuestions) {
+                stopQuizTimer();
+                // Only show results if the quiz was running
+                if (quizStarted) {
+                    quizStarted = false;
+                    showResults('Quiz Completed!');
+                } else {
+                    // If stopped/not started, just wrap to the first question
+                    currentQuestionIndex = 0;
+                    showQuestion(currentQuestionIndex);
+                }
+            } else {
+                showQuestion(currentQuestionIndex);
+            }
+        }
+        function showResults(title) {
+            $('resultsBox').style.display = 'block';
+            const attempted = correctCount + wrongCount;
+            const txt = `<div>${title}</div>\n<div style=\"margin-top:6px\">Correct answers: ${correctCount}</div>\n<div>Wrong answers: ${wrongCount}</div>\n<div>Attempted: ${attempted}</div>\n<div>Skipped: ${skippedQuestionsCount}</div>\n<div>Total Questions: ${totalQuestions}</div>`;
+            $('resultText').innerHTML = txt;
+            saveResultToLocal();
+        }
+        function saveResultToLocal() {
+            const name = ($('txtName').value || 'Unknown').trim();
+            const attempted = correctCount + wrongCount;
+            const rec = { name, correct: correctCount, wrong: wrongCount, attempted, skipped: skippedQuestionsCount, total: totalQuestions, date: new Date().toISOString() };
+            const key = 'quiz_attempts_v1';
+            const arr = JSON.parse(localStorage.getItem(key) || '[]');
+            arr.push(rec);
+            localStorage.setItem(key, JSON.stringify(arr));
+            updateSavedCount();
+        }
+        function updateSavedCount() {
+            const arr = JSON.parse(localStorage.getItem('quiz_attempts_v1') || '[]');
+            $('savedCount').textContent = arr.length + ' saved attempts';
+        }
+        function downloadCSV(records, filename) {
+            if (!records || records.length === 0) { alert('No records to download'); return; }
+            const header = ['Name', 'Correct Questions', 'Wrong Questions', 'Attempted Questions', 'Skipped Questions', 'Total Questions', 'Date & Time'];
+            const rows = [header.map(escapeCSV).join(',')];
+            for (const r of records) {
+                rows.push([escapeCSV(r.name), r.correct, r.wrong, r.attempted, r.skipped, r.total, r.date].join(','));
+            }
+            const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename || 'results.csv';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        }
+        function escapeCSV(v) { if (v == null) return ''; return '"' + String(v).replace(/"/g, '""') + '"'; }
+        // --- Go To Dialog Logic ---
+        function showGoToDialog() {
+            if (totalQuestions === 0) {
+                alert('Please load questions first.');
+                return;
+            }
+            $('maxQNum').textContent = totalQuestions;
+            $('goToInput').value = currentQuestionIndex + 1;
+            $('goToDialogOverlay').style.display = 'flex';
+            $('goToInput').focus();
+        }
+        function hideGoToDialog() {
+            $('goToDialogOverlay').style.display = 'none';
+        }
+        function handleGoTo() {
+            const v = $('goToInput').value;
+            hideGoToDialog();
+            if (!v) return;
+            const qn = parseInt(v, 10);
+            if (isNaN(qn) || qn < 1 || qn > totalQuestions) {
+                alert(`Invalid question number. Must be between 1 and ${totalQuestions}`);
+                return;
+            }
+            currentQuestionIndex = qn - 1;
+            showQuestion(currentQuestionIndex);
+            // If the quiz was paused, unpause it after Go To
+            if (isPaused) {
+                isPaused = false;
+                $('pauseBtn').textContent = 'Pause';
+                $('pauseBtn').classList.remove('ok');
+                startQuizTimer();
+            }
+        }
+        // --- events ---
+        window.addEventListener('DOMContentLoaded', () => {
+            // attach handlers
+            $('loadSample').addEventListener('click', () => {
+                loadSampleQuestions();
+            });
+            $('startBtn').addEventListener('click', () => {
+                if (quizStarted) return;
+                if (questions.length === 0) {
+                    alert('Load questions first (CSV/paste or sample)');
+                    return;
+                }
+                // IMPORTANT: Use the currentQuestionIndex set by goToBtn
+                quizStarted = true;
+                correctCount = 0;
+                wrongCount = 0;
+                skippedQuestionsCount = 0;
+                // currentQuestionIndex is already set (default 0, or by goToBtn)
+                $('startBtn').disabled = true;
+                $('txtName').disabled = true;
+                setOptionsEnabled(true);
+                showQuestion(currentQuestionIndex);
+            });
+            $('pauseBtn').addEventListener('click', () => {
+                if (!quizStarted) return;
+                if (isPaused) { // resume
+                    isPaused = false;
+                    $('pauseBtn').textContent = 'Pause';
+                    $('pauseBtn').classList.remove('ok');
+                    startQuizTimer();
+                } else { // pause
+                    isPaused = true;
+                    $('pauseBtn').textContent = 'Play';
+                    $('pauseBtn').classList.add('ok');
+                    stopQuizTimer();
+                }
+            });
+            $('nextBtn').addEventListener('click', () => {
+                // MODIFICATION: Removed the check 'if (!quizStarted) return;'
+                // If currently paused, resume first (mimic VBA behavior)
+                if (isPaused) {
+                    isPaused = false;
+                    $('pauseBtn').textContent = 'Pause';
+                    $('pauseBtn').classList.remove('ok');
+                }
+                // Only count the skip if the quiz is actually running
+                if (quizStarted) {
+                    skippedQuestionsCount++;
+                }
+                stopQuizTimer();
+                currentQuestionIndex++;
+                if (currentQuestionIndex >= totalQuestions) {
+                    // If the quiz was started, show results
+                    if (quizStarted) {
+                        showResults('Quiz Completed!');
+                    } else {
+                        // If stopped/not started, just wrap to the first question
+                        currentQuestionIndex = 0;
+                        showQuestion(currentQuestionIndex);
+                    }
+                } else {
+                    showQuestion(currentQuestionIndex);
+                }
+            });
+            $('stopBtn').addEventListener('click', () => {
+                stopQuizTimer();
+                // Only show results if the quiz was running
+                if (quizStarted) {
+                    showResults('Quiz Stopped!');
+                }
+                quizStarted = false; // Important: set state to stopped
+                $('startBtn').disabled = false;
+                $('txtName').disabled = false;
+                setOptionsEnabled(false);
+            });
+            // Use the custom dialog instead of prompt for better compatibility
+            $('goToBtn').addEventListener('click', showGoToDialog);
+            $('confirmGoTo').addEventListener('click', handleGoTo);
+            $('cancelGoTo').addEventListener('click', hideGoToDialog);
+            // Allow pressing Enter in the input field
+            $('goToInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleGoTo();
+                }
+            });
+            for (let i = 0; i < 4; i++) {
+                $('opt' + i).addEventListener('click', () => {
+                    if (!quizStarted || isLocked || isPaused) return; // disabled until start
+                    checkAndSetPauseButton();
+                    // mark selected visually
+                    document.querySelectorAll('.opt').forEach(el => el.classList.remove('selected'));
+                    $('opt' + i).classList.add('selected');
+                    evaluateAnswer(i);
+                });
+            }
+            $('fileInput').addEventListener('change', (ev) => {
+                const f = ev.target.files[0];
+                if (!f) return;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    loadQuestionsFromCSV(e.target.result);
+                };
+                reader.readAsText(f);
+            });
+            $('pasteLoad').addEventListener('click', () => {
+                const t = $('csvPaste').value.trim();
+                if (!t) { alert('Paste some CSV first'); return; }
+                loadQuestionsFromCSV(t);
+            });
+            $('clearStorage').addEventListener('click', () => {
+                if (confirm('Clear all saved results in localStorage?')) {
+                    localStorage.removeItem('quiz_attempts_v1');
+                    updateSavedCount();
+                }
+            });
+            $('downloadAll').addEventListener('click', () => {
+                const arr = JSON.parse(localStorage.getItem('quiz_attempts_v1') || '[]');
+                if (arr.length === 0) return alert('No saved attempts');
+                downloadCSV(arr, 'all_quiz_attempts.csv');
+            });
+            $('downloadResults').addEventListener('click', () => {
+                // Download the last saved attempt
+                const arr = JSON.parse(localStorage.getItem('quiz_attempts_v1') || '[]');
+                if (arr.length === 0) return alert('No saved attempts to download');
+                const lastAttempt = [arr[arr.length - 1]];
+                downloadCSV(lastAttempt, 'last_quiz_results.csv');
+            });
+            $('closeResults').addEventListener('click', () => {
+                $('resultsBox').style.display = 'none';
+                $('startBtn').disabled = false;
+                $('txtName').disabled = false;
+            });
+            // set initial
+            setOptionsEnabled(false);
+            updateSavedCount();
+            // load an example automatically
+            loadSampleQuestions();
+        });
+        function checkAndSetPauseButton() {
+            if (isPaused) {
+                isPaused = false;
+                $('pauseBtn').textContent = 'Pause';
+                $('pauseBtn').classList.remove('ok');
+                startQuizTimer();
+            }
+        }
+        function loadQuestionsFromCSV(text) {
+            try {
+                const rows = csvToArray(text);
+                if (rows.length === 0) { alert('No rows found'); return; }
+                // detect header
+                let start = 0;
+                const first = rows[0].map(c => c.toLowerCase());
+                if (first.includes('question') || first.includes('opt1') || first.includes('option1')) start = 1;
+                const arr = [];
+                for (let i = start; i < rows.length; i++) {
+                    const r = rows[i];
+                    const q = r[0] || '';
+                    const opts = [r[1] || '', r[2] || '', r[3] || '', r[4] || ''];
+                    const correctRaw = r[5] || '';
+                    arr.push({ q, opts, correctRaw });
+                }
+                questions = arr;
+                totalQuestions = questions.length;
+                currentQuestionIndex = 0; // Reset to start
+                // Reset quiz state when new questions are loaded
+                quizStarted = false;
+                $('startBtn').disabled = false;
+                $('txtName').disabled = false;
+                setOptionsEnabled(false);
+                $('resultsBox').style.display = 'none';
+                alert('Loaded ' + totalQuestions + ' questions');
+                showQuestion(currentQuestionIndex);
+            } catch (e) {
+                console.error(e);
+                alert('Failed to parse CSV: ' + e.message);
+            }
+        }
+        function loadSampleQuestions() {
+            questions = [
+                   {
+                    "q": "The key element of cell theory states that all cells arise from:",
+                    "opts": ["Pre-existing cells", "Newly formed cells", "External sources", "Randomly generated cells"],
+                    "correctRaw": "Pre-existing cells"
+                },
+                {
+                    "q": "Which stage of the cell cycle is the longest?",
+                    "opts": ["Mitosis", "Meiosis", "Interphase", "Cytokinesis"],
+                    "correctRaw": "Interphase"
+                },
+                {
+                    "q": "During which phase of interphase does DNA replication occur?",
+                    "opts": ["G1-phase", "S-phase", "G2-phase", "G0-phase"],
+                    "correctRaw": "S-phase"
+                },
+                {
+                    "q": "What is the primary function of the G1-phase in the cell cycle?",
+                    "opts": ["DNA replication", "Cell growth and preparation", "Chromosome separation", "Cytokinesis"],
+                    "correctRaw": "Cell growth and preparation"
+                },
+                {
+                    "q": "Which phase of the cell cycle is known as the 'resting stage'?",
+                    "opts": ["Mitosis", "Meiosis", "Interphase", "Cytokinesis"],
+                    "correctRaw": "Interphase"
+                },
+                {
+                    "q": "Which phase of the cell cycle involves the synthesis of RNA, ribosomes, and enzymes?",
+                    "opts": ["G1-phase", "S-phase", "G2-phase", "G0-phase"],
+                    "correctRaw": "G1-phase"
+                },
+                {
+                    "q": "What is the role of the G2-phase in the cell cycle?",
+                    "opts": ["DNA replication", "Preparation for cell division", "Cell growth", "Chromosome separation"],
+                    "correctRaw": "Preparation for cell division"
+                },
+                {
+                    "q": "Which cells remain in the G0 phase for an indefinite period?",
+                    "opts": ["Liver cells", "Kidney cells", "Neurons", "Epithelial cells"],
+                    "correctRaw": "Neurons"
+                },
+                {
+                    "q": "What is the final event of interphase?",
+                    "opts": ["DNA replication", "Replication of centrioles", "Cell division", "Chromosome condensation"],
+                    "correctRaw": "Replication of centrioles"
+                },
+                {
+                    "q": "Which type of cell division maintains the chromosome number in daughter cells?",
+                    "opts": ["Meiosis", "Mitosis", "Binary fission", "Apoptosis"],
+                    "correctRaw": "Mitosis"
+                },
+                {
+                    "q": "Who discovered mitosis?",
+                    "opts": ["Oscar Hertwig", "Walther Flemming", "Robert Hooke", "Anton van Leeuwenhoek"],
+                    "correctRaw": "Walther Flemming"
+                },
+                {
+                    "q": "During which stage of mitosis do chromosomes become visible under a microscope?",
+                    "opts": ["Prophase", "Metaphase", "Anaphase", "Telophase"],
+                    "correctRaw": "Prophase"
+                },
+                {
+                    "q": "What is the structure formed by spindle fibers during prophase in animal cells?",
+                    "opts": ["Mitotic plate", "Mitotic apparatus", "Chromatin network", "Centromere"],
+                    "correctRaw": "Mitotic apparatus"
+                },
+                {
+                    "q": "What is the structure formed by chromosomes during metaphase?",
+                    "opts": ["Mitotic plate", "Equatorial plate", "Chromatin network", "Centromere"],
+                    "correctRaw": "Equatorial plate"
+                },
+                {
+                    "q": "During which phase of mitosis do sister chromatids separate?",
+                    "opts": ["Prophase", "Metaphase", "Anaphase", "Telophase"],
+                    "correctRaw": "Anaphase"
+                },
+                {
+                    "q": "What happens to the separated chromatids during anaphase?",
+                    "opts": ["They fuse together", "They become chromosomes", "They disappear", "They replicate"],
+                    "correctRaw": "They become chromosomes"
+                },
+                {
+                    "q": "What happens to chromosomes during telophase?",
+                    "opts": ["They condense", "They replicate", "They uncoil", "They disappear"],
+                    "correctRaw": "They uncoil"
+                },
+                {
+                    "q": "What is the division of the cytoplasm called?",
+                    "opts": ["Karyokinesis", "Cytokinesis", "Mitosis", "Meiosis"],
+                    "correctRaw": "Cytokinesis"
+                },
+                {
+                    "q": "How does cytokinesis occur in animal cells?",
+                    "opts": ["Formation of cell plate", "Formation of cleavage furrows", "Chromosome separation", "Nuclear envelope reformation"],
+                    "correctRaw": "Formation of cleavage furrows"
+                },
+                {
+                    "q": "Which organism can regenerate its entire body from a small piece?",
+                    "opts": ["Humans", "Lizards", "Hydra", "Birds"],
+                    "correctRaw": "Hydra"
+                },
+                {
+                    "q": "What is the primary outcome of meiosis?",
+                    "opts": ["Production of genetically identical cells", "Reduction of chromosome number", "Cell growth", "Tissue repair"],
+                    "correctRaw": "Reduction of chromosome number"
+                },
+                {
+                    "q": "What is the structure formed by paired homologous chromosomes during prophase-I?",
+                    "opts": ["Tetrad", "Chiasma", "Bivalent", "Synaptonemal complex"],
+                    "correctRaw": "Tetrad"
+                },
+                {
+                    "q": "What is the exchange of genetic material between non-sister chromatids called?",
+                    "opts": ["Replication", "Transcription", "Crossing over", "Translation"],
+                    "correctRaw": "Crossing over"
+                },
+                {
+                    "q": "During which phase of meiosis-I do homologous chromosomes separate?",
+                    "opts": ["Prophase-I", "Metaphase-I", "Anaphase-I", "Telophase-I"],
+                    "correctRaw": "Anaphase-I"
+                },
+                {
+                    "q": "What is the result of meiosis-I?",
+                    "opts": ["Two diploid cells", "Four haploid cells", "Two haploid cells", "Four diploid cells"],
+                    "correctRaw": "Two haploid cells"
+                },
+                {
+                    "q": "What happens during meiosis-II?",
+                    "opts": ["Chromosome replication", "Separation of sister chromatids", "Pairing of homologous chromosomes", "Formation of tetrads"],
+                    "correctRaw": "Separation of sister chromatids"
+                },
+                {
+                    "q": "How many daughter cells are produced at the end of meiosis?",
+                    "opts": ["Two", "Three", "Four", "Five"],
+                    "correctRaw": "Four"
+                },
+                {
+                    "q": "What is the significance of meiosis in sexual reproduction?",
+                    "opts": ["Production of genetically identical cells", "Formation of gametes", "Cell growth", "Tissue repair"],
+                    "correctRaw": "Formation of gametes"
+                },
+                {
+                    "q": "Which process creates genetic variation during meiosis?",
+                    "opts": ["DNA replication", "Crossing over", "Chromosome condensation", "Nuclear envelope reformation"],
+                    "correctRaw": "Crossing over"
+                },
+                {
+                    "q": "Which type of cell death is programmed and does not cause inflammation?",
+                    "opts": ["Necrosis", "Apoptosis", "Mitosis", "Meiosis"],
+                    "correctRaw": "Apoptosis"
+                },
+                {
+                    "q": "During which developmental process does the tail of a tadpole disappear?",
+                    "opts": ["Mitosis", "Meiosis", "Apoptosis", "Necrosis"],
+                    "correctRaw": "Apoptosis"
+                },
+                {
+                    "q": "What happens to the web between fingers during human development?",
+                    "opts": ["It grows into a membrane", "It disappears through apoptosis", "It becomes a bone", "It replicates"],
+                    "correctRaw": "It disappears through apoptosis"
+                },
+                {
+                    "q": "What is the role of meiosis in genetic diversity?",
+                    "opts": ["It reduces genetic diversity", "It maintains genetic diversity", "It increases genetic diversity", "It eliminates genetic diversity"],
+                    "correctRaw": "It increases genetic diversity"
+                },
+                {
+                    "q": "Which phase of the cell cycle is characterized by the replication of DNA?",
+                    "opts": ["G1-phase", "S-phase", "G2-phase", "G0-phase"],
+                    "correctRaw": "S-phase"
+                },
+                {
+                    "q": "What is the primary function of the G2-phase?",
+                    "opts": ["DNA replication", "Preparation for mitosis", "Cell growth", "Chromosome condensation"],
+                    "correctRaw": "Preparation for mitosis"
+                },
+                {
+                    "q": "Which cells can re-enter the cell cycle from the G0 phase?",
+                    "opts": ["Neurons", "Liver cells", "Epithelial cells", "Muscle cells"],
+                    "correctRaw": "Liver cells"
+                },
+                {
+                    "q": "During which phase of mitosis do spindle fibers attach to chromosomes?",
+                    "opts": ["Prophase", "Metaphase", "Anaphase", "Telophase"],
+                    "correctRaw": "Metaphase"
+                },
+                {
+                    "q": "What is the structure that separates sister chromatids during anaphase?",
+                    "opts": ["Centromere", "Spindle fibers", "Nuclear envelope", "Cell plate"],
+                    "correctRaw": "Spindle fibers"
+                },
+                {
+                    "q": "What is the final outcome of telophase in mitosis?",
+                    "opts": ["Chromosome replication", "Formation of daughter nuclei", "Chromosome condensation", "Cytokinesis"],
+                    "correctRaw": "Formation of daughter nuclei"
+                },
+                {
+                    "q": "How does cytokinesis differ between animal and plant cells?",
+                    "opts": ["Formation of cleavage furrows vs. cell plate", "Chromosome separation", "Nuclear envelope reformation", "DNA replication"],
+                    "correctRaw": "Formation of cleavage furrows vs. cell plate"
+                },
+                {
+                    "q": "Which organelle is responsible for the formation of the cell plate in plant cells?",
+                    "opts": ["Mitochondria", "Golgi apparatus", "Endoplasmic reticulum", "Nucleus"],
+                    "correctRaw": "Golgi apparatus"
+                },
+                {
+                    "q": "Which process replaces dead or worn-out cells in the body?",
+                    "opts": ["Meiosis", "Mitosis", "Apoptosis", "Necrosis"],
+                    "correctRaw": "Mitosis"
+                },
+                {
+                    "q": "What is the process by which lizards regenerate their tails?",
+                    "opts": ["Mitosis", "Meiosis", "Apoptosis", "Regeneration"],
+                    "correctRaw": "Regeneration"
+                },
+                {
+                    "q": "Which type of cell division is responsible for the formation of gametes?",
+                    "opts": ["Mitosis", "Meiosis", "Apoptosis", "Necrosis"],
+                    "correctRaw": "Meiosis"
+                },
+                {
+                    "q": "During which phase of meiosis do homologous chromosomes pair up and form tetrads?",
+                    "opts": ["Prophase-I", "Metaphase-I", "Anaphase-I", "Telophase-I"],
+                    "correctRaw": "Prophase-I"
+                },
+                {
+                    "q": "What is the significance of meiosis in sexual reproduction?",
+                    "opts": ["Production of genetically identical cells", "Formation of gametes", "Cell growth", "Tissue repair"],
+                    "correctRaw": "Formation of gametes"
+                },
+                {
+                    "q": "Which type of cell death is programmed and does not cause inflammation?",
+                    "opts": ["Necrosis", "Apoptosis", "Mitosis", "Meiosis"],
+                    "correctRaw": "Apoptosis"
+                },
+                {
+                    "q": "Which type of cell division is responsible for the formation of gametes?",
+                    "opts": ["Mitosis", "Meiosis", "Apoptosis", "Necrosis"],
+                    "correctRaw": "Meiosis"
+                },
+                {
+                    "q": "Identify the phase where cells prepare for DNA replication.",
+                    "opts": ["G1-phase", "S-phase", "G2-phase", "G0-phase"],
+                    "correctRaw": "G1-phase"
+                },
+                {
+                    "q": "Which phase of the cell cycle involves the synthesis of proteins and enzymes for DNA synthesis?",
+                    "opts": ["G1-phase", "S-phase", "G2-phase", "G0-phase"],
+                    "correctRaw": "G1-phase"
+                },
+                {
+                    "q": "What is the primary purpose of the G2-phase in the cell cycle?",
+                    "opts": ["DNA replication", "Preparation for mitosis", "Cell growth", "Chromosome condensation"],
+                    "correctRaw": "Preparation for mitosis"
+                },
+                {
+                    "q": "Which cells remain in the G0 phase semipermanently?",
+                    "opts": ["Neurons", "Liver cells", "Epithelial cells", "Muscle cells"],
+                    "correctRaw": "Liver cells"
+                },
+                {
+                    "q": "What is the role of centrioles during the final event of interphase?",
+                    "opts": ["Chromosome replication", "Formation of mitotic apparatus", "Movement to opposite poles", "DNA synthesis"],
+                    "correctRaw": "Movement to opposite poles"
+                },
+                {
+                    "q": "Which type of cell division results in the formation of genetically identical cells?",
+                    "opts": ["Meiosis", "Mitosis", "Apoptosis", "Necrosis"],
+                    "correctRaw": "Mitosis"
+                },
+                {
+                    "q": "Who was the first to observe and describe mitosis?",
+                    "opts": ["Oscar Hertwig", "Walther Flemming", "Robert Hooke", "Anton van Leeuwenhoek"],
+                    "correctRaw": "Walther Flemming"
+                },
+                {
+                    "q": "During which stage of mitosis do chromosomes condense and become visible?",
+                    "opts": ["Prophase", "Metaphase", "Anaphase", "Telophase"],
+                    "correctRaw": "Prophase"
+                },
+                {
+                    "q": "What is the function of the mitotic apparatus in animal cells?",
+                    "opts": ["Chromosome replication", "Chromosome alignment", "Chromosome separation", "Chromosome condensation"],
+                    "correctRaw": "Chromosome alignment"
+                },
+                {
+                    "q": "What happens to the nucleolus and nuclear envelope during prophase?",
+                    "opts": ["They remain intact", "They disappear", "They replicate", "They fuse"],
+                    "correctRaw": "They disappear"
+                },
+                {
+                    "q": "During which phase of mitosis do chromosomes align at the cell's equator?",
+                    "opts": ["Prophase", "Metaphase", "Anaphase", "Telophase"],
+                    "correctRaw": "Metaphase"
+                },
+                {
+                    "q": "What is the name of the structure formed by chromosomes during metaphase?",
+                    "opts": ["Mitotic plate", "Equatorial plate", "Chromatin network", "Centromere"],
+                    "correctRaw": "Equatorial plate"
+                },
+                {
+                    "q": "During which phase of mitosis do sister chromatids separate and move to opposite poles?",
+                    "opts": ["Prophase", "Metaphase", "Anaphase", "Telophase"],
+                    "correctRaw": "Anaphase"
+                },
+                {
+                    "q": "What is the name of the separated chromatids during anaphase?",
+                    "opts": ["Daughter chromosomes", "Sister chromosomes", "Homologous chromosomes", "Tetrads"],
+                    "correctRaw": "Daughter chromosomes"
+                },
+                {
+                    "q": "During which phase of mitosis does the nuclear envelope reappear?",
+                    "opts": ["Prophase", "Metaphase", "Anaphase", "Telophase"],
+                    "correctRaw": "Telophase"
+                },
+                {
+                    "q": "How does cytokinesis occur in animal cells?",
+                    "opts": ["Formation of cell plate", "Formation of cleavage furrows", "Chromosome separation", "Nuclear envelope reformation"],
+                    "correctRaw": "Formation of cleavage furrows"
+                },
+                {
+                    "q": "How does cytokinesis occur in plant cells?",
+                    "opts": ["Formation of cell plate", "Formation of cleavage furrows", "Chromosome separation", "Nuclear envelope reformation"],
+                    "correctRaw": "Formation of cell plate"
+                },
+                {
+                    "q": "Which organelle produces vesicles for the formation of the cell plate in plant cells?",
+                    "opts": ["Mitochondria", "Golgi apparatus", "Endoplasmic reticulum", "Nucleus"],
+                    "correctRaw": "Golgi apparatus"
+                },
+                {
+                    "q": "How does mitosis contribute to the repair of worn-out cells?",
+                    "opts": ["By producing gametes", "By replacing dead cells", "By creating genetic variation", "By cell fusion"],
+                    "correctRaw": "By replacing dead cells"
+                },
+                {
+                    "q": "Which organisms reproduce asexually through mitosis?",
+                    "opts": ["Humans", "Hydra", "Birds", "Reptiles"],
+                    "correctRaw": "Hydra"
+                },
+                {
+                    "q": "What is the process of renewal of worn-out cells and tissues called?",
+                    "opts": ["Mitosis", "Meiosis", "Regeneration", "Apoptosis"],
+                    "correctRaw": "Regeneration"
+                },
+                {
+                    "q": "During which phase of meiosis do homologous chromosomes pair up?",
+                    "opts": ["Prophase-I", "Metaphase-I", "Anaphase-I", "Telophase-I"],
+                    "correctRaw": "Prophase-I"
+                },
+                {
+                    "q": "What is the role of centrioles during interphase?",
+                    "opts": ["Chromosome replication", "Formation of mitotic apparatus", "Movement to opposite poles", "DNA synthesis"],
+                    "correctRaw": "Movement to opposite poles"
+                },
+                {
+                    "q": "Which type of cell division is responsible for asexual reproduction?",
+                    "opts": ["Meiosis", "Mitosis", "Apoptosis", "Necrosis"],
+                    "correctRaw": "Mitosis"
+                },
+                {
+                    "q": "What is the significance of mitosis in the regeneration of tissues?",
+                    "opts": ["It reduces cell number", "It maintains genetic identity", "It creates genetic variation", "It repairs worn-out cells"],
+                    "correctRaw": "It repairs worn-out cells"
+                },
+                {
+                    "q": "What is the role of mitosis in the growth of multicellular organisms?",
+                    "opts": ["Reduction of chromosome number", "Production of gametes", "Increase in cell number", "Genetic variation"],
+                    "correctRaw": "Increase in cell number"
+                },
+                {
+                    "q": "Which organism uses mitosis for asexual reproduction through budding?",
+                    "opts": ["Humans", "Hydra", "Birds", "Reptiles"],
+                    "correctRaw": "Hydra"
+                },
+                {
+                    "q": "Which type of cell division is responsible for the formation of gametes?",
+                    "opts": ["Mitosis", "Meiosis", "Apoptosis", "Necrosis"],
+                    "correctRaw": "Meiosis"
+                },
+                {
+                    "q": "What is the exchange of genetic material between homologous chromosomes called?",
+                    "opts": ["Replication", "Transcription", "Crossing over", "Translation"],
+                    "correctRaw": "Crossing over"
+                },
+                {
+                    "q": "What is the term for the death of cells due to injury or disease?",
+                    "opts": ["Apoptosis", "Necrosis", "Mitosis", "Meiosis"],
+                    "correctRaw": "Necrosis"
+                },
+                {
+                    "q": "What is the death of cells in an organ due to lack of blood supply called?",
+                    "opts": ["Apoptosis", "Necrosis", "Mitosis", "Meiosis"],
+                    "correctRaw": "Necrosis"
+                },
+                {
+                    "q": "Which process maintains a constant number of cells in adult organisms?",
+                    "opts": ["Mitosis", "Meiosis", "Apoptosis", "Necrosis"],
+                    "correctRaw": "Apoptosis"
+                },
+        ],
+            totalQuestions = questions.length;
+            currentQuestionIndex = 0;
+            showQuestion(currentQuestionIndex);
+            // Reset quiz state when new questions are loaded
+            quizStarted = false;
+            $('startBtn').disabled = false;
+            $('txtName').disabled = false;
+            setOptionsEnabled(false);
+            $('resultsBox').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+
+

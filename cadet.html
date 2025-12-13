@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,
+initial-scale=1.0">
+    <title>Cadet Preparation - Ejaz Academy</title>
+    <script>
+      const supabaseUrl = ' https://blnthwxkygntwnthvifg.supabase.co';
+      const supabaseKey = ' eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsbnRod3hreWdudHdudGh2aWZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0MTEwMDIsImV4cCI6MjA3ODk4NzAwMn0.pOKIGGQ0Yr1PPqX5em5YZvTa-tLVFP-w6FvrQnhIs6w';
+      const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4efe9 100%);
+            color: #333;
+            line-height: 1.6;
+            padding-top: 80px; /* Important because
+header is fixed */
+        }
+
+        /* ---------------- HEADER ---------------- */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: linear-gradient(135deg, #439bfd, #2874f0);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        .nav-links a:hover {
+            color: #ffeb3b;
+        }
+
+        /* ---------------- HERO ---------------- */
+        .hero {
+            background: linear-gradient(rgba(0,0,0,.7), rgba(0,0,0,.7)),
+            url('https://images.unsplash.com/photo-1523242651044-d0e5d5d33205?auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 40vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* ---------------- CONTAINER ----------------
+*/
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 2rem;
+        }
+
+        /* ---------------- SUBJECT CARDS
+---------------- */
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .subject-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,.1);
+            transition: .3s;
+        }
+        .subject-card:hover {
+            transform: translateY(-10px);
+        }
+        .subject-header {
+            background: linear-gradient(135deg, #439bfd, #2874f0);
+            color: white;
+            padding: 1.2rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .subject-content {
+            max-height: 0;
+            overflow: hidden;
+            background: #f9f9f9;
+            transition: max-height .3s ease-out;
+            padding: 0; /* Changed for accordion effect */
+        }
+        .subject-content.active {
+            padding: 1rem; /* Added padding when active */
+            max-height: 500px;
+        }
+
+        .subject-links li {
+            list-style: none;
+            padding: .7rem;
+            border-bottom: 1px solid #eee;
+        }
+        .subject-links a {
+            color: #439bfd;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+        .subject-links a:hover {
+            color: #ffeb3b;
+        }
+
+        /* --- NEW MCQs Dropdown Styles --- */
+        .mcqs-dropdown {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            color: #2874f0;
+        }
+        .mcqs-dropdown i {
+            transition: transform 0.3s ease;
+        }
+        .mcqs-dropdown.open i {
+            transform: rotate(90deg);
+        }
+        .mcqs-units {
+            list-style: none;
+            padding-left: 1.5rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: #f9f9f9;
+            border-top: 1px dashed #eee;
+        }
+        .mcqs-units.active {
+            max-height: 200px; /* Adjust as needed */
+            padding-bottom: 0.5rem;
+        }
+        .mcqs-units li {
+            padding: 0.5rem 0.5rem 0.5rem 0;
+            border-bottom: none;
+        }
+        .mcqs-units a {
+            font-weight: 400;
+            color: #333;
+        }
+        .mcqs-units a:hover {
+            color: #667eea;
+        }
+        /* --- END NEW MCQs Dropdown Styles --- */
+
+        /* ---------------- MY COURSES
+---------------- */
+        .my-courses {
+            background: white;
+            padding: 1.3rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,.1);
+            margin: 1.5rem auto;
+            max-width: 800px;
+            text-align: center;
+        }
+        .my-courses h3 {
+            color: #439bfd;
+            margin-bottom: 1rem;
+        }
+        .my-courses-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+        .my-courses-links a {
+            background: linear-gradient(135deg, #439bfd, #2874f0);
+            color: white;
+            padding: .5rem 1rem;
+            border-radius: 5px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: .3s;
+        }
+        .my-courses-links a:hover {
+            background: linear-gradient(135deg, #2874f0, #439bfd);
+        }
+
+        /* ---------------- LOGOUT BUTTON
+---------------- */
+        #logoutButton {
+            background: linear-gradient(135deg, #ff4b2b, #ff416c);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin: 10px auto;
+        }
+        #logoutButton:hover {
+            transform: translateY(-2px);
+        }
+
+        /* ---------------- FOOTER ---------------- */
+        .footer {
+            background: #343a40;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+        }
+        .footer-links a:hover {
+            color: #ffeb3b;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="logo">Ejaz Academy</div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="#courses">Courses</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="login.html">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="my-courses">
+        <h3>My Courses</h3>
+        <div class="my-courses-links" id="myCoursesLinks"></div>
+    </div>
+
+    <section class="hero">
+        <h1> Cadet College Admission Preparation </h1>
+        <p>Explore our comprehensive Cadet Preparation resources.</p>
+    </section>
+
+    <section class="container">
+        <h2 style="text-align:center;color:#439bfd;margin-bottom:2rem;"> Cadet Preparation </h2>
+
+        <button id="logoutButton">Logout</button>
+
+        <div class="subjects-grid" id="subjectsGrid"></div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="#courses">Courses</a>
+            <a href="about.html">About Us</a>
+            <a href="login.html">Login</a>
+        </div>
+        <p>&copy; 2025 Ejaz Academy. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // Toggle subject dropdown
+        function toggleSubject(element) {
+            const content = element.nextElementSibling;
+            const icon = element.querySelector('i');
+
+            // Close all other active subject contents
+            document.querySelectorAll('.subject-content.active').forEach(activeContent => {
+                if (activeContent !== content) {
+                    activeContent.classList.remove('active');
+                    const activeIcon = activeContent.previousElementSibling.querySelector('i');
+                    activeIcon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+
+                    // Also close any open MCQs dropdowns in the closed subject
+                    activeContent.querySelectorAll('.mcqs-units.active').forEach(mcqUnit => {
+                        mcqUnit.classList.remove('active');
+                        const mcqDropdown = mcqUnit.previousElementSibling;
+                        mcqDropdown.classList.remove('open');
+                        mcqDropdown.querySelector('i').classList.replace('fa-chevron-right', 'fa-chevron-right'); // Replaces itself
+                    });
+                }
+            });
+
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+            } else {
+                content.classList.add('active');
+                icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+            }
+        }
+
+        // New function to toggle the MCQs unit links
+        function toggleMCQs(unitsList, dropdownElement) {
+            // Close other MCQs dropdowns in the SAME subject-content
+            const subjectContent = unitsList.closest('.subject-content');
+            subjectContent.querySelectorAll('.mcqs-units.active').forEach(activeUnits => {
+                if (activeUnits !== unitsList) {
+                    activeUnits.classList.remove('active');
+                    activeUnits.previousElementSibling.classList.remove('open');
+                }
+            });
+
+            if (unitsList.classList.contains('active')) {
+                unitsList.classList.remove('active');
+                dropdownElement.classList.remove('open');
+            } else {
+                unitsList.classList.add('active');
+                dropdownElement.classList.add('open');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Check login
+            const loggedInUserEmail = localStorage.getItem('loggedInUser');
+            if (!loggedInUserEmail) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const user = JSON.parse(localStorage.getItem(loggedInUserEmail));
+            // CHECK: The original code redirects if course is NOT ' Cadet Preparation ', but the page is for 'Second Year' (2nyear).
+            // Assuming the course check should be for ' Cadet Preparation ' for this page.
+    if (!user || !user.courses.includes('cadet')) {
+
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // My Courses links
+            const myCoursesLinks = document.getElementById('myCoursesLinks');
+            const courseNames = {
+                '9th': 'Class 9th (Science)',
+                '10th': 'Class 10th (Science)',
+                '1styear': 'First Year (F.Sc)',
+                '2nyear': 'Second Year (F.Sc)',
+                'cadet': 'Cadet Preparation',
+                'mdcat': 'MDCAT Preparation'
+            };
+
+            user.courses.forEach(course => {
+                const a = document.createElement('a');
+                a.href = `${course}.html`;
+                a.textContent = courseNames[course] || course;
+                myCoursesLinks.appendChild(a);
+            });
+
+            // Subjects
+            const subjectsGrid = document.getElementById('subjectsGrid');
+            const subjects = [
+                { 
+                    name: 'Chemistry', 
+                    linkDetails: [
+                        { text: 'Online Class', icon: 'fas fa-video', href: '#' },
+                        { 
+                            text: 'MCQs', 
+                            icon: 'fas fa-question-circle', 
+                            units: [
+                                { text: 'Chapter 1 MCQs', href: '2nyear-chem-unit1-mcqs.html' },
+                                { text: 'Chapter 2 MCQs', href: '2nyear-chem-unit2-mcqs.html' },
+                                { text: 'Chapter 3 MCQs', href: '2nyear-chem-unit3-mcqs.html' }
+                            ]
+                        },
+                        { text: 'Tutorial', icon: 'fas fa-book', href: '#' }
+                    ]
+                },
+                { 
+                    name: 'Physics', 
+                    linkDetails: [
+                        { text: 'Online Class', icon: 'fas fa-video', href: '#' },
+                        { 
+                            text: 'MCQs', 
+                            icon: 'fas fa-question-circle', 
+                            units: [
+                                { text: 'Chapter 1 MCQs', href: '2nyear-phys-unit1-mcqs.html' },
+                                { text: 'Chapter 2 MCQs', href: '2nyear-phys-unit2-mcqs.html' },
+                                { text: 'Chapter 3 MCQs', href: '2nyear-phys-unit3-mcqs.html' }
+                            ]
+                        },
+                        { text: 'Tutorial', icon: 'fas fa-book', href: '#' }
+                    ]
+                },
+                { 
+                    name: 'Biology', 
+                    linkDetails: [
+                        { text: 'Online Class', icon: 'fas fa-video', href: '#' },
+                        { 
+                            text: 'MCQs', 
+                            icon: 'fas fa-question-circle', 
+                            units: [
+                                { text: 'Chapter 1 MCQs', href: '2nyear-bio-unit1-mcqs.html' },
+                                { text: 'Chapter 2 MCQs', href: '2nyear-bio-unit2-mcqs.html' },
+                                { text: 'Chapter 3 MCQs', href: '2nyear-bio-unit3-mcqs.html' }
+                            ]
+                        },
+                        { text: 'Tutorial', icon: 'fas fa-book', href: '#' }
+                    ]
+                },
+                { 
+                    name: 'Mathematics', 
+                    linkDetails: [
+                        { text: 'Online Class', icon: 'fas fa-video', href: '#' },
+                        { 
+                            text: 'MCQs', 
+                            icon: 'fas fa-question-circle', 
+                            units: [
+                                { text: 'Chapter 1 MCQs', href: '2nyear-math-unit1-mcqs.html' },
+                                { text: 'Chapter 2 MCQs', href: '2nyear-math-unit2-mcqs.html' },
+                                { text: 'Chapter 3 MCQs', href: '2nyear-math-unit3-mcqs.html' }
+                            ]
+                        },
+                        { text: 'Tutorial', icon: 'fas fa-book', href: '2nyear-math-tuto.html' }
+                    ]
+                },
+                { 
+                    name: 'Urdu', 
+                    linkDetails: [
+                        { text: 'Online Class', icon: 'fas fa-video', href: '#' },
+                        { 
+                            text: 'MCQs', 
+                            icon: 'fas fa-question-circle', 
+                            units: [
+                                { text: 'Unit 1 MCQs', href: '2nyear-urdu-unit1-mcqs.html' },
+                                { text: 'Unit 2 MCQs', href: '2nyear-urdu-unit2-mcqs.html' },
+                                { text: 'Unit 3 MCQs', href: '2nyear-urdu-unit3-mcqs.html' }
+                            ]
+                        },
+                        { text: 'Tutorial', icon: 'fas fa-book', href: '#' }
+                    ]
+                },
+                { 
+                    name: 'English', 
+                    linkDetails: [
+                        { text: 'Online Class', icon: 'fas fa-video', href: '#' },
+                        { 
+                            text: 'MCQs', 
+                            icon: 'fas fa-question-circle', 
+                            units: [
+                                { text: 'Unit 1 MCQs', href: '2nyear-eng-unit1-mcqs.html' },
+                                { text: 'Unit 2 MCQs', href: '2nyear-eng-unit2-mcqs.html' },
+                                { text: 'Unit 3 MCQs', href: '2nyear-eng-unit3-mcqs.html' }
+                            ]
+                        },
+                        { text: 'Tutorial', icon: 'fas fa-book', href: '#' }
+                    ]
+                },
+                { 
+                    name: 'Pak Studies', 
+                    linkDetails: [
+                        { text: 'Online Class', icon: 'fas fa-video', href: '#' },
+                        { 
+                            text: 'MCQs', 
+                            icon: 'fas fa-question-circle', 
+                            units: [
+                                { text: 'Unit 1 MCQs', href: '2nyear-ps-unit1-mcqs.html' },
+                                { text: 'Unit 2 MCQs', href: '2nyear-ps-unit2-mcqs.html' },
+                                { text: 'Unit 3 MCQs', href: '2nyear-ps-unit3-mcqs.html' }
+                            ]
+                        },
+                        { text: 'Tutorial', icon: 'fas fa-book', href: '#' }
+                    ]
+                },
+                { 
+                    name: 'Islamiat', 
+                    linkDetails: [
+                        { text: 'Online Class', icon: 'fas fa-video', href: '#' },
+                        { 
+                            text: 'MCQs', 
+                            icon: 'fas fa-question-circle', 
+                            units: [
+                                { text: 'Unit 1 MCQs', href: '2nyear-isl-unit1-mcqs.html' },
+                                { text: 'Unit 2 MCQs', href: '2nyear-isl-unit2-mcqs.html' },
+                                { text: 'Unit 3 MCQs', href: '2nyear-isl-unit3-mcqs.html' }
+                            ]
+                        },
+                        { text: 'Tutorial', icon: 'fas fa-book', href: '#' }
+                    ]
+                },
+                { 
+                    name: 'Mutalia Quran', 
+                    linkDetails: [
+                        { text: 'Online Class', icon: 'fas fa-video', href: '#' },
+                        { 
+                            text: 'MCQs', 
+                            icon: 'fas fa-question-circle', 
+                            units: [
+                                { text: 'Unit 1 MCQs', href: '2nyear-mq-unit1-mcqs.html' },
+                                { text: 'Unit 2 MCQs', href: '2nyear-mq-unit2-mcqs.html' },
+                                { text: 'Unit 3 MCQs', href: '2nyear-mq-unit3-mcqs.html' }
+                            ]
+                        },
+                        { text: 'Tutorial', icon: 'fas fa-book', href: '#' }
+                    ]
+                }
+            ];
+
+            subjects.forEach(subject => {
+                const card = document.createElement('div');
+                card.className = 'subject-card';
+
+                const header = document.createElement('div');
+                header.className = 'subject-header';
+                header.setAttribute('onclick', 'toggleSubject(this)');
+                header.innerHTML = `<span>${subject.name}</span> <i class="fas fa-chevron-down"></i>`;
+                card.appendChild(header);
+
+                const content = document.createElement('div');
+                content.className = 'subject-content';
+                const linksList = document.createElement('ul');
+                linksList.className = 'subject-links';
+
+                subject.linkDetails.forEach(linkDetail => {
+                    const listItem = document.createElement('li');
+
+                    if (linkDetail.text === 'MCQs' && linkDetail.units) {
+                        // Create the MCQs dropdown trigger
+                        const dropdownDiv = document.createElement('div');
+                        dropdownDiv.className = 'mcqs-dropdown';
+                        dropdownDiv.innerHTML = `<span><i class="${linkDetail.icon}"></i> ${linkDetail.text}</span> <i class="fas fa-chevron-right"></i>`;
+                        listItem.appendChild(dropdownDiv);
+                        
+                        // Create the nested MCQs units list
+                        const unitsList = document.createElement('ul');
+                        unitsList.className = 'mcqs-units';
+
+                        linkDetail.units.forEach(unit => {
+                            const unitItem = document.createElement('li');
+                            const unitLink = document.createElement('a');
+                            unitLink.href = unit.href;
+                            unitLink.textContent = unit.text;
+                            unitItem.appendChild(unitLink);
+                            unitsList.appendChild(unitItem);
+                        });
+
+                        listItem.appendChild(unitsList);
+
+                        // Attach the event listener to the dropdown div
+                        dropdownDiv.addEventListener('click', function(event) {
+                            event.stopPropagation();
+                            toggleMCQs(unitsList, dropdownDiv);
+                        });
+
+                    } else {
+                        // Create regular link (Online Class, Tutorial)
+                        const link = document.createElement('a');
+                        link.href = linkDetail.href;
+                        link.innerHTML = `<i class="${linkDetail.icon}"></i> ${linkDetail.text}`;
+                        listItem.appendChild(link);
+                    }
+                    linksList.appendChild(listItem);
+                });
+
+                content.appendChild(linksList);
+                card.appendChild(content);
+                subjectsGrid.appendChild(card);
+            });
+
+            // Logout button logic
+            document.getElementById('logoutButton').addEventListener('click', function() {
+                localStorage.removeItem('loggedInUser');
+                window.location.href = 'login.html';
+            });
+        });
+    </script>
+</body>
+</html>
+
+
