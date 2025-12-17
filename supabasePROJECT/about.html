@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Ejaz Academy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #439bfd, #2874f0);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .nav-links a:hover {
+            color: #ffeb3b;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        .about-hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1524178232363-1fb2b075b655?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 40vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            padding: 0 1rem;
+        }
+        .about-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .about-content {
+            padding: 4rem 0;
+        }
+        .about-content h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            color: #439bfd;
+        }
+        .about-content p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            text-align: justify;
+        }
+        .mission-vision {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        .mission, .vision {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .mission h3, .vision h3 {
+            color: #439bfd;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .contact-section {
+            background: #e9ecef;
+            padding: 3rem 0;
+            text-align: center;
+        }
+        .contact-section h2 {
+            margin-bottom: 2rem;
+            color: #439bfd;
+        }
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        .contact-info p {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .contact-info a {
+            color: #439bfd;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .social-icons a {
+            color: #439bfd;
+            font-size: 1.8rem;
+            transition: all 0.3s ease;
+        }
+        .social-icons a:hover {
+            color: #ffeb3b;
+        }
+        .footer {
+            background: #343a40;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .footer-links a:hover {
+            color: #ffeb3b;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">Ejaz Academy</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#courses">Courses</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="easypaisa.html">EesyPaisa</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="register.html">Register</a></li>
+        </ul>
+    </nav>
+    <!-- About Hero Section -->
+    <section class="about-hero">
+        <h1>About Ejaz Academy</h1>
+    </section>
+    <!-- About Content -->
+    <section class="about-content">
+        <div class="container">
+            <h2>Welcome to Ejaz Academy</h2>
+            <p>
+                Ejaz Academy is a leading online learning platform dedicated to providing high-quality education to students in Pakistan and beyond. Founded with the vision of making education accessible, affordable, and engaging, we offer a wide range of courses designed to help students excel in their academic and professional journeys.
+            </p>
+            <p>
+                Our team of experienced educators and industry experts is committed to delivering innovative and interactive learning experiences. Whether you're preparing for matriculation, intermediate exams, or professional courses, Ejaz Academy is your trusted partner in achieving your goals.
+            </p>
+            <!-- Mission and Vision -->
+            <div class="mission-vision">
+                <div class="mission">
+                    <h3>Our Mission</h3>
+                    <p>
+                        Our mission is to empower students with the knowledge, skills, and confidence they need to succeed in their academic and professional lives. We strive to create a supportive and inclusive learning environment that fosters creativity, critical thinking, and lifelong learning.
+                    </p>
+                </div>
+                <div class="vision">
+                    <h3>Our Vision</h3>
+                    <p>
+                        Our vision is to become the most trusted and innovative online learning platform in Pakistan, transforming the way education is delivered and accessed. We aim to inspire and equip the next generation of leaders, thinkers, and innovators.
+                    </p>
+                </div>
+            </div>
+            <!-- Why Choose Us -->
+            <h2>Why Choose Ejaz Academy?</h2>
+            <p>
+                At Ejaz Academy, we believe in the power of education to change lives. Here’s why students and parents trust us:
+            </p>
+            <ul style="font-size: 1.1rem; margin-left: 2rem;">
+                <li>Experienced and passionate instructors</li>
+                <li>Comprehensive and up-to-date course materials</li>
+                <li>Flexible learning options to suit your schedule</li>
+                <li>Affordable and accessible education for all</li>
+                <li>Personalized support and guidance</li>
+            </ul>
+        </div>
+    </section>
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <div class="container">
+            <h2>Get in Touch</h2>
+            <p>We’d love to hear from you! Whether you have questions about our courses, need assistance with enrollment, or just want to say hello, feel free to reach out.</p>
+            <div class="contact-info">
+                <p><i class="fas fa-phone-alt"></i> Phone: <a href="tel:03015280876">0301-5280876</a> / <a href="tel:03339238502">0333-9238502</a></p>
+                <p><i class="fas fa-envelope"></i> Email: <a href="mailto:sirejazpls@gmail.com">sirejazpls@gmail.com</a></p>
+            </div>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+    </section>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="index.html#courses">Courses</a>
+            <a href="about.html">About Us</a>
+            <a href="easypaisa.html">EesyPaisa</a>
+            <a href="login.html">Login</a>
+            <a href="register.html">Register</a>
+        </div>
+        <p>&copy; 2025 Ejaz Academy. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>

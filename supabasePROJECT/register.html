@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            min-height: 100vh;
+        }
+        .container-card {
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #ff4b2b, #ff416c);
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 4px 15px rgba(255, 75, 43, 0.4);
+            transform: translateY(-1px);
+        }
+        .input-field, .select-field {
+            transition: border-color 0.2s;
+        }
+        .input-field:focus, .select-field:focus {
+            border-color: #ff4b2b;
+            box-shadow: 0 0 0 2px rgba(255, 75, 43, 0.2);
+            outline: none;
+        }
+        .message-box {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 50;
+        }
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+    <div class="container-card bg-white p-8 md:p-10 rounded-xl w-full max-w-md">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Student Sign Up</h1>
+        <form id="registrationForm" class="flex flex-col space-y-4">
+            <input type="text" id="name" placeholder="Full Name" required class="input-field bg-gray-100 border border-gray-200 p-3 rounded-lg w-full text-sm">
+            <input type="email" id="email" placeholder="Email Address" required class="input-field bg-gray-100 border border-gray-200 p-3 rounded-lg w-full text-sm">
+            
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="course9th" value="9th">
+                    <label for="course9th">9th (Science Group) — Rs 2,500</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="course10th" value="10th">
+                    <label for="course10th">10th (Science Group) — Rs 2,500</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="course1styear" value="1styear">
+                    <label for="course1styear">1st Year (F.Sc) — Rs 3,000</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="course2ndyear" value="2ndyear"> 
+                    <label for="course2ndyear">2nd Year (F.Sc) — Rs 3,000</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="courseCadet" value="cadet">
+                    <label for="courseCadet">Cadet College — Rs 15,000</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="courseMdecat" value="mdcat">
+                    <label for="courseMdecat">MDCAT — Rs 10,000</label>
+                </div>
+            </div>
+            
+            <input type="password" id="password" placeholder="Password (min 6 chars)" required minlength="6" class="input-field bg-gray-100 border border-gray-200 p-3 rounded-lg w-full text-sm">
+            <input type="password" id="confirmPassword" placeholder="Confirm Password" required minlength="6" class="input-field bg-gray-100 border border-gray-200 p-3 rounded-lg w-full text-sm">
+            
+            <div id="totalFee" class="text-lg font-bold text-gray-800 text-center">Total: Rs 0</div>
+            
+            <button type="submit" class="btn-primary text-white font-bold py-3 rounded-full tracking-wider mt-6 transition duration-200 ease-in-out">
+                Register Student
+            </button>
+        </form>
+        <p class="text-center mt-6 text-sm text-gray-600">
+            Already have an account?
+            <a href="login.html" class="text-red-500 font-semibold hover:underline">Log In here</a>
+        </p>
+        <p class="text-center mt-2 text-sm text-gray-600">
+            <a href="index.html" class="text-blue-500 font-semibold hover:underline">Back to Home</a>
+        </p>
+    </div>
+    <div id="messageContainer" class="message-box space-y-2"></div>
+    <script>
+        // Supabase configuration
+        const supabaseUrl = 'https://dzvnkuoobchintgcvdbd.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6dm5rdW9vYmNoaW50Z2N2ZGJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyODE2OTgsImV4cCI6MjA3ODg1NzY5OH0.8U2fdlLUpnog-kJFo_lXonYujy5mnFy8WXIDxAUVsKU';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        const courseFees = {
+            '9th': 2500,
+            '10th': 2500,
+            '1styear': 3000,
+            '2ndyear': 3000, // CHANGED: Updated key to match HTML value
+            'cadet': 15000,
+            'mdcat': 10000
+        };
+
+        // Wrap logic inside DOMContentLoaded to ensure elements are ready
+        document.addEventListener('DOMContentLoaded', () => {
+
+            function updateTotalFee() {
+                let total = 0;
+                document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+                    total += courseFees[checkbox.value] || 0;
+                });
+                document.getElementById('totalFee').textContent = `Total: Rs ${total}`;
+            }
+
+            // Initial update
+            updateTotalFee(); 
+
+            // Attach listeners for course fee calculation
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', updateTotalFee);
+            });
+
+            function showMessage(message, type) {
+                const container = document.getElementById('messageContainer');
+                const messageEl = document.createElement('div');
+                let bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+                messageEl.className = `p-3 rounded-lg text-white font-semibold shadow-xl flex items-center transition-opacity duration-300 opacity-0 ${bgColor}`;
+                messageEl.innerHTML = `
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        ${type === 'success'
+                            ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>'
+                            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>'
+                        }
+                    </svg>
+                    <span>${message}</span>
+                `;
+                container.appendChild(messageEl);
+                setTimeout(() => messageEl.classList.remove('opacity-0'), 10);
+                setTimeout(() => {
+                    messageEl.classList.add('opacity-0');
+                    messageEl.addEventListener('transitionend', () => messageEl.remove());
+                }, 4000);
+            }
+
+            // --- Form Submission Logic ---
+            document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                if (password.length < 6) {
+                    showMessage("Password must be at least 6 characters long.", 'error');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    showMessage("Passwords do not match. Please re-enter.", 'error');
+                    return;
+                }
+
+                const selectedCourseValues = [];
+                document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+                    selectedCourseValues.push(checkbox.value);
+                });
+
+                if (selectedCourseValues.length === 0) {
+                    showMessage("Please select at least one course.", 'error');
+                    return;
+                }
+
+                // 1. Supabase Sign Up (Creates auth.users entry)
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        // Keep only relevant custom data for auth.users metadata
+                        data: {
+                            full_name: name 
+                            // Courses data is inserted separately below, so we remove the redundant 'courses' array here.
+                        }
+                    }
+                });
+
+                if (authError) {
+                    // Specific check for existing user, which is a common error
+                    if (authError.message.includes('already registered')) {
+                        showMessage(`Registration Failed: This email is already registered.`, 'error');
+                    } else {
+                         showMessage(`Registration Failed: ${authError.message}`, 'error');
+                    }
+                    return;
+                }
+
+                // If user needs email confirmation:
+                if (authData && !authData.user) {
+                    showMessage("Registration successful! Please check your email to verify your account and then log in.", 'success');
+                    // Do not redirect yet if email confirmation is enabled on Supabase
+                    return; 
+                }
+
+                const userId = authData.user.id;
+
+                // 2. Insert user data into the 'users' table (Public Schema)
+                const { error: userError } = await supabase
+                    .from('users')
+                    .insert([{
+                        id: userId,
+                        email: email,
+                        name: name
+                    }]);
+
+                if (userError) {
+                    console.error('User Insertion Error:', userError);
+                    showMessage("Registration complete, but failed to record user data. Please contact support.", 'error');
+                    return;
+                }
+
+                // 3. Insert course data into the 'user_courses' table
+                const coursesToInsert = selectedCourseValues.map(courseValue => ({
+                    user_id: userId,
+                    course_id: courseValue,
+                    is_paid: false
+                }));
+
+                const { error: courseError } = await supabase
+                    .from('user_courses')
+                    .insert(coursesToInsert);
+
+                if (courseError) {
+                    console.error('Course Insertion Error:', courseError);
+                    showMessage("Registration complete, but failed to record course data. Please contact support.", 'error');
+                    return;
+                }
+
+                // 4. Final Success Message and Redirect
+                showMessage("Registration successful! Proceeding to login page.", 'success');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 4000);
+            });
+        }); // End of DOMContentLoaded
+    </script>
+</body>
+</html>

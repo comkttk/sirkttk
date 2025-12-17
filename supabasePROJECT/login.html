@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ... (Your existing CSS is here, unchanged) ... */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+        }
+        .container {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+            width: 400px;
+            padding: 40px;
+            text-align: center;
+        }
+        h1 {
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input {
+            background: #eee;
+            border: none;
+            padding: 12px 15px;
+            margin: 8px 0;
+            width: 100%;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        button {
+            border-radius: 25px;
+            border: 1px solid #ff4b2b;
+            background: #ff4b2b;
+            color: #fff;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 12px 45px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: transform 80ms ease-in;
+            margin-top: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        .oauth-button {
+            background: #4285F4; /* Google Blue */
+            border: 1px solid #4285F4;
+            margin-top: 10px;
+        }
+        .oauth-button:hover {
+            background: #357ae8;
+        }
+        a {
+            color: #333;
+            font-size: 14px;
+            text-decoration: none;
+            margin: 10px 0;
+        }
+        .switch-link {
+            display: block;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            max-width: 90%;
+        }
+        .modal-content h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .modal-content button {
+            margin: 5px;
+            padding: 8px 15px;
+            font-size: 12px;
+            border-radius: 5px;
+            background-color: #439bfd;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .modal-content button:hover {
+            background-color: #2874f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form class="form" id="loginForm">
+            <h1>Sign In</h1>
+            <input type="email" id="email" placeholder="Email" required />
+            <input type="password" id="password" placeholder="Password" required />
+            <a href="#">Forgot your password?</a>
+            <button type="submit">Sign In</button>
+        </form>
+        
+        <button id="googleLogin" class="oauth-button">Sign in with Google</button>
+
+        <a href="register.html" class="switch-link">Don't have an account? <strong>Register here</strong></a>
+        <a href="index.html" class="switch-link">Back to Home</a>
+    </div>
+    <div id="courseModal" class="modal">
+        <div class="modal-content">
+            <h3>Select a Course</h3>
+            <div id="courseOptions"></div>
+        </div>
+    </div>
+    <script>
+        // 2. Wrap ALL JavaScript code to ensure the HTML elements are loaded first.
+        document.addEventListener('DOMContentLoaded', () => {
+            const supabaseUrl = 'https://dzvnkuoobchintgcvdbd.supabase.co';
+            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6dm5rdW9vYmNoaW50Z2N2ZGJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyODE2OTgsImV4cCI6MjA3ODg1NzY5OH0.8U2fdlLUpnog-kJFo_lXonYujy5mnFy8WXIDxAUVsKU';
+            
+            // !!! IMPORTANT: The browser error likely happens here if the CDN failed to load.
+            const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+            // --- Configuration Check ---
+            // REPLACE THIS with your exact application URL.
+            const OAUTH_REDIRECT_URL = 'YOUR_APP_URL/auth/callback'; 
+            
+            // Centralized function to run after ANY successful login (Email/Password or OAuth)
+            async function handleSuccessfulLogin(userId, email) {
+                // 1. Fetch User's Paid Courses
+                const { data: userCourses, error: coursesError } = await supabase
+                    .from('user_courses')
+                    .select('course_id, courses(value, name)')
+                    .eq('user_id', userId)
+                    .eq('is_paid', true);
+
+                if (coursesError) {
+                    alert('Error fetching your courses.');
+                    console.error(coursesError);
+                    return;
+                }
+
+                if (!userCourses || userCourses.length === 0) {
+                    alert('Login successful, but you have no paid courses enrolled. Sending you to the home page.');
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                // 2. Store user data in localStorage
+                const userData = {
+                    email: email,
+                    courses: userCourses.map(course => course.course_id)
+                };
+                localStorage.setItem('loggedInUser', email);
+                localStorage.setItem(email, JSON.stringify(userData));
+
+                // 3. Display Course Selection Modal
+                const modal = document.getElementById('courseModal');
+                const courseOptions = document.getElementById('courseOptions');
+                courseOptions.innerHTML = '';
+
+                userCourses.forEach(courseEntry => {
+                    const course = courseEntry.courses;
+                    if (!course) return;
+
+                    const button = document.createElement('button');
+                    button.textContent = course.name;
+                    button.onclick = () => {
+                        modal.style.display = 'none';
+                        // Using template literal for cleaner URL construction
+                        window.location.href = `${course.value}.html`; 
+                    };
+                    courseOptions.appendChild(button);
+                });
+
+                // Show the modal to select a course
+                modal.style.display = 'flex';
+            }
+            
+            // --- ATTACH EVENT LISTENERS ---
+
+            // A. Email/Password Login
+            document.getElementById('loginForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+
+                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
+
+                if (authError) {
+                    alert(`Login Failed: ${authError.message}`);
+                    return;
+                }
+                
+                handleSuccessfulLogin(authData.user.id, email);
+            });
+
+            // B. OAuth Login
+            document.getElementById('googleLogin').addEventListener('click', async function() {
+                const { data, error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: OAUTH_REDIRECT_URL 
+                    }
+                });
+
+                if (error) {
+                    alert(`OAuth Login Failed: ${error.message}`);
+                    console.error(error);
+                }
+            });
+
+        }); // End of DOMContentLoaded
+    </script>
+</body>
+</html>

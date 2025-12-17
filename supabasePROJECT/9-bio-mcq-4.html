@@ -1,0 +1,1428 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Quiz App — VBA → HTML/JS Conversion</title>
+    <style>
+        /* EJAZ ACADEMY Navigation Bar */
+        .nav-links {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #2c3e50;
+        }
+        .nav-links li {
+            float: left;
+        }
+        .nav-links li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .nav-links li a:hover {
+            background-color: #1a252f;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            background-color: #2c3e50;
+            margin: 0;
+            padding: 10px 0;
+        }
+        :root {
+            --accent: #2b6cb0;
+            --danger: #e53e3e;
+            --ok: #38a169;
+        }
+        body {
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            padding: 20px;
+            background: #f7fafc;
+            color: #1a202c
+        }
+        .wrap {
+            max-width: 920px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 18px;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(2,6,23,0.08)
+        }
+        h1 {
+            margin: 0 0 8px;
+            font-size: 20px
+        }
+        p.lead {
+            margin: 0 0 18px;
+            color: #4a5568
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 18px
+        }
+        .panel {
+            padding: 12px;
+            border-radius: 8px;
+            background: #f1f5f9
+        }
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px
+        }
+        button {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            cursor: pointer
+        }
+            button.primary {
+                background: var(--accent);
+                color: white;
+                border-color: transparent
+            }
+            button.warn {
+                background: var(--danger);
+                color: white
+            }
+            button.ok {
+                background: var(--ok);
+                color: white
+            }
+            button:disabled {
+                opacity: 0.6;
+                cursor: not-allowed
+            }
+        .question-area {
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px
+        }
+        .q-text {
+            font-size: 18px;
+            padding: 12px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 1px 0 rgba(2,6,23,0.04)
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px
+        }
+        .opt {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+            .opt.disabled {
+                opacity: 0.6;
+                cursor: not-allowed
+            }
+            .opt.correct {
+                background: #c6f6d5;
+                border-color: #9ae6b4
+            }
+            .opt.wrong {
+                background: #fed7d7;
+                border-color: #f6adad
+            }
+        .meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px
+        }
+        .timer {
+            font-weight: 700
+        }
+        .progress {
+            color: #4a5568
+        }
+        .side {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+        label {
+            font-size: 13px;
+            color: #4a5568
+        }
+        input[type="text"], textarea,
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1
+        }
+        textarea {
+            min-height: 80px
+        }
+        .small {
+            font-size: 12px;
+            color: #718096
+        }
+        .results {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            background: #fff
+        }
+        /* Urdu font fallback - use if installed on user's system */
+        .urdu {
+            font-family: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif
+        }
+        footer {
+            margin-top: 12px;
+            color: #718096;
+            font-size: 13px
+        }
+        /* GoTo Input Dialog Style */
+        .goto-dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .goto-dialog {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        @media (max-width:900px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+            .side {
+                order: 2
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>EJAZ ACADEMY</h1>
+    <ul class="nav-links">
+        <li><a href="9th.html">Home</a></li>
+        <li><a href="#courses">Courses</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="easypaisa.html">EesyPaisa</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="register.html">Register</a></li>
+    </ul>
+    <div class="wrap">
+        <h1>KPK-Class-9th-Biology-MCQs</h1>
+        <p class="lead">Unit 4- (Cell and Tissues).</p>
+        <div class="grid">
+            <div>
+                <div class="panel">
+                    <div class="controls">
+                        <input id="fileInput" type="file" accept=".csv" />
+                        <button id="loadSample" class="primary">Load sample questions</button>
+                        <button id="startBtn" class="ok">Start</button>
+                        <button id="pauseBtn">Pause</button>
+                        <button id="nextBtn">Next</button>
+                        <button id="stopBtn" class="warn">Stop</button>
+                        <button id="goToBtn">Go To</button>
+                    </div>
+                    <div class="question-area">
+                        <div id="lblQuestion" class="q-text urdu">(load questions or click "Load sample questions")</div>
+                        <div class="options">
+                            <div id="opt0" class="opt"><input type="radio" name="opt" id="r0"><label for="r0" id="lbl0"></label></div>
+                            <div id="opt1" class="opt"><input type="radio" name="opt" id="r1"><label for="r1" id="lbl1"></label></div>
+                            <div id="opt2" class="opt"><input type="radio" name="opt" id="r2"><label for="r2" id="lbl2"></label></div>
+                            <div id="opt3" class="opt"><input type="radio" name="opt" id="r3"><label for="r3" id="lbl3"></label></div>
+                        </div>
+                        <div class="meta">
+                            <div class="timer" id="lblTimer">Time: -</div>
+                            <div class="progress" id="lblProgress">Question - of -</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="results" id="resultsBox" style="display:none">
+                    <div style="text-align: center; font-size: 20px; font-weight: bold; color: #2c3e50; margin-bottom: 12px;">
+                        Quiz Results
+                    </div>
+                    <div id="resultText" style="
+                        background: #f8f9fa;
+                        border-radius: 8px;
+                        padding: 16px;
+                        border-left: 4px solid #2b6cb0;
+                        margin-top: 8px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                    ">
+                        <div style="font-size: 16px; margin-bottom: 8px;">
+                            <strong>Quiz Stopped!</strong>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #e2e8f0;">
+                                <span>Correct answers:</span>
+                                <span id="correctCount">1</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #e2e8f0;">
+                                <span>Wrong answers:</span>
+                                <span id="wrongCount">6</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #e2e8f0;">
+                                <span>Attempted:</span>
+                                <span id="attemptedCount">7</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #e2e8f0;">
+                                <span>Skipped:</span>
+                                <span id="skippedCount">0</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+                                <span>Total Questions:</span>
+                                <span id="totalQuestions">129</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: center; gap: 12px; margin-top: 16px;">
+                        <button id="downloadResults" class="primary">Download Results CSV</button>
+                        <button id="closeResults">Close</button>
+                    </div>
+                </div>
+            </div>
+            <aside class="side">
+                <div class="panel">
+                    <label>Name</label>
+                    <input type="text" id="txtName" placeholder="Enter user name (optional)" />
+                    <label>Per-question time limit (seconds)</label>
+                    <input type="number" id="timeLimitInput" min="3" value="15" />
+                    <label>Or paste CSV (first line = header). Columns: question,opt1,opt2,opt3,opt4,correct</label>
+                    <textarea id="csvPaste" placeholder="question,opt1,opt2,opt3,opt4,correct\nWhat is 2+2?,1,2,3,4,4"></textarea>
+                    <div style="display:flex;gap:6px;margin-top:6px">
+                        <button id="pasteLoad">Load from paste</button>
+                        <button id="clearStorage">Clear saved results</button>
+                    </div>
+                    <div style="margin-top:10px" class="small">
+                        <strong>Notes:</strong>
+                        <ul>
+                            <li>The "correct" column accepts: 1/2/3/4 or a/b/c/d or words like "one" or the exact option text.</li>
+                            <li>If you don't load questions, use "Load sample questions".</li>
+                            <li>Options are disabled until you press Start.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div><strong>Saved attempts (localStorage)</strong></div>
+                    <div id="savedCount" class="small" style="margin-top:6px">0 saved attempts</div>
+                    <div style="margin-top:6px">
+                        <button id="downloadAll">Download all saved</button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+     
+    </div>
+    <div id="goToDialogOverlay" class="goto-dialog-overlay">
+        <div class="goto-dialog">
+            <label for="goToInput">Enter question number (1 to <span id="maxQNum"></span>):</label>
+            <input type="number" id="goToInput" min="1" />
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                <button id="cancelGoTo">Cancel</button>
+                <button id="confirmGoTo" class="primary">Go</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // --- state ---
+        let questions = []; // each: {q, opts:[], correctRaw}
+        let currentQuestionIndex = 0; // 0-based
+        let totalQuestions = 0;
+        let secondsLeft = 0;
+        let timeLimit = 15;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let isLocked = false;
+        let quizStarted = false;
+        let isPaused = false;
+        let skippedQuestionsCount = 0;
+        let timerId = null;
+        // --- helpers ---
+        function $(id) { return document.getElementById(id) }
+        function clamp(v, a, b) { return Math.max(a, Math.min(b, v)) }
+        function csvToArray(text) {
+            // Simple CSV parser that supports quoted fields and commas inside quotes
+            const rows = [];
+            const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+            for (const line of lines) {
+                const row = [];
+                let inQuotes = false;
+                let cur = '';
+                for (let i = 0; i < line.length; i++) {
+                    const ch = line[i];
+                    if (ch === '"') {
+                        if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; } else { inQuotes = !inQuotes; }
+                    } else if (ch === ',' && !inQuotes) { row.push(cur); cur = ''; }
+                    else cur += ch;
+                }
+                row.push(cur);
+                rows.push(row.map(c => c.trim()));
+            }
+            return rows;
+        }
+        function parseCorrectOptionFromQuestionData(raw, opts) {
+            if (!raw) return -1;
+            const r = String(raw).trim().toLowerCase();
+            if (r === '') return -1;
+            // numeric
+            if (/^\d+$/.test(r)) {
+                const n = parseInt(r, 10);
+                if (n >= 1 && n <= 4) return n - 1;
+            }
+            // single letter
+            if (r.length === 1) {
+                const map = { 'a': 0, 'b': 1, 'c': 2, 'd': 3 };
+                if (map.hasOwnProperty(r)) return map[r];
+            }
+            // words
+            if (r.includes('one')) return 0;
+            if (r.includes('two')) return 1;
+            if (r.includes('three')) return 2;
+            if (r.includes('four')) return 3;
+            // exact match to option text
+            for (let i = 0; i < 4; i++) {
+                if (!opts[i]) continue;
+                const o = String(opts[i]).trim().toLowerCase();
+                if (o === r) return i;
+                if (o.includes(r) || r.includes(o)) return i;
+            }
+            // contains digit
+            for (let i = 0; i < 4; i++) if (r.includes(String(i + 1))) return i;
+            return -1;
+        }
+        // --- UI ---
+        function setOptionsEnabled(enabled) {
+            for (let i = 0; i < 4; i++) {
+                const el = $('opt' + i);
+                if (enabled) el.classList.remove('disabled'); else el.classList.add('disabled');
+            }
+            const radios = document.querySelectorAll('input[name="opt"]');
+            radios.forEach(r => r.disabled = !enabled);
+        }
+        function resetOptionStyles() {
+            for (let i = 0; i < 4; i++) {
+                const el = $('opt' + i);
+                el.classList.remove('correct', 'wrong', 'selected');
+                const lbl = $('lbl' + i);
+                lbl.style.pointerEvents = 'auto';
+            }
+        }
+        function showQuestion(index) {
+            isLocked = false;
+            if (index < 0 || index >= totalQuestions) return;
+            stopQuizTimer();
+            const q = questions[index];
+            $('lblQuestion').textContent = q.q || '(no question)';
+            for (let i = 0; i < 4; i++) {
+                $('lbl' + i).textContent = q.opts[i] || '';
+                $('r' + i).checked = false;
+            }
+            resetOptionStyles();
+            // Options are only enabled if the quiz has started
+            setOptionsEnabled(quizStarted);
+            timeLimit = parseInt($('timeLimitInput').value || '15', 10);
+            secondsLeft = timeLimit;
+            $('lblTimer').textContent = 'Time: ' + secondsLeft + ' sec';
+            $('lblProgress').textContent = 'Question ' + (currentQuestionIndex + 1) + ' of ' + totalQuestions;
+            if (quizStarted && !isPaused) startQuizTimer();
+        }
+        function startQuizTimer() {
+            stopQuizTimer();
+            timerId = setInterval(() => {
+                timerTickFromModule();
+            }, 1000);
+        }
+        function stopQuizTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+        function timerTickFromModule() {
+            if (isLocked) return;
+            secondsLeft--;
+            if (secondsLeft <= 0) {
+                $('lblTimer').textContent = 'Time: 0 sec';
+                stopQuizTimer();
+                evaluateAnswer(-1); // 0 in VBA = timeout; here -1 means no selection
+            } else {
+                $('lblTimer').textContent = 'Time: ' + secondsLeft + ' sec';
+            }
+        }
+        function evaluateAnswer(selectedIndex) {
+            if (isLocked) return;
+            isLocked = true;
+            stopQuizTimer();
+            const q = questions[currentQuestionIndex];
+            const correctIndex = parseCorrectOptionFromQuestionData(q.correctRaw, q.opts);
+            // Highlight correct
+            if (correctIndex >= 0) $('opt' + correctIndex).classList.add('correct');
+            // If wrong
+            if (selectedIndex >= 0 && selectedIndex !== correctIndex) {
+                $('opt' + selectedIndex).classList.add('wrong');
+            }
+            // Count
+            if (selectedIndex >= 0 && selectedIndex === correctIndex) {
+                correctCount++;
+            } else if (selectedIndex >= 0 && selectedIndex !== correctIndex) {
+                wrongCount++;
+            } else if (selectedIndex === -1) {
+                // timed out, count as wrong
+                wrongCount++;
+            }
+            // Pause for 2 seconds then next
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex >= totalQuestions) {
+                stopQuizTimer();
+                // Only show results if the quiz was running
+                if (quizStarted) {
+                    quizStarted = false;
+                    showResults('Quiz Completed!');
+                } else {
+                    // If stopped/not started, just wrap to the first question
+                    currentQuestionIndex = 0;
+                    showQuestion(currentQuestionIndex);
+                }
+            } else {
+                showQuestion(currentQuestionIndex);
+            }
+        }
+        function showResults(title) {
+            $('resultsBox').style.display = 'block';
+            const attempted = correctCount + wrongCount;
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('wrongCount').textContent = wrongCount;
+            document.getElementById('attemptedCount').textContent = attempted;
+            document.getElementById('skippedCount').textContent = skippedQuestionsCount;
+            document.getElementById('totalQuestions').textContent = totalQuestions;
+            saveResultToLocal();
+        }
+        function saveResultToLocal() {
+            const name = ($('txtName').value || 'Unknown').trim();
+            const attempted = correctCount + wrongCount;
+            const rec = { name, correct: correctCount, wrong: wrongCount, attempted, skipped: skippedQuestionsCount, total: totalQuestions, date: new Date().toISOString() };
+            const key = 'quiz_attempts_v1';
+            const arr = JSON.parse(localStorage.getItem(key) || '[]');
+            arr.push(rec);
+            localStorage.setItem(key, JSON.stringify(arr));
+            updateSavedCount();
+        }
+        function updateSavedCount() {
+            const arr = JSON.parse(localStorage.getItem('quiz_attempts_v1') || '[]');
+            $('savedCount').textContent = arr.length + ' saved attempts';
+        }
+        function downloadCSV(records, filename) {
+            if (!records || records.length === 0) { alert('No records to download'); return; }
+            const header = ['Name', 'Correct Questions', 'Wrong Questions', 'Attempted Questions', 'Skipped Questions', 'Total Questions', 'Date & Time'];
+            const rows = [header.map(escapeCSV).join(',')];
+            for (const r of records) {
+                rows.push([escapeCSV(r.name), r.correct, r.wrong, r.attempted, r.skipped, r.total, r.date].join(','));
+            }
+            const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename || 'results.csv';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        }
+        function escapeCSV(v) { if (v == null) return ''; return '"' + String(v).replace(/"/g, '""') + '"'; }
+        // --- Go To Dialog Logic ---
+        function showGoToDialog() {
+            if (totalQuestions === 0) {
+                alert('Please load questions first.');
+                return;
+            }
+            $('maxQNum').textContent = totalQuestions;
+            $('goToInput').value = currentQuestionIndex + 1;
+            $('goToDialogOverlay').style.display = 'flex';
+            $('goToInput').focus();
+        }
+        function hideGoToDialog() {
+            $('goToDialogOverlay').style.display = 'none';
+        }
+        function handleGoTo() {
+            const v = $('goToInput').value;
+            hideGoToDialog();
+            if (!v) return;
+            const qn = parseInt(v, 10);
+            if (isNaN(qn) || qn < 1 || qn > totalQuestions) {
+                alert(`Invalid question number. Must be between 1 and ${totalQuestions}`);
+                return;
+            }
+            currentQuestionIndex = qn - 1;
+            showQuestion(currentQuestionIndex);
+            // If the quiz was paused, unpause it after Go To
+            if (isPaused) {
+                isPaused = false;
+                $('pauseBtn').textContent = 'Pause';
+                $('pauseBtn').classList.remove('ok');
+                startQuizTimer();
+            }
+        }
+        // --- events ---
+        window.addEventListener('DOMContentLoaded', () => {
+            // attach handlers
+            $('loadSample').addEventListener('click', () => {
+                loadSampleQuestions();
+            });
+            $('startBtn').addEventListener('click', () => {
+                if (quizStarted) return;
+                if (questions.length === 0) {
+                    alert('Load questions first (CSV/paste or sample)');
+                    return;
+                }
+                // IMPORTANT: Use the currentQuestionIndex set by goToBtn
+                quizStarted = true;
+                correctCount = 0;
+                wrongCount = 0;
+                skippedQuestionsCount = 0;
+                // currentQuestionIndex is already set (default 0, or by goToBtn)
+                $('startBtn').disabled = true;
+                $('txtName').disabled = true;
+                setOptionsEnabled(true);
+                showQuestion(currentQuestionIndex);
+            });
+            $('pauseBtn').addEventListener('click', () => {
+                if (!quizStarted) return;
+                if (isPaused) { // resume
+                    isPaused = false;
+                    $('pauseBtn').textContent = 'Pause';
+                    $('pauseBtn').classList.remove('ok');
+                    startQuizTimer();
+                } else { // pause
+                    isPaused = true;
+                    $('pauseBtn').textContent = 'Play';
+                    $('pauseBtn').classList.add('ok');
+                    stopQuizTimer();
+                }
+            });
+            $('nextBtn').addEventListener('click', () => {
+                // MODIFICATION: Removed the check 'if (!quizStarted) return;'
+                // If currently paused, resume first (mimic VBA behavior)
+                if (isPaused) {
+                    isPaused = false;
+                    $('pauseBtn').textContent = 'Pause';
+                    $('pauseBtn').classList.remove('ok');
+                }
+                // Only count the skip if the quiz is actually running
+                if (quizStarted) {
+                    skippedQuestionsCount++;
+                }
+                stopQuizTimer();
+                currentQuestionIndex++;
+                if (currentQuestionIndex >= totalQuestions) {
+                    // If the quiz was started, show results
+                    if (quizStarted) {
+                        showResults('Quiz Completed!');
+                    } else {
+                        // If stopped/not started, just wrap to the first question
+                        currentQuestionIndex = 0;
+                        showQuestion(currentQuestionIndex);
+                    }
+                } else {
+                    showQuestion(currentQuestionIndex);
+                }
+            });
+            $('stopBtn').addEventListener('click', () => {
+                stopQuizTimer();
+                // Only show results if the quiz was running
+                if (quizStarted) {
+                    showResults('Quiz Stopped!');
+                }
+                quizStarted = false; // Important: set state to stopped
+                $('startBtn').disabled = false;
+                $('txtName').disabled = false;
+                setOptionsEnabled(false);
+            });
+            // Use the custom dialog instead of prompt for better compatibility
+            $('goToBtn').addEventListener('click', showGoToDialog);
+            $('confirmGoTo').addEventListener('click', handleGoTo);
+            $('cancelGoTo').addEventListener('click', hideGoToDialog);
+            // Allow pressing Enter in the input field
+            $('goToInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleGoTo();
+                }
+            });
+            for (let i = 0; i < 4; i++) {
+                $('opt' + i).addEventListener('click', () => {
+                    if (!quizStarted || isLocked || isPaused) return; // disabled until start
+                    checkAndSetPauseButton();
+                    // mark selected visually
+                    document.querySelectorAll('.opt').forEach(el => el.classList.remove('selected'));
+                    $('opt' + i).classList.add('selected');
+                    evaluateAnswer(i);
+                });
+            }
+            $('fileInput').addEventListener('change', (ev) => {
+                const f = ev.target.files[0];
+                if (!f) return;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    loadQuestionsFromCSV(e.target.result);
+                };
+                reader.readAsText(f);
+            });
+            $('pasteLoad').addEventListener('click', () => {
+                const t = $('csvPaste').value.trim();
+                if (!t) { alert('Paste some CSV first'); return; }
+                loadQuestionsFromCSV(t);
+            });
+            $('clearStorage').addEventListener('click', () => {
+                if (confirm('Clear all saved results in localStorage?')) {
+                    localStorage.removeItem('quiz_attempts_v1');
+                    updateSavedCount();
+                }
+            });
+            $('downloadAll').addEventListener('click', () => {
+                const arr = JSON.parse(localStorage.getItem('quiz_attempts_v1') || '[]');
+                if (arr.length === 0) return alert('No saved attempts');
+                downloadCSV(arr, 'all_quiz_attempts.csv');
+            });
+            $('downloadResults').addEventListener('click', () => {
+                // Download the last saved attempt
+                const arr = JSON.parse(localStorage.getItem('quiz_attempts_v1') || '[]');
+                if (arr.length === 0) return alert('No saved attempts to download');
+                const lastAttempt = [arr[arr.length - 1]];
+                downloadCSV(lastAttempt, 'last_quiz_results.csv');
+            });
+            $('closeResults').addEventListener('click', () => {
+                $('resultsBox').style.display = 'none';
+                $('startBtn').disabled = false;
+                $('txtName').disabled = false;
+            });
+            // set initial
+            setOptionsEnabled(false);
+            updateSavedCount();
+            // load an example automatically
+            loadSampleQuestions();
+        });
+        function checkAndSetPauseButton() {
+            if (isPaused) {
+                isPaused = false;
+                $('pauseBtn').textContent = 'Pause';
+                $('pauseBtn').classList.remove('ok');
+                startQuizTimer();
+            }
+        }
+        function loadQuestionsFromCSV(text) {
+            try {
+                const rows = csvToArray(text);
+                if (rows.length === 0) { alert('No rows found'); return; }
+                // detect header
+                let start = 0;
+                const first = rows[0].map(c => c.toLowerCase());
+                if (first.includes('question') || first.includes('opt1') || first.includes('option1')) start = 1;
+                const arr = [];
+                for (let i = start; i < rows.length; i++) {
+                    const r = rows[i];
+                    const q = r[0] || '';
+                    const opts = [r[1] || '', r[2] || '', r[3] || '', r[4] || ''];
+                    const correctRaw = r[5] || '';
+                    arr.push({ q, opts, correctRaw });
+                }
+                questions = arr;
+                totalQuestions = questions.length;
+                currentQuestionIndex = 0; // Reset to start
+                // Reset quiz state when new questions are loaded
+                quizStarted = false;
+                $('startBtn').disabled = false;
+                $('txtName').disabled = false;
+                setOptionsEnabled(false);
+                $('resultsBox').style.display = 'none';
+                alert('Loaded ' + totalQuestions + ' questions');
+                showQuestion(currentQuestionIndex);
+            } catch (e) {
+                console.error(e);
+                alert('Failed to parse CSV: ' + e.message);
+            }
+        }
+        function loadSampleQuestions() {
+            questions = [
+                   {
+                    "q": "Who is considered the first microscopist?",
+                    "opts": ["Robert Hooke", "Anton van Leeuwenhoek", "Zacharias Janssen", "Theodor Schwann"],
+                    "correctRaw": "Anton van Leeuwenhoek"
+                },
+                {
+                    "q": "What is the magnification power of Leeuwenhoek's microscope?",
+                    "opts": ["3x", "9x", "250x", "1000x"],
+                    "correctRaw": "250x"
+                },
+                {
+                    "q": "Which type of microscope uses a beam of electrons?",
+                    "opts": ["Light microscope", "Scanning microscope", "Electron microscope", "Compound microscope"],
+                    "correctRaw": "Electron microscope"
+                },
+                {
+                    "q": "What is the resolving power of a light microscope?",
+                    "opts": ["0.1 mm", "0.2 micrometer", "0.2 nanometer", "0.5 micrometer"],
+                    "correctRaw": "0.2 micrometer"
+                },
+                {
+                    "q": "Which type of microscope is used to view the internal cell structure?",
+                    "opts": ["Scanning Electron Microscope (SEM)", "Transmission Electron Microscope (TEM)", "Light microscope", "Compound microscope"],
+                    "correctRaw": "Transmission Electron Microscope (TEM)"
+                },
+                {
+                    "q": "What is the magnification of a Transmission Electron Microscope (TEM)?",
+                    "opts": ["10,000 times", "100,000 times", "250,000 times", "500,000 times"],
+                    "correctRaw": "250,000 times"
+                },
+                {
+                    "q": "Which scientist first observed cells with a microscope?",
+                    "opts": ["Anton van Leeuwenhoek", "Robert Hooke", "Carolus Linnaeus", "Theodor Schwann"],
+                    "correctRaw": "Robert Hooke"
+                },
+                {
+                    "q": "What did Robert Hooke observe under the microscope?",
+                    "opts": ["Animalcules", "Cork cells", "Bacteria", "Plant tissues"],
+                    "correctRaw": "Cork cells"
+                },
+                {
+                    "q": "What is the function of the cell wall?",
+                    "opts": ["Controls exchange of materials", "Provides shape, strength, protection, and support", "Produces energy", "Synthesizes proteins"],
+                    "correctRaw": "Provides shape, strength, protection, and support"
+                },
+                {
+                    "q": "What is the primary wall of the plant cell wall made of?",
+                    "opts": ["Chitin", "Cellulose", "Peptidoglycan", "Lignin"],
+                    "correctRaw": "Cellulose"
+                },
+                {
+                    "q": "What is the cell wall of fungi made of?",
+                    "opts": ["Cellulose", "Chitin", "Peptidoglycan", "Lignin"],
+                    "correctRaw": "Chitin"
+                },
+                {
+                    "q": "What is the outermost layer of the animal cell?",
+                    "opts": ["Cell wall", "Cell membrane", "Nuclear membrane", "Mitochondria"],
+                    "correctRaw": "Cell membrane"
+                },
+                {
+                    "q": "Which model is the most acceptable model of the cell membrane?",
+                    "opts": ["Unit Membrane Model", "Sandwich Model", "Mosaic Model", "Fluid Mosaic Model"],
+                    "correctRaw": "Fluid Mosaic Model"
+                },
+                {
+                    "q": "What is the cell membrane composed of?",
+                    "opts": ["Proteins only", "Lipids only", "Carbohydrates only", "Lipids and proteins"],
+                    "correctRaw": "Lipids and proteins"
+                },
+                {
+                    "q": "What is the aqueous substance containing cell organelles called?",
+                    "opts": ["Nucleoplasm", "Cytoplasm", "Cell sap", "Protoplasm"],
+                    "correctRaw": "Cytoplasm"
+                },
+                {
+                    "q": "What is the function of the cytoplasm?",
+                    "opts": ["Provides chemicals, site, and conditions for biochemical activities", "Controls exchange of materials", "Produces energy", "Synthesizes proteins"],
+                    "correctRaw": "Provides chemicals, site, and conditions for biochemical activities"
+                },
+                {
+                    "q": "What is the system of membranes found throughout the cell called?",
+                    "opts": ["Golgi apparatus", "Endoplasmic reticulum", "Mitochondria", "Lysosome"],
+                    "correctRaw": "Endoplasmic reticulum"
+                },
+                {
+                    "q": "What are the two types of Endoplasmic Reticulum?",
+                    "opts": ["Smooth and Rough", "Primary and Secondary", "Granular and Non-granular", "Inner and Outer"],
+                    "correctRaw": "Smooth and Rough"
+                },
+                {
+                    "q": "What is the function of the Smooth Endoplasmic Reticulum?",
+                    "opts": ["Protein synthesis", "Lipid formation and transportation", "Energy production", "Waste breakdown"],
+                    "correctRaw": "Lipid formation and transportation"
+                },
+                {
+                    "q": "What is the function of the Rough Endoplasmic Reticulum?",
+                    "opts": ["Protein synthesis", "Lipid formation and transportation", "Energy production", "Waste breakdown"],
+                    "correctRaw": "Protein synthesis"
+                },
+                {
+                    "q": "What is the function of the Golgi apparatus?",
+                    "opts": ["Protein synthesis", "Storage and conversion of secretions", "Energy production", "Waste breakdown"],
+                    "correctRaw": "Storage and conversion of secretions"
+                },
+                {
+                    "q": "What are the energy-producing organelles of the cell called?",
+                    "opts": ["Golgi apparatus", "Endoplasmic reticulum", "Mitochondria", "Lysosome"],
+                    "correctRaw": "Mitochondria"
+                },
+                {
+                    "q": "What is the inner membrane of mitochondria folded into?",
+                    "opts": ["Thylakoids", "Cisternae", "Cristae", "Granum"],
+                    "correctRaw": "Cristae"
+                },
+                {
+                    "q": "What are the tiny granules involved in protein synthesis called?",
+                    "opts": ["Golgi apparatus", "Endoplasmic reticulum", "Mitochondria", "Ribosomes"],
+                    "correctRaw": "Ribosomes"
+                },
+                {
+                    "q": "Where are ribosomes formed?",
+                    "opts": ["Golgi apparatus", "Endoplasmic reticulum", "Nucleolus", "Mitochondria"],
+                    "correctRaw": "Nucleolus"
+                },
+                {
+                    "q": "What are the membrane-bound organelles that contain pigments called?",
+                    "opts": ["Golgi apparatus", "Endoplasmic reticulum", "Mitochondria", "Plastids"],
+                    "correctRaw": "Plastids"
+                },
+                {
+                    "q": "What are the three types of plastids?",
+                    "opts": ["Chloroplast, Chromoplast, Leucoplast", "Chloroplast, Mitochondria, Ribosome", "Chromoplast, Golgi apparatus, Lysosome", "Leucoplast, Endoplasmic reticulum, Nucleus"],
+                    "correctRaw": "Chloroplast, Chromoplast, Leucoplast"
+                },
+                {
+                    "q": "What is the most important and abundant plastid?",
+                    "opts": ["Chromoplast", "Leucoplast", "Chloroplast", "Mitochondria"],
+                    "correctRaw": "Chloroplast"
+                },
+                {
+                    "q": "What is the function of chloroplasts?",
+                    "opts": ["Protein synthesis", "Energy production", "Photosynthesis", "Waste breakdown"],
+                    "correctRaw": "Photosynthesis"
+                },
+                {
+                    "q": "What is the semi-fluid present inside chloroplasts called?",
+                    "opts": ["Stroma", "Thylakoid", "Granum", "Matrix"],
+                    "correctRaw": "Stroma"
+                },
+                {
+                    "q": "What is the stack of thylakoids called?",
+                    "opts": ["Stroma", "Thylakoid", "Granum", "Matrix"],
+                    "correctRaw": "Granum"
+                },
+                {
+                    "q": "What is the function of chromoplasts?",
+                    "opts": ["Protein synthesis", "Energy production", "Photosynthesis", "Provide color to flowers and fruits"],
+                    "correctRaw": "Provide color to flowers and fruits"
+                },
+                {
+                    "q": "What is the function of leucoplasts?",
+                    "opts": ["Protein synthesis", "Energy production", "Photosynthesis", "Store food"],
+                    "correctRaw": "Store food"
+                },
+                {
+                    "q": "What is the network of filaments and tubules in the cytoplasm called?",
+                    "opts": ["Golgi apparatus", "Endoplasmic reticulum", "Cytoskeleton", "Mitochondria"],
+                    "correctRaw": "Cytoskeleton"
+                },
+                {
+                    "q": "What are the two components of the cytoskeleton?",
+                    "opts": ["Microfilaments and Microtubules", "Microfilaments and Ribosomes", "Microtubules and Golgi apparatus", "Microtubules and Lysosomes"],
+                    "correctRaw": "Microfilaments and Microtubules"
+                },
+                {
+                    "q": "What are the hollow and cylindrical organelles present in animal cells called?",
+                    "opts": ["Golgi apparatus", "Endoplasmic reticulum", "Centrioles", "Mitochondria"],
+                    "correctRaw": "Centrioles"
+                },
+                {
+                    "q": "What is the function of centrioles?",
+                    "opts": ["Protein synthesis", "Energy production", "Form spindle fibers during cell division", "Waste breakdown"],
+                    "correctRaw": "Form spindle fibers during cell division"
+                },
+                {
+                    "q": "What is the fluid-filled sac bounded by a single membrane called?",
+                    "opts": ["Golgi apparatus", "Endoplasmic reticulum", "Vacuole", "Lysosome"],
+                    "correctRaw": "Vacuole"
+                },
+                {
+                    "q": "What is the function of vacuoles in plant cells?",
+                    "opts": ["Protein synthesis", "Energy production", "Store water, salts, and other materials", "Waste breakdown"],
+                    "correctRaw": "Store water, salts, and other materials"
+                },
+                {
+                    "q": "What are the single membrane-bound organelles containing digestive enzymes called?",
+                    "opts": ["Golgi apparatus", "Endoplasmic reticulum", "Vacuole", "Lysosome"],
+                    "correctRaw": "Lysosome"
+                },
+                {
+                    "q": "What is the most important and visible part of a cell?",
+                    "opts": ["Golgi apparatus", "Endoplasmic reticulum", "Nucleus", "Mitochondria"],
+                    "correctRaw": "Nucleus"
+                },
+                {
+                    "q": "What is the nucleus bounded by?",
+                    "opts": ["Single membrane", "Double membrane", "Triple membrane", "No membrane"],
+                    "correctRaw": "Double membrane"
+                },
+                {
+                    "q": "What is the granular matrix inside the nucleus called?",
+                    "opts": ["Nucleoplasm", "Cytoplasm", "Cell sap", "Protoplasm"],
+                    "correctRaw": "Nucleoplasm"
+                },
+                {
+                    "q": "What are chromosomes made of?",
+                    "opts": ["RNA and lipids", "DNA and proteins", "RNA and proteins", "DNA and lipids"],
+                    "correctRaw": "DNA and proteins"
+                },
+                {
+                    "q": "What is the function of DNA in the nucleus?",
+                    "opts": ["Protein synthesis", "Energy production", "Controls all the activities of the cell", "Waste breakdown"],
+                    "correctRaw": "Controls all the activities of the cell"
+                },
+                {
+                    "q": "What is the difference between prokaryotic and eukaryotic cells?",
+                    "opts": ["Presence of nucleus", "Size of ribosomes", "Cell wall composition", "All of the above"],
+                    "correctRaw": "All of the above"
+                },
+                {
+                    "q": "Which cells lack membrane-bounded organelles?",
+                    "opts": ["Prokaryotic cells", "Eukaryotic cells", "Plant cells", "Animal cells"],
+                    "correctRaw": "Prokaryotic cells"
+                },
+                {
+                    "q": "Which cells have membrane-bounded organelles?",
+                    "opts": ["Prokaryotic cells", "Eukaryotic cells", "Plant cells", "Animal cells"],
+                    "correctRaw": "Eukaryotic cells"
+                },
+                {
+                    "q": "What is the size of prokaryotic ribosomes compared to eukaryotic ribosomes?",
+                    "opts": ["Larger", "Smaller", "Same size", "No ribosomes"],
+                    "correctRaw": "Smaller"
+                },
+                {
+                    "q": "What is the cell wall of prokaryotes composed of?",
+                    "opts": ["Cellulose", "Chitin", "Peptidoglycan", "Lignin"],
+                    "correctRaw": "Peptidoglycan"
+                },
+                {
+                    "q": "What is the size range of prokaryotic cells?",
+                    "opts": ["0.5 nm", "10-100 nm", "0.5-1.0 micrometer", "10-100 micrometer"],
+                    "correctRaw": "0.5-1.0 micrometer"
+                },
+                {
+                    "q": "What is the size range of eukaryotic cells?",
+                    "opts": ["0.5 nm", "10-100 nm", "0.5-1.0 micrometer", "10-100 micrometer"],
+                    "correctRaw": "10-100 micrometer"
+                },
+                {
+                    "q": "Which cells are examples of prokaryotes?",
+                    "opts": ["Bacteria and Cyanobacteria", "Plants and Animals", "Fungi and Protists", "Algae and Protozoa"],
+                    "correctRaw": "Bacteria and Cyanobacteria"
+                },
+                {
+                    "q": "Which cells are examples of eukaryotes?",
+                    "opts": ["Bacteria and Cyanobacteria", "Plants and Animals", "Fungi and Protists", "All of the above"],
+                    "correctRaw": "All of the above"
+                },
+                {
+                    "q": "What is the basic unit of structure and function of living organisms?",
+                    "opts": ["Organ", "Cell", "Tissue", "Organism"],
+                    "correctRaw": "Cell"
+                },
+                {
+                    "q": "What is the function of xylem cells in plants?",
+                    "opts": ["Conduct water", "Conduct food", "Photosynthesis", "Support"],
+                    "correctRaw": "Conduct water"
+                },
+                {
+                    "q": "What is the function of phloem cells in plants?",
+                    "opts": ["Conduct water", "Conduct food", "Photosynthesis", "Support"],
+                    "correctRaw": "Conduct food"
+                },
+                {
+                    "q": "What is the function of nerve cells in animals?",
+                    "opts": ["Conduct nerve impulses", "Conduct food", "Photosynthesis", "Support"],
+                    "correctRaw": "Conduct nerve impulses"
+                },
+                {
+                    "q": "What is the function of muscle cells in animals?",
+                    "opts": ["Conduct nerve impulses", "Contract and relax", "Photosynthesis", "Support"],
+                    "correctRaw": "Contract and relax"
+                },
+                {
+                    "q": "What is the function of red blood cells in animals?",
+                    "opts": ["Conduct nerve impulses", "Carry oxygen", "Photosynthesis", "Support"],
+                    "correctRaw": "Carry oxygen"
+                },
+                {
+                    "q": "What is the function of white blood cells in animals?",
+                    "opts": ["Conduct nerve impulses", "Carry oxygen", "Kill foreign agents", "Support"],
+                    "correctRaw": "Kill foreign agents"
+                },
+                {
+                    "q": "What is the function of bone cells in animals?",
+                    "opts": ["Conduct nerve impulses", "Carry oxygen", "Deposit calcium", "Support"],
+                    "correctRaw": "Deposit calcium"
+                },
+                {
+                    "q": "What is the shape of nerve cells?",
+                    "opts": ["Long", "Round", "Square", "Flat"],
+                    "correctRaw": "Long"
+                },
+                {
+                    "q": "What is the shape of xylem cells?",
+                    "opts": ["Long and tube-like", "Round", "Square", "Flat"],
+                    "correctRaw": "Long and tube-like"
+                },
+                {
+                    "q": "What is the shape of red blood cells?",
+                    "opts": ["Long", "Round and biconcave", "Square", "Flat"],
+                    "correctRaw": "Round and biconcave"
+                },
+                {
+                    "q": "What is the shape of root hair cells?",
+                    "opts": ["Long", "Round", "Large surface area", "Flat"],
+                    "correctRaw": "Large surface area"
+                },
+                {
+                    "q": "Which cells have more complex endoplasmic reticulum and Golgi apparatus?",
+                    "opts": ["Nerve cells", "Xylem cells", "Red blood cells", "Cells involved in making secretions"],
+                    "correctRaw": "Cells involved in making secretions"
+                },
+                {
+                    "q": "Which cells have chloroplasts?",
+                    "opts": ["Nerve cells", "Xylem cells", "Red blood cells", "Cells involved in photosynthesis"],
+                    "correctRaw": "Cells involved in photosynthesis"
+                },
+                {
+                    "q": "What is the function of cell membrane in maintaining equilibrium?",
+                    "opts": ["Controls exchange of materials", "Produces energy", "Synthesizes proteins", "Waste breakdown"],
+                    "correctRaw": "Controls exchange of materials"
+                },
+                {
+                    "q": "What is the movement of molecules from higher to lower concentration called?",
+                    "opts": ["Diffusion", "Osmosis", "Active transport", "FACILITATED DIFFUSION"],
+                    "correctRaw": "Diffusion"
+                },
+                {
+                    "q": "What is the movement of solvent through a semi-permeable membrane called?",
+                    "opts": ["Osmosis", "Active transport", "FACILITATED DIFFUSION", "Diffusion"],
+                    "correctRaw": "Osmosis"
+                },
+                {
+                    "q": "What is the movement of molecules against concentration gradient with energy expenditure called?",
+                    "opts": ["Osmosis", "Active transport", "FACILITATED DIFFUSION", "Diffusion"],
+                    "correctRaw": "Active transport"
+                },
+                {
+                    "q": "What is the process of bringing macromolecules into the cell called?",
+                    "opts": ["Exocytosis", "Endocytosis", "FACILITATED DIFFUSION", "Diffusion"],
+                    "correctRaw": "Endocytosis"
+                },
+                {
+                    "q": "What is the process of excreting materials from the cell called?",
+                    "opts": ["Exocytosis", "Endocytosis", "FACILITATED DIFFUSION", "Diffusion"],
+                    "correctRaw": "Exocytosis"
+                },
+                {
+                    "q": "What is the process of pushing small molecules across a membrane with hydrostatic pressure called?",
+                    "opts": ["Osmosis", "Active transport", "FILTRATION", "Diffusion"],
+                    "correctRaw": "FILTRATION"
+                },
+                {
+                    "q": "What is the pressure exerted by cytoplasm against the cell wall called?",
+                    "opts": ["Turgor pressure", "Osmotic pressure", "Hydrostatic pressure", "Atmospheric pressure"],
+                    "correctRaw": "Turgor pressure"
+                },
+                {
+                    "q": "What is the shrinking of cytoplasm away from the cell wall called?",
+                    "opts": ["Plasmolysis", "Deplasmolysis", "Turgor", "Osmosis"],
+                    "correctRaw": "Plasmolysis"
+                },
+                {
+                    "q": "What is the group of similar cells performing a common function called?",
+                    "opts": ["Organ", "Cell", "Tissue", "Organism"],
+                    "correctRaw": "Tissue"
+                },
+                {
+                    "q": "What is the group of cells in Volvox called?",
+                    "opts": ["Organ", "Cell", "Colony", "Tissue"],
+                    "correctRaw": "Colony"
+                },
+                {
+                    "q": "What are the two major groups of plant tissues?",
+                    "opts": ["Simple and Compound", "Primary and Secondary", "Meristematic and Permanent", "Epidermal and Ground"],
+                    "correctRaw": "Meristematic and Permanent"
+                },
+                {
+                    "q": "What are meristematic tissues responsible for?",
+                    "opts": ["Growth", "Support", "Photosynthesis", "Conduction"],
+                    "correctRaw": "Growth"
+                },
+                {
+                    "q": "What are the two types of meristematic tissues?",
+                    "opts": ["Apical and Lateral", "Primary and Secondary", "Epidermal and Ground", "Xylem and Phloem"],
+                    "correctRaw": "Apical and Lateral"
+                },
+                {
+                    "q": "What is the function of apical meristem?",
+                    "opts": ["Increase in thickness", "Increase in length", "Support", "Photosynthesis"],
+                    "correctRaw": "Increase in length"
+                },
+                {
+                    "q": "What is the function of lateral meristem?",
+                    "opts": ["Increase in thickness", "Increase in length", "Support", "Photosynthesis"],
+                    "correctRaw": "Increase in thickness"
+                },
+                {
+                    "q": "What is the outer protective covering of plants called?",
+                    "opts": ["Epidermal tissue", "Ground tissue", "Supporting tissue", "Vascular tissue"],
+                    "correctRaw": "Epidermal tissue"
+                },
+                {
+                    "q": "What is the function of stomata in leaves?",
+                    "opts": ["Gaseous exchange", "Water absorption", "Food storage", "Support"],
+                    "correctRaw": "Gaseous exchange"
+                },
+                {
+                    "q": "What is the tissue present in all parts of the plant except epidermal and vascular tissue called?",
+                    "opts": ["Epidermal tissue", "Ground tissue", "Supporting tissue", "Vascular tissue"],
+                    "correctRaw": "Ground tissue"
+                },
+                {
+                    "q": "What are the cells of ground tissue called?",
+                    "opts": ["Epidermal cells", "Parenchyma cells", "Collenchyma cells", "Sclerenchyma cells"],
+                    "correctRaw": "Parenchyma cells"
+                },
+                {
+                    "q": "What is the function of parenchyma cells?",
+                    "opts": ["Store food", "Support", "Photosynthesis", "Conduction"],
+                    "correctRaw": "Store food"
+                },
+                {
+                    "q": "What is the function of collenchyma tissue?",
+                    "opts": ["Store food", "Support", "Photosynthesis", "Conduction"],
+                    "correctRaw": "Support"
+                },
+                {
+                    "q": "What is the function of sclerenchyma tissue?",
+                    "opts": ["Store food", "Support", "Photosynthesis", "Conduction"],
+                    "correctRaw": "Support"
+                },
+                {
+                    "q": "What are the two types of compound tissues in plants?",
+                    "opts": ["Xylem and Phloem", "Epidermal and Ground", "Apical and Lateral", "Meristematic and Permanent"],
+                    "correctRaw": "Xylem and Phloem"
+                },
+                {
+                    "q": "What is the function of xylem tissue?",
+                    "opts": ["Conduct water", "Conduct food", "Photosynthesis", "Support"],
+                    "correctRaw": "Conduct water"
+                },
+                {
+                    "q": "What is the function of phloem tissue?",
+                    "opts": ["Conduct water", "Conduct food", "Photosynthesis", "Support"],
+                    "correctRaw": "Conduct food"
+                },
+                {
+                    "q": "What are the four major types of animal tissues?",
+                    "opts": ["Epithelial, Connective, Muscular, Nervous", "Epidermal, Ground, Supporting, Vascular", "Apical, Lateral, Meristematic, Permanent", "Xylem, Phloem, Parenchyma, Collenchyma"],
+                    "correctRaw": "Epithelial, Connective, Muscular, Nervous"
+                },
+                {
+                    "q": "What is the function of epithelial tissue?",
+                    "opts": ["Protection", "Support", "Conduction", "Photosynthesis"],
+                    "correctRaw": "Protection"
+                },
+                {
+                    "q": "What is the function of connective tissue?",
+                    "opts": ["Protection", "Support", "Conduction", "Photosynthesis"],
+                    "correctRaw": "Support"
+                },
+                {
+                    "q": "What is the function of muscular tissue?",
+                    "opts": ["Protection", "Movement", "Conduction", "Photosynthesis"],
+                    "correctRaw": "Movement"
+                },
+                {
+                    "q": "What is the function of nervous tissue?",
+                    "opts": ["Protection", "Support", "Conduction", "Photosynthesis"],
+                    "correctRaw": "Conduction"
+                },
+                {
+                    "q": "In which year did Robert Hooke first observe cells under a microscope?",
+                    "opts": ["1660", "1665", "1670", "1675"],
+                    "correctRaw": "1665"
+                },
+                {
+                    "q": "Which scientist discovered 'animalcules' in a drop of water?",
+                    "opts": ["Robert Hooke", "Anton van Leeuwenhoek", "Zacharias Janssen", "Theodor Schwann"],
+                    "correctRaw": "Anton van Leeuwenhoek"
+                },
+                {
+                    "q": "What is the magnification range of the first microscope developed by Zacharias Janssen?",
+                    "opts": ["3x to 9x", "10x to 20x", "50x to 100x", "200x to 300x"],
+                    "correctRaw": "3x to 9x"
+                },
+                {
+                    "q": "Which type of microscope uses magnetic lenses to focus the electron beam?",
+                    "opts": ["Light microscope", "Scanning microscope", "Electron microscope", "Compound microscope"],
+                    "correctRaw": "Electron microscope"
+                },
+                {
+                    "q": "What is the resolving power of a Transmission Electron Microscope (TEM)?",
+                    "opts": ["0.1 mm", "0.2 micrometer", "0.2 nanometer", "0.5 micrometer"],
+                    "correctRaw": "0.2 nanometer"
+                },
+                {
+                    "q": "Which scientist proposed the cell theory?",
+                    "opts": ["Robert Hooke", "Anton van Leeuwenhoek", "Mathias Schleiden and Theodor Schwann", "Carolus Linnaeus"],
+                    "correctRaw": "Mathias Schleiden and Theodor Schwann"
+                },
+                {
+                    "q": "What is the primary function of the cell wall in plant cells?",
+                    "opts": ["Producing energy", "Controlling exchange of materials", "Providing shape, strength, and support", "Synthesizing proteins"],
+                    "correctRaw": "Providing shape, strength, and support"
+                },
+                {
+                    "q": "Which component of the cell membrane is responsible for its fluidity?",
+                    "opts": ["Proteins", "Carbohydrates", "Lipids", "Nucleic acids"],
+                    "correctRaw": "Lipids"
+                },
+                {
+                    "q": "What is the primary function of the nucleus in a cell?",
+                    "opts": ["Producing energy", "Controlling exchange of materials", "Storing genetic information", "Synthesizing proteins"],
+                    "correctRaw": "Storing genetic information"
+                },
+                {
+                    "q": "Which organelle is responsible for the synthesis of ATP?",
+                    "opts": ["Golgi apparatus", "Mitochondria", "Ribosome", "Nucleus"],
+                    "correctRaw": "Mitochondria"
+                },
+                {
+                    "q": "What is the function of the nucleolus?",
+                    "opts": ["Producing energy", "Synthesizing ribosomal RNA", "Storing genetic information", "Controlling exchange of materials"],
+                    "correctRaw": "Synthesizing ribosomal RNA"
+                },
+                {
+                    "q": "Which organelle is responsible for the detoxification of harmful substances in the cell?",
+                    "opts": ["Golgi apparatus", "Peroxisome", "Ribosome", "Nucleus"],
+                    "correctRaw": "Peroxisome"
+                },
+                {
+                    "q": "What is the function of the nuclear envelope?",
+                    "opts": ["Producing energy", "Synthesizing proteins", "Separating the nucleus from the cytoplasm", "Storing genetic information"],
+                    "correctRaw": "Separating the nucleus from the cytoplasm"
+                },
+                {
+                    "q": "Which organelle is responsible for the modification and packaging of proteins?",
+                    "opts": ["Golgi apparatus", "Mitochondria", "Ribosome", "Nucleus"],
+                    "correctRaw": "Golgi apparatus"
+                },
+                {
+                    "q": "What is the function of the chromatin in the nucleus?",
+                    "opts": ["Producing energy", "Synthesizing proteins", "Storing genetic information", "Controlling exchange of materials"],
+                    "correctRaw": "Storing genetic information"
+                },
+                {
+                    "q": "Which organelle is responsible for the digestion of cellular waste?",
+                    "opts": ["Golgi apparatus", "Lysosome", "Ribosome", "Nucleus"],
+                    "correctRaw": "Lysosome"
+                },
+                {
+                    "q": "What is the function of the centromere in a chromosome?",
+                    "opts": ["Producing energy", "Synthesizing proteins", "Holding sister chromatids together", "Storing genetic information"],
+                    "correctRaw": "Holding sister chromatids together"
+                },
+                {
+                    "q": "Which organelle is responsible for the formation of the mitotic spindle during cell division?",
+                    "opts": ["Golgi apparatus", "Centriole", "Ribosome", "Nucleus"],
+                    "correctRaw": "Centriole"
+                },
+                {
+                    "q": "What is the function of the nucleoplasm in the nucleus?",
+                    "opts": ["Producing energy", "Synthesizing proteins", "Providing a medium for the suspension of organelles", "Storing genetic information"],
+                    "correctRaw": "Providing a medium for the suspension of organelles"
+                },
+                {
+                    "q": "Which organelle is responsible for the production of hydrogen peroxide in the cell?",
+                    "opts": ["Golgi apparatus", "Peroxisome", "Ribosome", "Nucleus"],
+                    "correctRaw": "Peroxisome"
+                },
+                {
+                    "q": "What is the function of the histones in the nucleus?",
+                    "opts": ["Producing energy", "Synthesizing proteins", "Packaging DNA into nucleosomes", "Storing genetic information"],
+                    "correctRaw": "Packaging DNA into nucleosomes"
+                },
+                {
+                    "q": "Which organelle is responsible for the synthesis of steroid hormones in the cell?",
+                    "opts": ["Golgi apparatus", "Smooth Endoplasmic Reticulum", "Ribosome", "Nucleus"],
+                    "correctRaw": "Smooth Endoplasmic Reticulum"
+                },
+                {
+                    "q": "What is the function of the kinetochore in a chromosome?",
+                    "opts": ["Producing energy", "Synthesizing proteins", "Attaching spindle fibers during cell division", "Storing genetic information"],
+                    "correctRaw": "Attaching spindle fibers during cell division"
+                },
+                {
+                    "q": "Which organelle is responsible for the storage of calcium ions in the cell?",
+                    "opts": ["Golgi apparatus", "Smooth Endoplasmic Reticulum", "Ribosome", "Nucleus"],
+                    "correctRaw": "Smooth Endoplasmic Reticulum"
+                },
+                {
+                    "q": "What is the function of the satellite DNA in a chromosome?",
+                    "opts": ["Producing energy", "Synthesizing proteins", "Involvement in the formation of the nucleolus", "Storing genetic information"],
+                    "correctRaw": "Involvement in the formation of the nucleolus"
+                },
+                {
+                    "q": "Which organelle is responsible for the glycosylation of proteins in the cell?",
+                    "opts": ["Golgi apparatus", "Rough Endoplasmic Reticulum", "Ribosome", "Nucleus"],
+                    "correctRaw": "Golgi apparatus"
+                },
+                {
+                    "q": "What is the function of the heterochromatin in the nucleus?",
+                    "opts": ["Producing energy", "Synthesizing proteins", "Genetically inactive and highly condensed", "Storing genetic information"],
+                    "correctRaw": "Genetically inactive and highly condensed"
+                },
+                {
+                    "q": "Which organelle is responsible for the synthesis of membrane lipids in the cell?",
+                    "opts": ["Golgi apparatus", "Smooth Endoplasmic Reticulum", "Ribosome", "Nucleus"],
+                    "correctRaw": "Smooth Endoplasmic Reticulum"
+                },
+                {
+                    "q": "What is the function of the euchromatin in the nucleus?",
+                    "opts": ["Producing energy", "Synthesizing proteins", "Genetically active and less condensed", "Storing genetic information"],
+                    "correctRaw": "Genetically active and less condensed"
+                },
+                {
+                    "q": "Which organelle is responsible for the formation of vesicles in the cell?",
+                    "opts": ["Golgi apparatus", "Mitochondria", "Ribosome", "Nucleus"],
+                    "correctRaw": "Golgi apparatus"
+                },
+        ],
+            totalQuestions = questions.length;
+            currentQuestionIndex = 0;
+            showQuestion(currentQuestionIndex);
+            // Reset quiz state when new questions are loaded
+            quizStarted = false;
+            $('startBtn').disabled = false;
+            $('txtName').disabled = false;
+            setOptionsEnabled(false);
+            $('resultsBox').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
