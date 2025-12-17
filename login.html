@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Login</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ... (Your existing CSS is here, unchanged) ... */
         * {
             margin: 0;
             padding: 0;
@@ -66,14 +64,6 @@
         button:active {
             transform: scale(0.95);
         }
-        .oauth-button {
-            background: #4285F4; /* Google Blue */
-            border: 1px solid #4285F4;
-            margin-top: 10px;
-        }
-        .oauth-button:hover {
-            background: #357ae8;
-        }
         a {
             color: #333;
             font-size: 14px;
@@ -112,15 +102,6 @@
             margin: 5px;
             padding: 8px 15px;
             font-size: 12px;
-            border-radius: 5px;
-            background-color: #439bfd;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .modal-content button:hover {
-            background-color: #2874f0;
         }
     </style>
 </head>
@@ -133,10 +114,7 @@
             <a href="#">Forgot your password?</a>
             <button type="submit">Sign In</button>
         </form>
-        
-        <button id="googleLogin" class="oauth-button">Sign in with Google</button>
-
-        <a href="register.html" class="switch-link">Don't have an account? <strong>Register here</strong></a>
+        <a href="registration.html" class="switch-link">Don't have an account? **Register here**</a>
         <a href="index.html" class="switch-link">Back to Home</a>
     </div>
     <div id="courseModal" class="modal">
@@ -146,107 +124,47 @@
         </div>
     </div>
     <script>
-        // 2. Wrap ALL JavaScript code to ensure the HTML elements are loaded first.
-        document.addEventListener('DOMContentLoaded', () => {
-            const supabaseUrl = 'https://dzvnkuoobchintgcvdbd.supabase.co';
-            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6dm5rdW9vYmNoaW50Z2N2ZGJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyODE2OTgsImV4cCI6MjA3ODg1NzY5OH0.8U2fdlLUpnog-kJFo_lXonYujy5mnFy8WXIDxAUVsKU';
-            
-            // !!! IMPORTANT: The browser error likely happens here if the CDN failed to load.
-            const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const userData = JSON.parse(localStorage.getItem(email));
 
-            // --- Configuration Check ---
-            // REPLACE THIS with your exact application URL.
-            const OAUTH_REDIRECT_URL = 'YOUR_APP_URL/auth/callback'; 
-            
-            // Centralized function to run after ANY successful login (Email/Password or OAuth)
-            async function handleSuccessfulLogin(userId, email) {
-                // 1. Fetch User's Paid Courses
-                const { data: userCourses, error: coursesError } = await supabase
-                    .from('user_courses')
-                    .select('course_id, courses(value, name)')
-                    .eq('user_id', userId)
-                    .eq('is_paid', true);
-
-                if (coursesError) {
-                    alert('Error fetching your courses.');
-                    console.error(coursesError);
-                    return;
-                }
-
-                if (!userCourses || userCourses.length === 0) {
-                    alert('Login successful, but you have no paid courses enrolled. Sending you to the home page.');
-                    window.location.href = 'index.html';
-                    return;
-                }
-
-                // 2. Store user data in localStorage
-                const userData = {
-                    email: email,
-                    courses: userCourses.map(course => course.course_id)
-                };
-                localStorage.setItem('loggedInUser', email);
-                localStorage.setItem(email, JSON.stringify(userData));
-
-                // 3. Display Course Selection Modal
-                const modal = document.getElementById('courseModal');
-                const courseOptions = document.getElementById('courseOptions');
-                courseOptions.innerHTML = '';
-
-                userCourses.forEach(courseEntry => {
-                    const course = courseEntry.courses;
-                    if (!course) return;
-
-                    const button = document.createElement('button');
-                    button.textContent = course.name;
-                    button.onclick = () => {
-                        modal.style.display = 'none';
-                        // Using template literal for cleaner URL construction
-                        window.location.href = `${course.value}.html`; 
-                    };
-                    courseOptions.appendChild(button);
-                });
-
-                // Show the modal to select a course
-                modal.style.display = 'flex';
+            if (!userData || userData.password !== password) {
+                alert('Invalid email or password.');
+                return;
             }
-            
-            // --- ATTACH EVENT LISTENERS ---
 
-            // A. Email/Password Login
-            document.getElementById('loginForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const email = document.getElementById('email').value.trim();
-                const password = document.getElementById('password').value;
+            localStorage.setItem('loggedInUser', email);
+            const modal = document.getElementById('courseModal');
+            const courseOptions = document.getElementById('courseOptions');
+            courseOptions.innerHTML = '';
 
-                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password,
-                });
+            // Map course values to full names
+            const courseNames = {
+                '9th': 'Class 9th (Science)',
+                '10th': 'Class 10th (Science)',
+                '1styear': 'First Year (F.Sc)',
+                '2nyear': 'Second Year (F.Sc)',
+                'cadet': 'Cadet Preparation',
+                'mdcat': 'MDCAT Preparation' // Ensure 'mdcat' is mapped
+            };
 
-                if (authError) {
-                    alert(`Login Failed: ${authError.message}`);
-                    return;
-                }
-                
-                handleSuccessfulLogin(authData.user.id, email);
+            // Debug: Log the courses to check if 'mdcat' is included
+            console.log("User courses:", userData.courses);
+
+            userData.courses.forEach(course => {
+                const button = document.createElement('button');
+                button.textContent = courseNames[course] || course;
+                button.onclick = () => {
+                    modal.style.display = 'none';
+                    window.location.href = `${course}.html`;
+                };
+                courseOptions.appendChild(button);
             });
 
-            // B. OAuth Login
-            document.getElementById('googleLogin').addEventListener('click', async function() {
-                const { data, error } = await supabase.auth.signInWithOAuth({
-                    provider: 'google',
-                    options: {
-                        redirectTo: OAUTH_REDIRECT_URL 
-                    }
-                });
-
-                if (error) {
-                    alert(`OAuth Login Failed: ${error.message}`);
-                    console.error(error);
-                }
-            });
-
-        }); // End of DOMContentLoaded
+            modal.style.display = 'flex';
+        });
     </script>
 </body>
 </html>
